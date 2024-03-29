@@ -18,6 +18,12 @@
 namespace Game
 {
 
+CharacterBasic* CharacterBasic::create(HZDCharacterDef* networkDef)
+{
+    // todo: do something
+    return nullptr;
+
+}
   
 //----------------------------------------------------------------------------------------------------------------------
 CharacterBasic* CharacterBasic::create(CharacterDefBasic* networkDef)
@@ -285,6 +291,5 @@ bool CharacterBasic::term()
 
   return true;
 }
-
 
 } // namespace Game

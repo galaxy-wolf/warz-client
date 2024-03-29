@@ -126,6 +126,31 @@ void CharacterManagerBasic::registerCharacterDef(CharacterDefBasic* characterDef
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+// Creates a CharacterDef and registers it with the manager.
+HZDCharacterDef* CharacterManagerBasic::createHZDCharacterDef(const char* filename)
+{
+  Game::HZDCharacterDef* gameCharacterDef = Game::HZDCharacterDef::create(filename);
+  if (!gameCharacterDef || !gameCharacterDef->isLoaded())
+  {
+    NMP_STDOUT("gameCharacterDef %s was not loaded successfully.", filename);
+    NMP_ASSERT_FAIL();
+    return NULL;
+  }
+  registerHZDCharacterDef(gameCharacterDef); // The management of this gameCharacterDefs memory is is this CharacterManagers responsibility.
+  return gameCharacterDef;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void CharacterManagerBasic::registerHZDCharacterDef(HZDCharacterDef* characterDef)
+{
+  NMP_STDOUT("\nRegistering CharacterDef with Game::CharacterManagerBasic");
+
+  //----------------------------
+  // store a pointer to the character for use later
+  m_HZD_characterDef = characterDef;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 void CharacterManagerBasic::registerCharacter(CharacterBasic* characterData)
 { 
   NMP_STDOUT("\nRegistering CharacterData with Game::CharacterManagerBasic");

@@ -1,0 +1,8 @@
+{
+	"files.associations": {
+		"*.usf": "hlsl",
+		"*.ush": "hlsl",
+		"xiosbase": "cpp",
+		"*.module": "cpp"
+	}
+}

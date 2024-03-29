@@ -66,6 +66,17 @@ public:
   void registerCharacter(CharacterBasic* character);
 
   //----------------------------
+  // Create and initialise a CharacterDef; loading its assets a specified simple bundle source file.
+  //
+  // CharacterDefs that are created via the Manager are automatically registered with the manager
+  //  and the memory management of the Character remains the responsibility of the Manager.
+  HZDCharacterDef* createHZDCharacterDef(const char* filename );  //< Name of simple bundle file where we should try and load this characters assets from.
+
+  //----------------------------
+  // Stores a pointer to a characterDef. This allows Game::GameCharacterManager to manage this character definition.
+  void registerHZDCharacterDef(HZDCharacterDef* characterDef);
+
+  //----------------------------
   // Update any networks that are available
   void update(float timeDelta);
 
@@ -73,6 +84,8 @@ protected:
 
   CharacterDefBasic* m_characterDef;   // Store a pointer to a morpheme character definition
   CharacterBasic*    m_characterData;  // Store a pointer to a morpheme character
+
+  HZDCharacterDef* m_HZD_characterDef;   // Store a pointer to a morpheme character definition
 };
 
 

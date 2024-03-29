@@ -156,6 +156,116 @@ protected:
   NMP::Memory::Resource bufferResource;
 };
 
+
+//----------------------------------------------------------------------------------------------------------------------
+/// \struct HZDBundleHeader
+/// \brief Format of header of each block of data
+/// \ingroup AssetCompilerModule
+///
+/// This is a very simple system for packaging up and labeling binary data.
+/// A bundle file is simply a series of these header structs followed by the appropriate
+/// amount of data.
+//----------------------------------------------------------------------------------------------------------------------
+struct HZDBundleHeader
+{
+  uint32_t               m_unknown1; ///<   don't know it
+  uint32_t               m_unknown2;   ///< don't know it
+  uint32_t               m_size;        // bundle memory size
+
+  /// \brief Endian swaps the header when assets are being generated for platforms
+  /// that have different endianness to the current platform.
+  void endianSwap();
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+inline void HZDBundleHeader::endianSwap()
+{
+  NMP::endianSwap(m_unknown1);
+  NMP::endianSwap(m_unknown2);
+  NMP::endianSwap(m_size);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+/// \class HZDBundleWriter
+/// \brief Class to use to create bundle files.
+/// \ingroup AssetCompilerModule
+///
+/// Once a FILE * has been created, this class will write HZDBundleHeader
+/// objects and handle padding for every call to write.  The writer will
+/// produce binaries of the correct endianness of the target platform
+/// specified by the NM_TARGET_BIGENDIAN define.  This means that the
+/// HZDBundleReader function will generally not need to endian swap the data.
+/// Asset alignment greater than 128 is not supported.
+//----------------------------------------------------------------------------------------------------------------------
+/*
+class HZDBundleWriter
+{
+public:
+  HZDBundleWriter(FILE* stream);
+  HZDBundleWriter();
+
+  void init(FILE* stream);
+
+  /// Write an asset of given type, ID and guid, with data specified by buffer and bufferlength, to the bundlewriter's
+  ///  output stream.
+  bool writeAsset(
+    MR::Manager::AssetType     assetType,
+    uint32_t                   assetID,
+    const uint8_t*             guid,
+    const void*                asset,       ///< Asset to write.
+    const NMP::Memory::Format& assetMemReqs ///< Memory requirements of the asset to write.
+  );
+
+protected:
+
+  bool padStreamToAlignment(size_t alignment);
+
+  /// Convert ascii-form guid to binary
+  void guidTextToBinary(const char* guidText, uint8_t* guidBinary);
+
+  /// Convert a pair of ascii hex characters to their byte value; c1 representing the most significant four bits
+  uint8_t convertAsciiHexPair(char c1, char c2);
+
+  /// Convert ascii representation of a hex digit to its actual value, returning 0 for unknowns
+  uint8_t asciiHexToValue(char symbol);
+
+  FILE*      m_stream;            ///< Output stream to write to.
+};
+*/
+
+//----------------------------------------------------------------------------------------------------------------------
+/// \class HZDBundleReader
+/// \brief Handles reading in of a bundle, and iterating through all objects inside.
+/// \ingroup AssetCompilerModule
+///
+/// Runtime targets will not need to perform any endian swapping on the data,
+/// as the HZDBundleWriter will have generated binary assets of the correct
+/// endianness.  The one exception where the HZDBundleReader function does
+/// have to perform endian swapping is where it is being used connect-side to
+/// read in an asset created for a target platform.
+/// Asset alignment greater than 128 is not supported.
+//----------------------------------------------------------------------------------------------------------------------
+class HZDBundleReader
+{
+public:
+
+  /// Construct and initialise.
+  HZDBundleReader(
+    void*   buffer,     ///< Must be 128 byte aligned.
+    size_t  bufferSize);
+
+  /// Read an asset from the bundleReader's buffer, setting the type, ID, guid and object data/size of the asset.
+  /// This advances the reading position of the internal buffer.
+  bool readNextAsset(
+    uint32_t&               unkown1,
+    uint32_t&               unkown2,
+    void*&                  asset,       ///< Read asset.
+    size_t&                 size);
+
+protected:
+  NMP::Memory::Resource bufferResource;
+};
+
 } // namespace UTILS
 
 } // namespace MR

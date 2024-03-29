@@ -36,6 +36,7 @@ public:
   
   ~CharacterBasic() {};
 
+  static CharacterBasic* create(HZDCharacterDef* networkDef);
   //----------------------------
   // Static function to create an instance of a morpheme network (GameCharacter)
   static CharacterBasic* create(CharacterDefBasic* gameCharacterDef);
@@ -101,6 +102,7 @@ protected:
 
   NMP::Memory::Resource   m_bufferMemory;
 };
+
 
 
 } // namespace Game

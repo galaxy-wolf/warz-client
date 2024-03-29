@@ -26,6 +26,13 @@ namespace Game
 class AssetLoaderBasic
 {
 public:
+  //----------------------------
+  // parse core file for HDZ 
+  static void ParseCoreFile(
+    void*     buffer,
+    size_t    bufferSize);
+
+
 
   //----------------------------
   // Evaluate the asset requirements for the network stored in a simple bundle. This will allow us to create arrays large
@@ -50,6 +57,57 @@ public:
     uint32_t         NMP_USED_FOR_ASSERTS(numRegisteredAssets),
     uint32_t         NMP_USED_FOR_ASSERTS(numClientAssets),
     MR::UTILS::SimpleAnimRuntimeIDtoFilenameLookup*& animFileLookup);
+
+  //----------------------------
+  // This unloads the objects loaded in the GameAnimModule::loadBundle. We could avoid an iteration over the bundle file
+  // by reusing object count information from the loadBundle() functions but this function has been designed to be
+  // self-contained.
+  static void unLoadBundle(
+    const uint32_t* registeredAssetIDs,
+    uint32_t        numRegisteredAssets,
+    void* const*    clientAssets,
+    uint32_t        numClientAssets);
+
+};
+
+class HZDAssetLoader
+{
+public:
+  //----------------------------
+  // parse core file for HDZ 
+  static void ParseCoreFile(
+    void*     buffer,
+    size_t    bufferSize);
+
+
+
+  ////----------------------------
+  //// Evaluate the asset requirements for the network stored in a simple bundle. This will allow us to create arrays large
+  //// enough to store the assets
+  //static void evalBundleRequirements(
+  //  uint32_t& numRegisteredAssets,
+  //  uint32_t& numClientAssets,
+  //  void*     buffer,
+  //  size_t    bufferSize);
+
+  //----------------------------
+  // This function iterates through the objects in a simple bundle and registers them with the morpheme runtime library.
+  // It passes back a pointer to the (last) networkDefinition found in the bundle. This function is very simple and
+  // simply fixes up the objects in-place, inside the bundle.
+  //
+  // This would be replaced with your own bundle loader and unloader if you do not use the simple bundle file format.
+  //static MR::NetworkDef* loadBundle(
+  //  void*            bundle,
+  //  size_t           bundleSize,
+  //  uint32_t*        registeredAssetIDs,
+  //  void**           clientAssets,
+  //  uint32_t         NMP_USED_FOR_ASSERTS(numRegisteredAssets),
+  //  uint32_t         NMP_USED_FOR_ASSERTS(numClientAssets),
+  //  MR::UTILS::SimpleAnimRuntimeIDtoFilenameLookup*& animFileLookup);
+
+  static MR::NetworkDef* HZDAssetLoader::loadBundle(
+      void* bundle,
+      size_t           bundleSize);
 
   //----------------------------
   // This unloads the objects loaded in the GameAnimModule::loadBundle. We could avoid an iteration over the bundle file

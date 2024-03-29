@@ -272,6 +272,119 @@ bool SimpleBundleReader::readNextAsset(
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+// HZDBundleReader
+//----------------------------------------------------------------------------------------------------------------------
+HZDBundleReader::HZDBundleReader(void* buffer, size_t bufferSize)
+{
+  // We enforce 16 byte alignment of the buffer so that the alignment of assets within the buffer can be assured.
+  // Asset alignment greater than 16 is not supported however.
+  NMP_ASSERT(NMP_IS_ALIGNED(buffer, NMP_VECTOR_ALIGNMENT));
+  bufferResource.ptr = buffer;
+  bufferResource.format.alignment = NMP_VECTOR_ALIGNMENT;
+  bufferResource.format.size = bufferSize;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool HZDBundleReader::readNextAsset(
+    uint32_t&               unkown1,
+    uint32_t&               unkown2,
+    void*&                  asset,       ///< Read asset.
+    size_t&                 size)
+{
+  NMP_ASSERT(bufferResource.ptr);
+  // NMP_ASSERT(NMP_IS_ALIGNED(bufferResource.ptr, NMP_NATURAL_TYPE_ALIGNMENT));
+  //  At this point, the m_buffer pointer is pointing to a 'header' object
+  // or has reached the end of the file.  We bail out here if we have reached
+  // the end of the file (the last asset).  We must take into account the
+  // padding that the alignment settings in the allocAndLoad() function uses in
+  // the default runtime
+  if (bufferResource.format.size <= sizeof(HZDBundleHeader))
+  {
+    NM_LOG_MESSAGE(g_SBLogger, SB_MESSAGE_PRIORITY, "Simple bundle - Normal reading completion\n");
+    return false;
+  }
+
+  // Get a 'header' pointer fixed at m_buffer location
+  HZDBundleHeader* header = (HZDBundleHeader*)bufferResource.ptr;
+
+  // Endian swap the data. The asset compiler will produce binary assets of the correct endianness for the target
+  // platform (as described in the notes for the simple bundle writer function). This means that the following
+  // function will, in normal operation on a console, do nothing.
+  // The exception would be if morpheme needed to read a binary asset that was created for a console.  This is where the following
+  // is needed.
+  header->endianSwap();
+  // NM_LOG_MESSAGE(g_SBLogger, SB_MESSAGE_PRIORITY, "  Reading asset from simple bundle. AssetID: %X\n", header->m_assetID);
+
+  // Check that this asset is for the correct platform and is not from a previous version of the runtime.
+  //if (header->m_platformFmt != MR::Manager::getTargetPlatformAssetFmt())
+  //{
+  //  NM_LOG_ERROR_MESSAGE(g_SBLogger, "Failed reading: Asset is for incorrect platform format. Check you are using the correct asset compiler.\n");
+  //  NM_LOG_ERROR_MESSAGE(g_SBLogger, "Failed reading: This platform requires assets in %s format.\n", NM_PLATFORM_FORMAT_STRING);
+  //  // MORPH-15912 There should be a better way of reporting this error than a forced break at this point.
+  //  NM_BREAK();
+  //  return false;
+  //}
+
+  //if (header->m_binaryVersion != MR::Manager::getRuntimeBinaryVersion())
+  //{
+  //  NM_LOG_ERROR_MESSAGE(g_SBLogger, "Failed reading: Asset is for incorrect runtime version. Check you are using the correct asset compiler.\n");
+  //  NM_LOG_ERROR_MESSAGE(g_SBLogger, "Failed reading: Asset type %u is version %i; runtime library is version %i.\n", header->m_assetType, header->m_binaryVersion, MR::Manager::getRuntimeBinaryVersion());
+  //  // MORPH-15912 There should be a better way of reporting this error than a forced break at this point.
+  //  NM_BREAK();
+  //  return false;
+  //}
+
+  //NMP_ASSERT(header->m_assetMemReqs.alignment >= NMP_NATURAL_TYPE_ALIGNMENT);
+
+  //if (header->m_assetMemReqs.alignment > bufferResource.format.alignment)
+  //{
+  //  NM_LOG_MESSAGE(
+  //    g_SBLogger,
+  //    SB_MESSAGE_PRIORITY,
+  //    "  The alignment requirements of the asset (%i) can not be greater than the overall alignment of the source file buffer (%i)\n",
+  //    header->m_assetMemReqs.alignment,
+  //    bufferResource.format.alignment);
+  //  return false;
+  //}
+
+  // Move the buffer pointer on to a point immediately after the header
+  // object and reduce the 'm_bufferLength' (which is really the amount of
+  // buffer left to go before the end) by the header size.  The buffer pointer
+  // should be pointing to the first byte of the asset itself.
+  bufferResource.increment(sizeof(HZDBundleHeader));
+  // bufferResource.align(header->m_assetMemReqs.alignment);
+
+  // Bail out here if the remaining buffer area is less than what the header
+  // says this asset should be (meaning: the file is too short and/or the header
+  // is corrupt)
+  //NM_LOG_MESSAGE(
+  //  g_SBLogger,
+  //  SB_MESSAGE_PRIORITY,
+  //  "    Remaining bytes in buffer = %i; Asset size = %i; Asset alignment = %i\n",
+  //  bufferResource.format.size,
+  //  header->m_assetMemReqs.size,
+  //  header->m_assetMemReqs.alignment);
+
+  if (bufferResource.format.size < header->m_size)
+  {
+    NM_LOG_ERROR_MESSAGE(g_SBLogger, "Failed reading completion: corrupt file?\n");
+    return false;
+  }
+
+  // Record the header data for the current asset and advance m_buffer
+  // to the next header position, ready for the next call to this function.
+  unkown1 = header->m_unknown1;
+  unkown2 = header->m_unknown2;
+  asset = bufferResource.ptr;
+  size = header->m_size;
+
+  bufferResource.increment(header->m_size);
+  // bufferResource.align(NMP_NATURAL_TYPE_ALIGNMENT);
+
+  return true;
+}
+
 } // namespace UTILS
 
 } // namespace MR

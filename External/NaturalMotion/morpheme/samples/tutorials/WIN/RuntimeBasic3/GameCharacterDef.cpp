@@ -183,4 +183,157 @@ bool CharacterDefBasic::term()
 }
 
 
+
+//////////////////////////////////////////////////
+// HZDCharacterDef
+//////////////////////////////////////////////////
+//----------------------------------------------------------------------------------------------------------------------
+HZDCharacterDef* HZDCharacterDef::create(const char* filename)
+{
+  //----------------------------
+  // Create and initialise an instance of our character definition
+  HZDCharacterDef* const instance = static_cast<HZDCharacterDef*>(NMPMemoryAlloc(sizeof(HZDCharacterDef)));
+  new(instance) HZDCharacterDef();
+
+  //----------------------------
+  // Load the given bundle file into memory and load the bundle.
+  NMP_STDOUT("Loading: %s", filename);
+
+  //----------------------------
+  // In this tutorial we no longer hold bundle information in GameCharacterDef as the unloading is handled
+  // by the GameAssetLoader.
+  void* bundle = NULL;
+  int64_t bundleSize = 0;
+
+  //----------------------------
+  // Load binary bundle into memory
+  int64_t fileSize = NMP::NMFile::allocAndLoad(filename, &bundle, &bundleSize);
+  if (fileSize <= -1)
+  {
+    NMP_ASSERT_FAIL();
+    NMP_STDOUT("Failed to load file: '%s'", filename);
+    NMP_STDOUT("Perhaps the assets have not been processed.");
+
+    return NULL;
+  }
+  else
+  {
+    NMP_ASSERT(bundleSize >= fileSize);
+    NMP_STDOUT("Loaded file: '%s", filename);
+    NMP_STDOUT("Initialising HZDGameCharacterDef");
+
+    //----------------------------
+    // Allocate memory and unpack bundle
+    if(!(instance->init(bundle, (size_t)bundleSize)))
+    {
+      HZDCharacterDef::destroy(instance);
+
+      NMP_ASSERT_FAIL();
+      NMP_STDOUT("Failed to initialise gameCharacterDef");
+    }
+
+    NMP_STDOUT("GameCharacterDef created");
+  }
+
+  //----------------------------
+  // We have loaded the information in the buffer now so we can free it.
+  NMP::Memory::memFree(bundle);
+
+  return instance;
+}
+
+//--------------------------------------------------------------------------------------------------------------------
+bool HZDCharacterDef::destroy(HZDCharacterDef* characterDef)
+{
+  NMP_ASSERT(characterDef);
+
+  characterDef->term();
+
+  NMP::Memory::memFree(characterDef);
+  characterDef = NULL;
+
+  return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool HZDCharacterDef::loadAnimations()
+{  
+  //----------------------------
+  // Load animations listed in this network definition
+  for (uint32_t i = 0; i < m_netDef->getNumAnimSets(); ++i)
+  {
+    if (!m_netDef->loadAnimations((MR::AnimSetIndex)i, m_animFileLookUp))
+    {
+      return false;
+    }
+  }
+
+  NMP_STDOUT("Animations successfully loaded");
+  return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool HZDCharacterDef::init(void* bundle, size_t bundleSize)
+{  
+  if (!bundle || !bundleSize)
+  {
+    NMP_STDOUT("error: Valid bundle expected!");
+    return NULL;
+  }
+  m_numResource = 0;
+
+
+  //----------------------------
+  // Process the bundle and extract the contents into memory
+  NMP_STDOUT("Loading bundle:");
+  m_netDef = HZDAssetLoader::loadBundle(
+      bundle,
+      bundleSize);
+
+  if (!m_netDef)
+  {
+    NMP_STDOUT("error: Failed to unpack the bundle!");
+    return false;
+  }
+  NMP_STDOUT("Bundle successfully loaded");
+
+  m_isLoaded = true;
+
+  return true;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+bool HZDCharacterDef::term()
+{
+  if( m_isLoaded )
+  {
+    for (uint32_t i = 0; i < m_netDef->getNumAnimSets(); ++i)
+    {
+      if (!m_netDef->unloadAnimations((MR::AnimSetIndex)i, NULL))
+      {
+        return false;
+      }
+    }
+
+    //----------------------------
+    // In the same theme as loadBundle above we call a function that can be cut-and-paste into any program.
+    AssetLoaderBasic::unLoadBundle(m_registeredAssetIDs, m_numRegisteredAssets, m_clientAssets, m_numClientAssets);
+  }
+
+  if (m_registeredAssetIDs)
+  {
+    NMP::Memory::memFree(m_registeredAssetIDs);
+  }
+
+  if(m_clientAssets)
+  {
+    NMP::Memory::memFree(m_clientAssets);
+  }
+  //----------------------------
+  // Free any memory that may be allocated in this class here
+  return true;
+}
+
+
+
 } // namespace Game
