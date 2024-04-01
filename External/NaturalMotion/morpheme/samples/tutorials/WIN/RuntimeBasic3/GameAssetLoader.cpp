@@ -347,6 +347,34 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           bytes[8], bytes[9], 
           bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15], 
           unkown1, unkown2, size);
+      if (unkown1 == 0xf90d8e41 && unkown2 == 0x344f9419) // MorphemeEventMappingResource
+      {
+      }
+      else if (unkown1 == 0x42258efd && unkown2 == 0x9cb9b024) // MorphemeNetworkDefresource
+      {
+          // to get morphemeAssets:
+          // skip ObjectUUID
+          bytes += 16;
+          // skip Name
+          uint32_t nameLength = ((uint32_t*)bytes)[0];
+          //       nameLength          CRC32-C          string
+          bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength; 
+          // skip NodeNames
+          uint32_t nodenameSize = ((uint32_t*)bytes)[0];
+          bytes += sizeof(uint32_t);
+          for (int i = 0; i < nodenameSize; ++i)
+          {
+              uint32_t nameLength = ((uint32_t*)bytes)[0];
+			  //       nameLength          CRC32-C          string
+			  bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength; 
+          }
+
+          // finally found MorphemeAssets
+          uint32_t morphemeAssetsLength = ((uint32_t*)bytes)[0];
+          NMP_STDOUT("found morphemeassets size %d", morphemeAssetsLength);
+      }
+      else if (unkown1 == 0x5c07569f && unkown2 == 0x985d2cd6) // MorphemeAnimationResource
+      { }
     ////----------------------------
     //// Only consider core runtime asset for registration with the manager. The locate process is also different for 
     //// core and client assets, while core assets can be located using the manager, client assets need to be located 

@@ -81,6 +81,7 @@ public:
 
 
 
+
   ////----------------------------
   //// Evaluate the asset requirements for the network stored in a simple bundle. This will allow us to create arrays large
   //// enough to store the assets
