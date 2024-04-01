@@ -280,6 +280,27 @@ void NodeDef::zhaoqi_locate()
     {
       NMP::endianSwap(m_childNodeIDs[i]);
     }
+
+  }
+
+  if (m_inputCPConnections != NULL)
+  {
+      REFIX_SWAP_PTR(CPConnection, m_inputCPConnections);
+      for (uint32_t i = 0; i < m_numInputCPConnections; ++i)
+      {
+          NMP::endianSwap(m_inputCPConnections[i]);
+      }
+  }
+
+  NMP::endianSwap(m_numReflexiveCPPins);
+  if (m_numReflexiveCPPins != 0)
+  {
+    // reflexive CP pin connections.
+    REFIX_SWAP_PTR(PinAttribDataInfo, m_nodePinAttribDataInfo);
+    for (uint32_t i = 0; i < m_numReflexiveCPPins; ++i)
+    {
+      m_nodePinAttribDataInfo[i].endianSwap();
+    }
   }
 }
 

@@ -163,7 +163,14 @@ void NetworkDef::locate()
       {
           NMP_STDOUT("            %d", n->getChildNodeID(c));
       }
+      NMP_STDOUT("      input num: %d, output num %d", n->getNumInputCPConnections(), n->getNumOutputCPPins());
+      for (uint32_t c = 0; c < n->getNumInputCPConnections(); ++c)
+      {
+          const CPConnection*input = n->getInputCPConnection(c);
+          NMP_STDOUT("            %d : %d", input->m_sourceNodeID, input->m_sourcePinIndex);
+      }
                
+      NMP_STDOUT("");
   }
 
   // Output control parameter Node IDs and semantics

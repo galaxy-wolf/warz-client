@@ -1040,7 +1040,7 @@ struct EmittedMessageMap
 /// \ingroup AttribData
 ///
 /// + Definition data generated in asset compiler.
-/// + DataBuffer with 1 element array of type EmittedMessages (REQUEST…).
+/// + DataBuffer with 1 element array of type EmittedMessages (REQUEST?.
 /// + 1 array entry per mapping.
 /// + Each entry index corresponds to an {::Names entry.
 /// + Because an emitted bit value is used to find a corresponding entry in this mapping, it cannot be sparse.
