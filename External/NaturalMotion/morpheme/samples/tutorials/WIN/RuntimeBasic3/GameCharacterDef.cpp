@@ -282,13 +282,31 @@ bool HZDCharacterDef::init(void* bundle, size_t bundleSize)
   }
   m_numResource = 0;
 
+  //----------------------------
+  // Evaluate the number of registered (core) and client assets and allocate appropriate storage.
+  HZDAssetLoader::evalBundleRequirements(m_numRegisteredAssets,
+    m_numClientAssets,
+    bundle,
+    bundleSize);
+
+  NMP_ASSERT(m_numRegisteredAssets > 0);
+
+  //----------------------------
+  // Allocate arrays for storing asset information based on the bundle requirements
+  m_registeredAssetIDs = (uint32_t*)NMPMemoryCalloc(m_numRegisteredAssets * sizeof(uint32_t));
+  m_clientAssets = (void**)NMPMemoryCalloc(m_numClientAssets * sizeof(void*));
 
   //----------------------------
   // Process the bundle and extract the contents into memory
   NMP_STDOUT("Loading bundle:");
   m_netDef = HZDAssetLoader::loadBundle(
-      bundle,
-      bundleSize);
+                   bundle,
+                   bundleSize,
+                   m_registeredAssetIDs,
+                   m_clientAssets,
+                   m_numRegisteredAssets,
+                   m_numClientAssets,
+                   m_animFileLookUp);
 
   if (!m_netDef)
   {

@@ -153,6 +153,7 @@ public:
     uint32_t               numAttribDatas,
     MR::DataPinInfo*       nodeDataPinInfo);
 
+  void zhaoqi_locate();
   void locate(NetworkDef* owningNetworkDef);
   void dislocate();
   //@}
@@ -366,6 +367,7 @@ protected:
   NodeType                        m_nodeTypeID;                   ///< The type of this node definition
   NodeFlags                       m_nodeFlags;                    ///< Specifies if the node belongs to any special groups
                                                                   ///<  (e.g. anim source nodes, control parameters).
+  NodeFlags                       m_nodeFlagsHigher;
   NodeID                          m_nodeID;                       ///< This node's network ID
   NodeID                          m_parentNodeID;                 ///<  The downstream parent node ID. A node can only ever have one parent
                                                                   ///<  (controlling) node. If the output of this node is multiply connected

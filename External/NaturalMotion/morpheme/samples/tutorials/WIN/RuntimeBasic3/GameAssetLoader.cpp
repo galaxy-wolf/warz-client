@@ -263,53 +263,71 @@ void HZDAssetLoader::ParseCoreFile(
   }
 
 }
-    //----------------------------------------------------------------------------------------------------------------------
-//void HZDAssetLoader::evalBundleRequirements(
-//  uint32_t& numRegisteredAssets,
-//  uint32_t& numClientAssets,
-//  void*     buffer,
-//  size_t    bufferSize)
-//{
-//  numRegisteredAssets = 0;
-//  numClientAssets = 0;
-//
-//  if (!buffer || !bufferSize)
-//  {
-//    NMP_DEBUG_MSG("error: Valid bundle data expected (%p, size=%u)!\n", buffer, bufferSize);
-//    return;
-//  }
-//
-//  //----------------------------
-//  // Start parsing the bundle. 
-//  MR::UTILS::SimpleBundleReader bundleReader(buffer, bufferSize);
-//
-//  MR::Manager::AssetType assetType;
-//  uint32_t assetID;
-//  uint8_t* fileGuid;
-//  void* asset;
-//  NMP::Memory::Format assetMemReqs;
-//
-//  while (bundleReader.readNextAsset(assetType, assetID, fileGuid, asset, assetMemReqs))
-//  {
-//    if (assetType < MR::Manager::kAsset_NumAssetTypes)
-//    {
-//      // The pluginList is used only when loading the bundle and isn't registered with the manager
-//      if (assetType != MR::Manager::kAsset_PluginList)
-//      {
-//        ++numRegisteredAssets;
-//      }
-//    }
-//    else
-//    {
-//      ++numClientAssets;
-//    }
-//  }
-//}
+//----------------------------------------------------------------------------------------------------------------------
+void HZDAssetLoader::evalBundleRequirements(
+  uint32_t& numRegisteredAssets,
+  uint32_t& numClientAssets,
+  void*     buffer,
+  size_t    bufferSize)
+{
+  numRegisteredAssets = 0;
+  numClientAssets = 0;
+
+  if (!buffer || !bufferSize)
+  {
+    NMP_DEBUG_MSG("error: Valid bundle data expected (%p, size=%u)!\n", buffer, bufferSize);
+    return;
+  }
+
+  //----------------------------
+  // Start parsing the bundle. 
+
+  MR::UTILS::HZDBundleReader bundleReader(buffer, (uint32_t)bufferSize);
+
+  void* asset;
+
+  uint32_t unkown1;
+  uint32_t unkown2;
+  size_t size;
+
+  while (bundleReader.readNextAsset(unkown1, unkown2, asset, size))
+  {
+      uint8_t* bytes = (uint8_t*)asset;
+      if (unkown1 == 0x42258efd && unkown2 == 0x9cb9b024) // MorphemeNetworkDefresource
+      {
+          // to get morphemeAssets:
+          // skip ObjectUUID
+          bytes += 16;
+          // skip Name
+          uint32_t nameLength = ((uint32_t*)bytes)[0];
+          //       nameLength          CRC32-C          string
+          bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength;
+          // skip NodeNames
+          uint32_t nodenameSize = ((uint32_t*)bytes)[0];
+          bytes += sizeof(uint32_t);
+          for (int i = 0; i < nodenameSize; ++i)
+          {
+              uint32_t nameLength = ((uint32_t*)bytes)[0];
+              //       nameLength          CRC32-C          string
+              bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength;
+          }
+
+          // finally found MorphemeAssets
+          uint32_t morphemeAssetsLength = ((uint32_t*)bytes)[0];
+          numRegisteredAssets = morphemeAssetsLength;
+      }
+  }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 MR::NetworkDef* HZDAssetLoader::loadBundle(
-  void*            bundle,
-  size_t           bundleSize)
+    void*            bundle,
+    size_t           bundleSize,
+    uint32_t*        registeredAssetIDs,
+    void**           clientAssets,
+    uint32_t         NMP_USED_FOR_ASSERTS(numRegisteredAssets),
+    uint32_t         NMP_USED_FOR_ASSERTS(numClientAssets),
+    MR::UTILS::SimpleAnimRuntimeIDtoFilenameLookup*& animFileLookup)
 {
   if (!bundle || !bundleSize)
   {
@@ -324,23 +342,15 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
   // assets like the network definition, rig definitions and animation markup but not the actual animation data.
   MR::UTILS::HZDBundleReader bundleReader(bundle, (uint32_t)bundleSize);
 
-  //MR::Manager::AssetType assetType;
-  void* asset;
-  // NMP::Memory::Format assetMemReqs;
-  // MR::RuntimeAssetID assetID;
-  // uint8_t* fileGuid = 0;
-
-  // uint32_t registeredAssetIndex = 0;
-  // uint32_t clientAssetIndex = 0;
-
+  void* HZDasset;
   uint32_t unkown1;
   uint32_t unkown2;
   size_t size;
 
-  while (bundleReader.readNextAsset(unkown1, unkown2, asset, size))
+  while (bundleReader.readNextAsset(unkown1, unkown2, HZDasset, size))
   {
-      uint8_t * bytes = (uint8_t*)asset;
-	  NMP_STDOUT("read asset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x size %d", 
+      uint8_t * bytes = (uint8_t*)HZDasset;
+	  NMP_STDOUT("read HZDasset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x size %d", 
           bytes[3], bytes[2], bytes[1], bytes[0],
           bytes[5], bytes[4], 
           bytes[7], bytes[6],
@@ -351,135 +361,167 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
       {
       }
       else if (unkown1 == 0x42258efd && unkown2 == 0x9cb9b024) // MorphemeNetworkDefresource
-      {
-          // to get morphemeAssets:
-          // skip ObjectUUID
-          bytes += 16;
-          // skip Name
-          uint32_t nameLength = ((uint32_t*)bytes)[0];
-          //       nameLength          CRC32-C          string
-          bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength; 
-          // skip NodeNames
-          uint32_t nodenameSize = ((uint32_t*)bytes)[0];
-          bytes += sizeof(uint32_t);
-          for (int i = 0; i < nodenameSize; ++i)
-          {
-              uint32_t nameLength = ((uint32_t*)bytes)[0];
+	  {
+		  // to get morphemeAssets:
+		  // skip ObjectUUID
+		  bytes += 16;
+		  // skip Name
+		  uint32_t nameLength = ((uint32_t*)bytes)[0];
+		  //       nameLength          CRC32-C          string
+		  bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength;
+		  // skip NodeNames
+		  uint32_t nodenameSize = ((uint32_t*)bytes)[0];
+		  bytes += sizeof(uint32_t);
+		  for (int i = 0; i < nodenameSize; ++i)
+		  {
+			  uint32_t nameLength = ((uint32_t*)bytes)[0];
 			  //       nameLength          CRC32-C          string
-			  bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength; 
-          }
+			  bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength;
+		  }
 
-          // finally found MorphemeAssets
-          uint32_t morphemeAssetsLength = ((uint32_t*)bytes)[0];
-          NMP_STDOUT("found morphemeassets size %d", morphemeAssetsLength);
-      }
+		  // finally found MorphemeAssets
+		  uint32_t morphemeAssetsLength = ((uint32_t*)bytes)[0];
+		  bytes += sizeof(uint32_t);
+		  NMP_STDOUT("found morphemeassets size %d", morphemeAssetsLength);
+
+		  MR::Manager::AssetType assetType;
+		  NMP::Memory::Format assetMemReqs;
+		  MR::RuntimeAssetID assetID;
+		  uint8_t* fileGuid = 0;
+
+		  uint32_t registeredAssetIndex = 0;
+		  uint32_t clientAssetIndex = 0;
+          for (int assetIndex = 0; assetIndex < morphemeAssetsLength; ++assetIndex)
+          {
+              assetMemReqs.size = ((uint32_t*)bytes)[0];
+			  bytes += sizeof(uint32_t);
+
+              void* asset = bytes;
+              bytes += assetMemReqs.size;
+
+              assetID = ((uint32_t*)(bytes))[0]; // todo: need locate?
+              bytes += sizeof(uint32_t);
+
+              assetType = (MR::Manager::AssetType)((uint32_t*)(bytes))[0];
+              bytes += sizeof(uint32_t);
+              // another size;
+              bytes += sizeof(uint64_t);
+              //----------------------------
+              // Only consider core runtime asset for registration with the manager. The locate process is also different for 
+              // core and client assets, while core assets can be located using the manager, client assets need to be located 
+              // explicitly - which could also be handled outside this method
+              if (assetType < MR::Manager::kAsset_NumAssetTypes)
+              {
+                  //----------------------------
+                  // Special case for plugin list.
+                  if (assetType == MR::Manager::kAsset_PluginList)
+                  {
+                      // The basic tutorials only the morpheme core so doesn't have any plugin restrictions
+                      continue;
+                  }
+
+                  if (assetType == MR::Manager::kAsset_Rig || assetType == MR::Manager::kAsset_RigToAnimMap || 
+                      assetType == MR::Manager::kAsset_PhysicsRigDef)
+                  {
+                      // The basic tutorials only the morpheme core so doesn't have any plugin restrictions
+                      continue;
+                  }
+
+                  // Grab locate function for this asset type
+                  const MR::AssetLocateFn locateFn = MR::Manager::getInstance().getAssetLocateFn(assetType);
+                  if (!locateFn)
+                  {
+                      //----------------------------
+                      // This may happen if you compiled your assets using an asset compiler with additional plug-ins registered
+                      // but are using a runtime with different modules. For more details see MR::registerCoreAssets() (called from
+                      // MR::Manager::initMorphemeLib()) and MR::initMorphemePhysics()
+                      NMP_DEBUG_MSG("error: Failed to locate core asset (type=%u, ID=%u)!\n", assetType, assetID);
+                      return NULL;
+                  }
+
+                  //----------------------------
+                  // If the asset is already registered just bump the reference count, if its a new ID the asset is loaded below
+                  void* const registeredAsset = (void*)MR::Manager::getInstance().getObjectPtrFromObjectID(assetID);
+                  if (registeredAsset)
+                  {
+                      asset = registeredAsset;
+                  }
+                  else
+                  {
+                      //----------------------------
+                      // Allocate memory to store the asset for runtime use. The memory is freed as the reference count goes to 
+                      // zero in unloadAssets() while the bundle memory can be freed right after this methods has completed
+                      void* const bundleAsset = asset;
+                      asset = NMPMemoryAllocateFromFormat(assetMemReqs).ptr;
+                      NMP::Memory::memcpy(asset, bundleAsset, assetMemReqs.size);
+
+                      //----------------------------
+                      // Locate the asset (in-place pointer fix-up)
+                      if (!locateFn(assetType, asset))
+                      {
+                          NMP_DEBUG_MSG("error: Failed to locate core asset (type=%u, ID=%u)!\n", assetType, assetID);
+                          return NULL;
+                      }
+
+                      //----------------------------
+                      // Register the object (initialises the reference count to zero)
+                      if (!MR::Manager::getInstance().registerObject(asset, assetType, assetID))
+                      {
+                          NMP_DEBUG_MSG("error: Failed to register asset (type=%u, ID=%u)!\n", assetType, assetID);
+                          return NULL;
+                      }
+                  }
+
+                  //----------------------------
+                  // Increment reference count
+                  MR::Manager::incObjectRefCount(assetID);
+
+                  //----------------------------
+                  // Special case for the network definition
+                  if (assetType == MR::Manager::kAsset_NetworkDef)
+                  {
+                      NMP_ASSERT(!networkDef);  // We only expect one network definition per bundle
+                      networkDef = (MR::NetworkDef*)asset;
+                  }
+
+                  //----------------------------
+                  // Log the asset ID for use in UnloadMorphemeNetwork().
+                  NMP_ASSERT(registeredAssetIndex < numRegisteredAssets);
+                  registeredAssetIDs[registeredAssetIndex++] = assetID;
+              }
+              else
+              {
+                  //----------------------------
+                  // Allocate memory to store the asset for runtime use. The memory is freed in unLoadBundle() while the 
+                  // bundle memory can be freed right after this methods has completed.
+                  void* const bundleAsset = asset;
+                  asset = NMPMemoryAllocateFromFormat(assetMemReqs).ptr;
+                  NMP::Memory::memcpy(asset, bundleAsset, assetMemReqs.size);
+
+                  //----------------------------
+                  // Locate the asset (in-place pointer fix-up).
+                  switch (assetType)
+                  {
+                  case MR::UTILS::SimpleAnimRuntimeIDtoFilenameLookup::kAsset_SimpleAnimRuntimeIDtoFilenameLookup:
+                      NMP_ASSERT(!animFileLookup); // We only expect one filename lookup per bundle.
+                      animFileLookup = (MR::UTILS::SimpleAnimRuntimeIDtoFilenameLookup*)asset;
+                      animFileLookup->locate();
+                      break;
+
+                  default:
+                      NMP_DEBUG_MSG("warning: Failed to locate client asset (type=%u, ID=%u)!\n", assetType, assetID);
+                      break;
+                  }
+
+                  //----------------------------
+                  // Log the asset pointer for use in UnloadMorphemeNetwork().
+                  NMP_ASSERT(clientAssetIndex < numClientAssets);
+                  clientAssets[clientAssetIndex++] = asset;
+              }
+          }
+	  }
       else if (unkown1 == 0x5c07569f && unkown2 == 0x985d2cd6) // MorphemeAnimationResource
       { }
-    ////----------------------------
-    //// Only consider core runtime asset for registration with the manager. The locate process is also different for 
-    //// core and client assets, while core assets can be located using the manager, client assets need to be located 
-    //// explicitly - which could also be handled outside this method
-    //if (assetType < MR::Manager::kAsset_NumAssetTypes)
-    //{
-    //  //----------------------------
-    //  // Special case for plugin list.
-    //  if (assetType == MR::Manager::kAsset_PluginList)
-    //  {
-    //    // The basic tutorials only the morpheme core so doesn't have any plugin restrictions
-    //    continue;
-    //  }
-
-    //  // Grab locate function for this asset type
-    //  const MR::AssetLocateFn locateFn = MR::Manager::getInstance().getAssetLocateFn(assetType);
-    //  if (!locateFn)
-    //  {
-    //    //----------------------------
-    //    // This may happen if you compiled your assets using an asset compiler with additional plug-ins registered
-    //    // but are using a runtime with different modules. For more details see MR::registerCoreAssets() (called from
-    //    // MR::Manager::initMorphemeLib()) and MR::initMorphemePhysics()
-    //    NMP_DEBUG_MSG("error: Failed to locate core asset (type=%u, ID=%u)!\n", assetType, assetID);
-    //    return NULL;
-    //  }
-
-    //  //----------------------------
-    //  // If the asset is already registered just bump the reference count, if its a new ID the asset is loaded below
-    //  void* const registeredAsset = (void*)MR::Manager::getInstance().getObjectPtrFromObjectID(assetID);
-    //  if (registeredAsset)
-    //  {
-    //    asset = registeredAsset;
-    //  }
-    //  else
-    //  {
-    //    //----------------------------
-    //    // Allocate memory to store the asset for runtime use. The memory is freed as the reference count goes to 
-    //    // zero in unloadAssets() while the bundle memory can be freed right after this methods has completed
-    //    void* const bundleAsset = asset;
-    //    asset = NMPMemoryAllocateFromFormat(assetMemReqs).ptr;
-    //    NMP::Memory::memcpy(asset, bundleAsset, assetMemReqs.size);
-
-    //    //----------------------------
-    //    // Locate the asset (in-place pointer fix-up)
-    //    if (!locateFn(assetType, asset))
-    //    {
-    //      NMP_DEBUG_MSG("error: Failed to locate core asset (type=%u, ID=%u)!\n", assetType, assetID);
-    //      return NULL;
-    //    }
-
-    //    //----------------------------
-    //    // Register the object (initialises the reference count to zero)
-    //    if (!MR::Manager::getInstance().registerObject(asset, assetType, assetID))
-    //    {
-    //      NMP_DEBUG_MSG("error: Failed to register asset (type=%u, ID=%u)!\n", assetType, assetID);
-    //      return NULL;
-    //    }
-    //  }
-
-    //  //----------------------------
-    //  // Increment reference count
-    //  MR::Manager::incObjectRefCount(assetID);
-
-    //  //----------------------------
-    //  // Special case for the network definition
-    //  if (assetType == MR::Manager::kAsset_NetworkDef)
-    //  {
-    //    NMP_ASSERT(!networkDef);  // We only expect one network definition per bundle
-    //    networkDef = (MR::NetworkDef*)asset;
-    //  }
-
-    //  //----------------------------
-    //  // Log the asset ID for use in UnloadMorphemeNetwork().
-    //  NMP_ASSERT(registeredAssetIndex < numRegisteredAssets);
-    //  registeredAssetIDs[registeredAssetIndex++] = assetID;
-    //}
-    //else
-    //{
-    //  //----------------------------
-    //  // Allocate memory to store the asset for runtime use. The memory is freed in unLoadBundle() while the 
-    //  // bundle memory can be freed right after this methods has completed.
-    //  void* const bundleAsset = asset;
-    //  asset = NMPMemoryAllocateFromFormat(assetMemReqs).ptr;
-    //  NMP::Memory::memcpy(asset, bundleAsset, assetMemReqs.size);
-
-    //  //----------------------------
-    //  // Locate the asset (in-place pointer fix-up).
-    //  switch (assetType)
-    //  {
-    //  case MR::UTILS::SimpleAnimRuntimeIDtoFilenameLookup::kAsset_SimpleAnimRuntimeIDtoFilenameLookup:
-    //    NMP_ASSERT(!animFileLookup); // We only expect one filename lookup per bundle.
-    //    animFileLookup = (MR::UTILS::SimpleAnimRuntimeIDtoFilenameLookup*)asset;
-    //    animFileLookup->locate();
-    //    break;
-
-    //  default:
-    //    NMP_DEBUG_MSG("warning: Failed to locate client asset (type=%u, ID=%u)!\n", assetType, assetID);
-    //    break;
-    //  }
-
-    //  //----------------------------
-    //  // Log the asset pointer for use in UnloadMorphemeNetwork().
-    //  NMP_ASSERT(clientAssetIndex < numClientAssets);
-    //  clientAssets[clientAssetIndex++] = asset;
-    //}
   }
 
   return networkDef;

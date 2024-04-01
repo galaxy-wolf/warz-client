@@ -106,6 +106,7 @@ void NodeDef::initExcludeBaseMem(
 
   target->m_nodeTypeID = INVALID_NODE_TYPE_ID;
   target->m_nodeFlags = NODE_FLAG_IS_NONE;
+  target->m_nodeFlagsHigher = NODE_FLAG_IS_NONE;
   target->m_nodeID = INVALID_NODE_ID;
   target->m_parentNodeID = INVALID_NODE_ID;
   target->m_maxNumActiveChildNodes = maxNumActiveChildNodes;
@@ -270,6 +271,18 @@ NodeDef* NodeDef::init(
   return result;
 }
 
+void NodeDef::zhaoqi_locate()
+{
+  if (m_childNodeIDs != NULL)
+  {
+    REFIX_SWAP_PTR(NodeID, m_childNodeIDs);
+    for (uint32_t i = 0; i < m_numChildNodeIDs; ++i)
+    {
+      NMP::endianSwap(m_childNodeIDs[i]);
+    }
+  }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 void NodeDef::locate(NetworkDef* owningNetworkDef)
 {
@@ -282,6 +295,7 @@ void NodeDef::locate(NetworkDef* owningNetworkDef)
   NMP::endianSwap(m_parentNodeID);
   NMP::endianSwap(m_nodeTypeID);
   NMP::endianSwap(m_nodeFlags);
+  NMP::endianSwap(m_nodeFlagsHigher);
   NMP::endianSwap(m_passThroughChildIndex);
 
   // Set the owning network definition from the input parameter. Note we do not
@@ -349,10 +363,10 @@ void NodeDef::locate(NetworkDef* owningNetworkDef)
         NMP_ASSERT(locateFn);
         locateFn(m_nodePinAttribDataHandles[i].m_attribData);
 
-        NMP_ASSERT_MSG(m_nodePinAttribDataHandles[i].m_attribData->getRefCount() == MR::IS_DEF_ATTRIB_DATA,
-          "Invalid ref count in node[%i] def data.  Make sure the ref count is set to MR::IS_DEF_ATTRIB_DATA in the "
-          "asset compiler.", m_nodeID);
-        NMP_ASSERT(m_nodePinAttribDataHandles[i].m_attribData->m_allocator == NULL);
+        //NMP_ASSERT_MSG(m_nodePinAttribDataHandles[i].m_attribData->getRefCount() == MR::IS_DEF_ATTRIB_DATA,
+        //  "Invalid ref count in node[%i] def data.  Make sure the ref count is set to MR::IS_DEF_ATTRIB_DATA in the "
+        //  "asset compiler.", m_nodeID);
+        //NMP_ASSERT(m_nodePinAttribDataHandles[i].m_attribData->m_allocator == NULL);
       }
     }
   }
@@ -377,10 +391,10 @@ void NodeDef::locate(NetworkDef* owningNetworkDef)
         NMP_ASSERT(locateFn);
         locateFn(m_nodeAttribDataHandles[i].m_attribData);
 
-        NMP_ASSERT_MSG(m_nodeAttribDataHandles[i].m_attribData->getRefCount() == MR::IS_DEF_ATTRIB_DATA,
-          "Invalid ref count in node[%i] def data.  Make sure the ref count is set to MR::IS_DEF_ATTRIB_DATA in the "
-          "asset compiler.", m_nodeID);
-        NMP_ASSERT(m_nodeAttribDataHandles[i].m_attribData->m_allocator == NULL);
+        //NMP_ASSERT_MSG(m_nodeAttribDataHandles[i].m_attribData->getRefCount() == MR::IS_DEF_ATTRIB_DATA,
+        //  "Invalid ref count in node[%i] def data.  Make sure the ref count is set to MR::IS_DEF_ATTRIB_DATA in the "
+        //  "asset compiler.", m_nodeID);
+        //NMP_ASSERT(m_nodeAttribDataHandles[i].m_attribData->m_allocator == NULL);
       }
     }
   }
@@ -429,7 +443,7 @@ void NodeDef::locate(NetworkDef* owningNetworkDef)
   // Locate the shared function tables
   NMP::endianSwap(m_taskQueuingFnsID);
   NMP::endianSwap(m_outputCPTasksID);
-  if (m_owningNetworkDef)
+  if (m_owningNetworkDef && false)
   {
     const SharedTaskFnTables* taskQueuingFnTables = m_owningNetworkDef->getTaskQueuingFnTables();
     NMP_ASSERT(taskQueuingFnTables);
@@ -604,6 +618,7 @@ void NodeDef::dislocate()
   NMP::endianSwap(m_parentNodeID);
   NMP::endianSwap(m_nodeTypeID);
   NMP::endianSwap(m_nodeFlags);
+  NMP::endianSwap(m_nodeFlagsHigher);
   NMP::endianSwap(m_passThroughChildIndex);
 
   // We do not unfix the owning node pointer, in order to be easily able to

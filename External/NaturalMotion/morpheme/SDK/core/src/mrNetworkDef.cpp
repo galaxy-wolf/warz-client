@@ -133,26 +133,37 @@ void NetworkDef::locate()
   NMP::endianSwap(m_numNetworkInputControlParameters);
 
   // Shared task function tables: Need to be located before the individual node definitions
-  REFIX_SWAP_PTR(SharedTaskFnTables, m_taskQueuingFnTables);
-  m_taskQueuingFnTables->locateTaskQueuingFnTables();
-  REFIX_SWAP_PTR(SharedTaskFnTables, m_outputCPTaskFnTables);
-  m_outputCPTaskFnTables->locateOutputCPTaskFnTables();
+  //REFIX_SWAP_PTR(SharedTaskFnTables, m_taskQueuingFnTables);
+  // m_taskQueuingFnTables->locateTaskQueuingFnTables();
+  // REFIX_SWAP_PTR(SharedTaskFnTables, m_outputCPTaskFnTables);
+  // m_outputCPTaskFnTables->locateOutputCPTaskFnTables();
 
   // Locate the semantic lookup tables. They are used when locating the nodes.
-  NMP::endianSwap(m_numSemanticLookupTables);
-  REFIX_SWAP_PTR(SemanticLookupTable*, m_semanticLookupTables);
-  for (uint32_t i = 0; i < m_numSemanticLookupTables; ++i)
-  {
-    REFIX_SWAP_PTR(SemanticLookupTable, m_semanticLookupTables[i]);
-    m_semanticLookupTables[i]->locate();
-  }
+  //NMP::endianSwap(m_numSemanticLookupTables);
+  //REFIX_SWAP_PTR(SemanticLookupTable*, m_semanticLookupTables);
+  //for (uint32_t i = 0; i < m_numSemanticLookupTables; ++i)
+  //{
+  //  REFIX_SWAP_PTR(SemanticLookupTable, m_semanticLookupTables[i]);
+  //  m_semanticLookupTables[i]->locate();
+  //}
   
   // NodeDefs
   REFIX_SWAP_PTR(NodeDef*, m_nodes);
   for (uint32_t i = 0; i < m_numNodes; ++i)
   {
-    REFIX_SWAP_PTR(NodeDef, m_nodes[i]);
-    m_nodes[i]->locate(this); // Fixes up the task function tables
+      REFIX_SWAP_PTR(NodeDef, m_nodes[i]);
+      // m_nodes[i]->locate(this); // Fixes up the task function tables
+      m_nodes[i]->zhaoqi_locate();
+
+      NodeDef* n = m_nodes[i];
+      NMP_STDOUT("%d : node id %d \n"\
+          "     node type %d\n"\
+          "     parent id %d child number: %d", i, n->getNodeID(), n->getNodeTypeID(), n->getParentNodeID(), n->getNumChildNodes());
+      for (uint32_t c = 0; c < n->getNumChildNodes(); ++c)
+      {
+          NMP_STDOUT("            %d", n->getChildNodeID(c));
+      }
+               
   }
 
   // Output control parameter Node IDs and semantics
