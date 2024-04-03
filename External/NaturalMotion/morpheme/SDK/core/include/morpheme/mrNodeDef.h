@@ -168,6 +168,8 @@ public:
   NM_INLINE NodeType getNodeTypeID() const { return m_nodeTypeID; }
   NM_INLINE void setNodeTypeID(NodeType nodeTypeID) { m_nodeTypeID = nodeTypeID; }
 
+  NM_INLINE NodeFlags getNodeFlagsHigher() const { return m_nodeFlagsHigher; }
+
   NM_INLINE NodeFlags getNodeFlags() const { return m_nodeFlags; }
   NM_INLINE void setNodeFlags(NodeFlags flags) { m_nodeFlags.set(flags); }
 
