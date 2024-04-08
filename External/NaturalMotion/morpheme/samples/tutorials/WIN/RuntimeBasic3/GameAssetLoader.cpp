@@ -354,23 +354,37 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           // skip uuid
           bytes += 16;
           // finally found MorphemeAssets
-          uint64_t animationLength = ((uint64_t*)bytes)[0];
-          bytes += sizeof(animationLength);
-          uint8_t animType = ((uint8_t*)bytes)[0];
-          if (animType != 2)
-          {
-              NMP_STDOUT("read asset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x size %d",
-                  bytes[3], bytes[2], bytes[1], bytes[0],
-                  bytes[5], bytes[4],
-                  bytes[7], bytes[6],
-                  bytes[8], bytes[9],
-                  bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
-                  unkown1, unkown2, size);
-              NMP_STDOUT("found morphemeassets size %d anim type %d", animationLength, animType);
-          }
-          else {
-              ++anim_type_ok_count;
-          }
+          NMP::Memory::Format assetMemReqs;
+          assetMemReqs.size = ((uint32_t*)bytes)[0];
+          bytes += sizeof(uint32_t);
+
+          void* animation_data = NMPMemoryAllocateFromFormat(assetMemReqs).ptr;
+          NMP::Memory::memcpy(animation_data, bytes, assetMemReqs.size);
+          MR::AnimSourceBase* anim = (MR::AnimSourceBase*)animation_data;
+
+		  NMP_STDOUT("animation asset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x type %d",
+			  bytes[3], bytes[2], bytes[1], bytes[0],
+			  bytes[5], bytes[4],
+			  bytes[7], bytes[6],
+			  bytes[8], bytes[9],
+			  bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
+			  unkown1, unkown2, anim->getType());
+
+
+          //if (animType != 2)
+          //{
+          //    NMP_STDOUT("read asset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x size %d",
+          //        bytes[3], bytes[2], bytes[1], bytes[0],
+          //        bytes[5], bytes[4],
+          //        bytes[7], bytes[6],
+          //        bytes[8], bytes[9],
+          //        bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
+          //        unkown1, unkown2, size);
+          //    NMP_STDOUT("found morphemeassets size %d anim type %d", animationLength, animType);
+          //}
+          //else {
+          //    ++anim_type_ok_count;
+          //}
       }
     ////----------------------------
     //// Only consider core runtime asset for registration with the manager. The locate process is also different for 
