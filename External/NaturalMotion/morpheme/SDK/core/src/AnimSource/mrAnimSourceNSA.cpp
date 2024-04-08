@@ -390,6 +390,133 @@ void AnimSourceNSA::locate()
   }
 }
 
+void AnimSourceNSA::zhaoqi_locate()
+{
+  // Verify alignment
+  NMP_ASSERT_MSG(
+    NMP_IS_ALIGNED(this, NMP_VECTOR_ALIGNMENT),
+    "Animation sources must be aligned to %d bytes.",
+    NMP_VECTOR_ALIGNMENT);
+
+  //-----------------------
+  // Header information
+  // AnimSourceBase::locate();
+  m_funcTable = &m_functionTable;
+  //NMP::endianSwap(m_duration);
+  //NMP::endianSwap(m_sampleFrequency);
+  //NMP::endianSwap(m_numChannelSets);
+  //NMP::endianSwap(m_numFrameSections);
+  //NMP::endianSwap(m_numChannelSections);
+  uint32_t numSectionEntries = m_numFrameSections * m_numChannelSections;
+
+  //-----------------------
+  // Compression to animation channel maps
+  //NMP::endianSwap(m_maxNumCompChannels);
+
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unchangingPosCompToAnimMap);
+  m_unchangingPosCompToAnimMap->locate();
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unchangingQuatCompToAnimMap);
+  m_unchangingQuatCompToAnimMap->locate();
+
+  //-----------------------
+  if (numSectionEntries > 0)
+  {
+    // Pointers table to sub-section CAMs
+    REFIX_SWAP_PTR(MR::CompToAnimChannelMap*, m_sampledPosCompToAnimMaps);
+    for (uint32_t i = 0; i < m_numChannelSections; ++i)
+    {
+      REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledPosCompToAnimMaps[i]);
+    }
+    REFIX_SWAP_PTR(MR::CompToAnimChannelMap*, m_sampledQuatCompToAnimMaps);
+    for (uint32_t i = 0; i < m_numChannelSections; ++i)
+    {
+      REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledQuatCompToAnimMaps[i]);
+    }
+
+    // todo: need 
+    // Sub-section CAMs themselves
+    //for (uint32_t i = 0; i < m_numChannelSections; ++i)
+    //  m_sampledPosCompToAnimMaps[i]->locate();
+
+    //for (uint32_t i = 0; i < m_numChannelSections; ++i)
+    //  m_sampledQuatCompToAnimMaps[i]->locate();
+
+    //-----------------------
+    // Quantisation scale and offset information (Common to all sections)
+    m_posMeansQuantisationInfo.locate();
+
+    //NMP::endianSwap(m_sampledPosNumQuantisationSets);
+    if (m_sampledPosNumQuantisationSets > 0)
+    {
+      REFIX_SWAP_PTR(QuantisationScaleAndOffsetVec3, m_sampledPosQuantisationInfo);
+      for (uint32_t i = 0; i < m_sampledPosNumQuantisationSets; ++i)
+      {
+        m_sampledPosQuantisationInfo[i].locate();
+      }
+    }
+
+    NMP::endianSwap(m_sampledQuatNumQuantisationSets);
+    if (m_sampledQuatNumQuantisationSets > 0)
+    {
+      REFIX_SWAP_PTR(QuantisationScaleAndOffsetVec3, m_sampledQuatQuantisationInfo);
+      for (uint32_t i = 0; i < m_sampledQuatNumQuantisationSets; ++i)
+      {
+        m_sampledQuatQuantisationInfo[i].locate();
+      }
+    }
+
+    //-----------------------
+    // Sectioning information
+    NMP::endianSwap(m_maxSectionSize);
+    REFIX_SWAP_PTR(uint32_t, m_sectionStartFrames);
+    NMP::endianSwapArray(m_sectionStartFrames, m_numFrameSections + 1);
+
+    REFIX_SWAP_PTR(uint32_t, m_sectionSizes);
+    NMP::endianSwapArray(m_sectionSizes, numSectionEntries);
+
+    // Sections DataRef grid (pointers to section data packets)
+    REFIX_SWAP_PTR(MR::DataRef, m_sectionData);
+  }
+  
+  //-----------------------
+  // Unchanging channel set data
+// todo: m_unchangingData == NULL
+  if (m_unchangingData)
+  {
+      NMP_ASSERT(m_unchangingData);
+      REFIX_SWAP_PTR(UnchangingDataNSA, m_unchangingData);
+      m_unchangingData->locate();
+  }
+  
+  //-----------------------
+  // Section data (DMA alignment)
+  // todo:
+  //for (uint32_t i = 0; i < numSectionEntries; ++i)
+  //{
+  //  REFIX_SWAP_PTR(void, m_sectionData[i].m_data);
+  //  SectionDataNSA* sectionData = (SectionDataNSA*) m_sectionData[i].m_data;
+  //  NMP_ASSERT(sectionData);
+  //  sectionData->locate();
+  //}
+
+  //-----------------------
+  // Trajectory (DMA alignment)
+  if (m_trajectoryData.m_data)
+  {
+    REFIX_SWAP_PTR(void, m_trajectoryData.m_data);
+    TrajectorySourceNSA* trajectoryData = (TrajectorySourceNSA*) m_trajectoryData.m_data;
+    trajectoryData->locate();
+  }
+
+  //-----------------------
+  // Channel name table (DMA alignment)
+  if (m_channelNames)
+  {
+    REFIX_SWAP_PTR(NMP::OrderedStringTable, m_channelNames);
+    m_channelNames->locate();
+  }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 void AnimSourceNSA::dislocate()
 {

@@ -13,6 +13,7 @@
 
 #include "GameCharacterManager.h"
 #include "simpleBundle/simpleBundle.h"
+#include "morpheme/AnimSource/mrAnimSourceNSA.h"
 //----------------------------------------------------------------------------------------------------------------------
 
 namespace Game
@@ -356,11 +357,15 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           // finally found MorphemeAssets
           NMP::Memory::Format assetMemReqs;
           assetMemReqs.size = ((uint32_t*)bytes)[0];
+          assetMemReqs.alignment = NMP_VECTOR_ALIGNMENT;
           bytes += sizeof(uint32_t);
 
           void* animation_data = NMPMemoryAllocateFromFormat(assetMemReqs).ptr;
           NMP::Memory::memcpy(animation_data, bytes, assetMemReqs.size);
+          NMP_STDOUT("sizeof bool %d", sizeof(bool));
           MR::AnimSourceBase* anim = (MR::AnimSourceBase*)animation_data;
+          MR::AnimSourceNSA* qsa_anim = (MR::AnimSourceNSA*)animation_data;
+          qsa_anim->zhaoqi_locate();
 
 		  NMP_STDOUT("animation asset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x type %d",
 			  bytes[3], bytes[2], bytes[1], bytes[0],

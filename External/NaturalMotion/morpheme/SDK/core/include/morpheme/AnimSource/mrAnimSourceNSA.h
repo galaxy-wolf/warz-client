@@ -120,6 +120,7 @@ public:
   ~AnimSourceNSA() {}
 
   void locate();
+  void zhaoqi_locate();
   void dislocate();
   void relocate();
 

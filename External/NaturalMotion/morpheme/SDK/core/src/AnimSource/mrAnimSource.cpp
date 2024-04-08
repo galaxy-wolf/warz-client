@@ -83,7 +83,7 @@ void AnimSourceBase::locate()
 {
   NMP_ASSERT_MSG(!m_isLocated, "Animation already located!");
   NMP::endianSwap(m_animType);
-  NMP::endianSwap(m_animInstanceMemReqs);
+  // NMP::endianSwap(m_animInstanceMemReqs);
   m_isLocated = true;
 }
 
@@ -91,7 +91,7 @@ void AnimSourceBase::locate()
 void AnimSourceBase::dislocate()
 {
   NMP::endianSwap(m_animType);
-  NMP::endianSwap(m_animInstanceMemReqs);
+  // NMP::endianSwap(m_animInstanceMemReqs);
   // the asset compiler calls a single dislocate for the asset to safe it on disk.
   // this means m_isLocated gets initialized during asset compilation by dislocate
   m_isLocated = false;
@@ -228,9 +228,9 @@ bool AttribDataSourceAnim::setAnimation(AnimSourceBase* anim)
   {
     NMP_ASSERT(m_anim->isLocated());
     // Store the memory requirements of the referenced source animation.
-    NMP::Memory::Format memReqs = m_anim->getInstanceMemoryRequirements();
-    m_animSize = (uint32_t)memReqs.size;
-    NMP_ASSERT((memReqs.size > 0) && (memReqs.alignment > 0) && (memReqs.alignment <= NMP_VECTOR_ALIGNMENT));
+    //NMP::Memory::Format memReqs = m_anim->getInstanceMemoryRequirements();
+    //m_animSize = (uint32_t)memReqs.size;
+    //NMP_ASSERT((memReqs.size > 0) && (memReqs.alignment > 0) && (memReqs.alignment <= NMP_VECTOR_ALIGNMENT));
   }
 
   return true;
