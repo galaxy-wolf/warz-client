@@ -390,6 +390,83 @@ void AnimSourceNSA::locate()
   }
 }
 
+void AnimSourceNSA::zhaoqi_locate()
+{
+  // Verify alignment
+  NMP_ASSERT_MSG(
+    NMP_IS_ALIGNED(this, NMP_VECTOR_ALIGNMENT),
+    "Animation sources must be aligned to %d bytes.",
+    NMP_VECTOR_ALIGNMENT);
+
+  //-----------------------
+  // Header information
+  // AnimSourceBase::locate();
+  m_funcTable = &m_functionTable;
+  //NMP::endianSwap(m_duration);
+  //NMP::endianSwap(m_sampleFrequency);
+  //NMP::endianSwap(m_numChannelSets);
+  //NMP::endianSwap(m_numFrameSections);
+  //NMP::endianSwap(m_numChannelSections);
+  // uint32_t numSectionEntries = m_numFrameSections * m_numChannelSections;
+
+  //-----------------------
+  // Compression to animation channel maps
+  //NMP::endianSwap(m_maxNumCompChannels);
+
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unchangingPosCompToAnimMap);
+  m_unchangingPosCompToAnimMap->locate();
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unchangingQuatCompToAnimMap);
+  m_unchangingQuatCompToAnimMap->locate();
+
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledPosCompToAnimMap);
+  m_sampledPosCompToAnimMap->locate();
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledQuatCompToAnimMap);
+  m_sampledQuatCompToAnimMap->locate();
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unknownMap3);
+  m_unknownMap3->locate();
+
+
+	//-----------------------
+	// Quantisation scale and offset information (Common to all sections)
+	m_posMeansQuantisationInfo.locate();
+
+	//NMP::endianSwap(m_sampledPosNumQuantisationSets);
+	if (m_sampledPosNumQuantisationSets > 0)
+	{
+	  REFIX_SWAP_PTR(QuantisationScaleAndOffsetVec3, m_sampledPosQuantisationInfo);
+	  for (uint32_t i = 0; i < m_sampledPosNumQuantisationSets; ++i)
+	  {
+		m_sampledPosQuantisationInfo[i].locate();
+	  }
+	}
+
+	NMP::endianSwap(m_sampledQuatNumQuantisationSets);
+	if (m_sampledQuatNumQuantisationSets > 0)
+	{
+	  REFIX_SWAP_PTR(QuantisationScaleAndOffsetVec3, m_sampledQuatQuantisationInfo);
+	  for (uint32_t i = 0; i < m_sampledQuatNumQuantisationSets; ++i)
+	  {
+		m_sampledQuatQuantisationInfo[i].locate();
+	  }
+	}
+  
+  //-----------------------
+  // Unchanging channel set data
+  NMP_ASSERT(m_unchangingData);
+  REFIX_SWAP_PTR(UnchangingDataNSA, m_unchangingData);
+  m_unchangingData->locate();
+
+  REFIX_SWAP_PTR(SectionDataNSA, m_sectionDataGood);
+  NMP_ASSERT(m_sectionDataGood);
+  m_sectionDataGood->locate();
+
+  if (m_trajectoryDataGood)
+  {
+      REFIX_SWAP_PTR(TrajectorySourceNSA, m_trajectoryDataGood);
+      m_trajectoryDataGood->locate();
+  }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 void AnimSourceNSA::dislocate()
 {

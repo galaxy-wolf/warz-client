@@ -79,16 +79,18 @@ public:
   NM_INLINE TrajType getType() const { return m_trajType; }
 
   // Get the requirements of this animation instance. NOTE: excludes any section data.
-  NM_INLINE NMP::Memory::Format getInstanceMemoryRequirements() const { return m_trajectoryInstanceMemReqs; }
+  // NM_INLINE NMP::Memory::Format getInstanceMemoryRequirements() const { return m_trajectoryInstanceMemReqs; }
 
 protected:
   TrajectorySourceBase() {}
   ~TrajectorySourceBase() {}
 
-protected:
+public:
   TrajType                        m_trajType;                  ///< Type of compression used for this trajectory.
   getTrajectoryTransformAtTimeFn* m_getTrajAtTime;             ///<
-  NMP::Memory::Format             m_trajectoryInstanceMemReqs; ///< Requirements of this animation.
+  int32_t size;
+  int32_t alignment;
+  // NMP::Memory::Format             m_trajectoryInstanceMemReqs; ///< Requirements of this animation.
 
 };
 
@@ -108,14 +110,14 @@ NM_INLINE void TrajectorySourceBase::trajComputeTrajectoryTransformAtTime(
 NM_INLINE void TrajectorySourceBase::locate()
 {
   NMP::endianSwap(m_trajType);
-  NMP::endianSwap(m_trajectoryInstanceMemReqs);
+  // NMP::endianSwap(m_trajectoryInstanceMemReqs);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 NM_INLINE void TrajectorySourceBase::dislocate()
 {
   NMP::endianSwap(m_trajType);
-  NMP::endianSwap(m_trajectoryInstanceMemReqs);
+  // NMP::endianSwap(m_trajectoryInstanceMemReqs);
 }
 
 } // namespace MR

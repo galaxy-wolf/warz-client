@@ -515,7 +515,7 @@ public:
   NM_INLINE uint32_t getNumChannels() const;
   NM_INLINE const uint16_t* getAnimChannels() const;
 
-protected:
+public:
   uint16_t          m_numChannels;      ///< The number of compression channels
   uint16_t          m_animChannels[1];  ///< The anim channel indices that map to the compression channels
                                         ///< Do not place any data after this entry.

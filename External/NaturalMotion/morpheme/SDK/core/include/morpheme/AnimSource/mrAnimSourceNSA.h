@@ -99,6 +99,13 @@ public:
     const AnimSourceBase* sourceAnimation       ///< Animation to query.
   );
 
+  static NM_INLINE uint32_t getNumFrameSections(
+    const AnimSourceBase* sourceAnimation       ///< Animation to query.
+  );
+  static NM_INLINE uint32_t getNumChannelSections(
+    const AnimSourceBase* sourceAnimation       ///< Animation to query.
+  );
+
   /// \brief Returns the trajectory channel data related to this animation. If this function pointer is NULL then
   /// AnimSourceBase::animGetTrajectoryChannelData() returns a NULL trajectory control.
   static NM_INLINE const TrajectorySourceBase* getTrajectoryChannelData(
@@ -120,12 +127,13 @@ public:
   ~AnimSourceNSA() {}
 
   void locate();
+  void zhaoqi_locate();
   void dislocate();
   void relocate();
 
   NM_INLINE uint32_t findSectionIndexFromFrameIndex(uint32_t animFrameIndex) const;
 
-protected:
+public:
   //-----------------------
   // Header information
   static AnimFunctionTable        m_functionTable;              ///< Function table needed by each source animation type that inherits
@@ -144,38 +152,85 @@ protected:
   //-----------------------
   // Compression to animation channel maps
   uint32_t                        m_maxNumCompChannels;               ///< The maximum number of compression channels that are used
-  CompToAnimChannelMap*           m_unchangingPosCompToAnimMap;       ///< The unchanging pos comp to anim channel map
   CompToAnimChannelMap*           m_unchangingQuatCompToAnimMap;      ///< The unchanging quat comp to anim channel map
-  CompToAnimChannelMap**          m_sampledPosCompToAnimMaps;         ///< A table of pointers to the channel-wise sampled pos comp to anim channel maps
-  CompToAnimChannelMap**          m_sampledQuatCompToAnimMaps;        ///< A table of pointers to the channel-wise sampled quat comp to anim channel maps
+
+  //                    todo: m_unchangingPosCompToAnimMap这部分找不到对应的内存， 但是我们可以从m_sampledPosCompToAnimMap 反推出来。
+///< 长度都是0， 猜测： 大概率是unchanging 的sacale 部分。
+  CompToAnimChannelMap*           m_unchangingPosCompToAnimMap;       ///< The unchanging pos comp to anim channel map
+
+  CompToAnimChannelMap*           m_sampledPosCompToAnimMap;      
+  CompToAnimChannelMap*           m_sampledQuatCompToAnimMap;     
+  CompToAnimChannelMap*           m_unknownMap3;                    // 长度都是 0，猜测： 大概率是sample 的 scale部分。
 
   //-----------------------
   // Quantisation scale and offset information (Common to all sections)
   QuantisationScaleAndOffsetVec3  m_posMeansQuantisationInfo;         ///< Global quantisation range for the pos means.
+
+  uint32_t                        m_unknown1;   // 全部等于0
+  uint32_t                        m_unknown2;   // 全部等于0
                                                                       ///< Global quantisation range for the quat means is between [-1:1] (tan quarter angle rotvec)
   uint32_t                        m_sampledPosNumQuantisationSets;    ///< The number of quantisation sets used to encode the sectioned position channels
   uint32_t                        m_sampledQuatNumQuantisationSets;   ///< The number of quantisation sets used to encode the sectioned orientation channels                                                                      
+  uint32_t                        m_unknown3; // 全部等于0
+  uint32_t                        m_unknown4;  // 全部等于0
   QuantisationScaleAndOffsetVec3* m_sampledPosQuantisationInfo;       ///< Quantisation scale and offset info for all sampled pos channels
   QuantisationScaleAndOffsetVec3* m_sampledQuatQuantisationInfo;      ///< Quantisation scale and offset info for all sampled quat channels
+  uint32_t                        m_unknown5;  // 全部等于0
+  uint32_t                        m_unknown6;  // 全部等于0 
+
 
   //-----------------------
   // Unchanging channel set data
   UnchangingDataNSA*              m_unchangingData;             ///< Section data for the unchanging channels
 
+  // 上面的十分确定是正确的解释。 因为UnchangingDataNSA 可以完全对应上。
+  //---------------------------------------------------------
+
   //-----------------------
   // Sectioning information
+  SectionDataNSA* m_sectionDataGood;  // 这玩意只有一个，不是2d的。
+  ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
+  // 这个被上面的 m_sectionDataGood 替换掉了。可能是因为pc 上没有dma 读取！！
+  // DataRef*                        m_sectionData;                ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
+
+  ///// 这个绝对正确， 已经和trajectoryNSA 完全对上了。
+  //-----------------------
+  // Trajectory
+  TrajectorySourceNSA* m_trajectoryDataGood;     
+  // 这个被上面的替换掉了， 可能是因为pc 上没有dma 读取！！
+  // DataRef                         m_trajectoryData;             ///< Holds a set of animation data for handling a trajectory bone (can be NULL) - DMA alignment
+
+  ///// 
+
+  uint32_t                        m_unknown7;  // 全部等于0 
+  uint32_t                        m_unknown8;  // 全部等于0
+
+
+
+  DataRef*                        m_sectionData;                ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
+  DataRef                         m_trajectoryData;             ///< Holds a set of animation data for handling a trajectory bone (can be NULL) - DMA alignment
+
+
+
+
+
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+  // 后面的都是空没有用的！！！！
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+  // 而且我知道后面最多一个指针 或者两个int， 你们看着办。
   uint32_t                        m_maxSectionSize;             ///< The maximum section size amoungst the sectioned data
   uint32_t*                       m_sectionStartFrames;         ///< The start frames for each frame-wise section dividing up the sampled keyframe data
   uint32_t*                       m_sectionSizes;               ///< A 2D grid of memory sizes for the sectioned data (frame major, channel minor)
-  DataRef*                        m_sectionData;                ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
 
-  //-----------------------
-  // Trajectory
-  DataRef                         m_trajectoryData;             ///< Holds a set of animation data for handling a trajectory bone (can be NULL) - DMA alignment
 
   //-----------------------
   // Channel names table
   NMP::OrderedStringTable*               m_channelNames;               ///< Optional string table holding the names of each channel set in this anim.
+
+  CompToAnimChannelMap**          m_sampledPosCompToAnimMaps;         ///< A table of pointers to the channel-wise sampled pos comp to anim channel maps
+  CompToAnimChannelMap**          m_sampledQuatCompToAnimMaps;        ///< A table of pointers to the channel-wise sampled quat comp to anim channel maps
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -194,6 +249,20 @@ NM_INLINE uint32_t AnimSourceNSA::getNumChannelSets(const AnimSourceBase* source
   NMP_ASSERT(sourceAnimation);
   const AnimSourceNSA* compressedSource = static_cast<const AnimSourceNSA*> (sourceAnimation);
   return compressedSource->m_numChannelSets;
+}
+NM_INLINE uint32_t AnimSourceNSA::getNumChannelSections(const AnimSourceBase* sourceAnimation)
+{
+  NMP_ASSERT(sourceAnimation);
+  const AnimSourceNSA* compressedSource = static_cast<const AnimSourceNSA*> (sourceAnimation);
+  return compressedSource->m_numChannelSections;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+NM_INLINE uint32_t AnimSourceNSA::getNumFrameSections(const AnimSourceBase* sourceAnimation)
+{
+  NMP_ASSERT(sourceAnimation);
+  const AnimSourceNSA* compressedSource = static_cast<const AnimSourceNSA*> (sourceAnimation);
+  return compressedSource->m_numFrameSections;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

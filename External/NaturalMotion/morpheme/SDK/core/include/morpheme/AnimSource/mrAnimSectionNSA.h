@@ -58,12 +58,17 @@ public:
     const CompToAnimChannelMap* compToAnimTableMap,
     NMP::DataBuffer*            outputBuffer) const;
 
-protected:
+public:
   uint32_t                          m_unchangingPosNumChannels;       ///< The number of pos channels with unvarying data
   uint32_t                          m_unchangingQuatNumChannels;      ///< The number of quat channels with unvarying data
+  uint32_t                          m_unknown1;  // always zero !
 
   QuantisationScaleAndOffsetVec3    m_unchangingPosQuantisationInfo;  ///< Quantisation info about ranges of all unchanging pos channels
   QuantisationScaleAndOffsetVec3    m_unchangingQuatQuantisationInfo; ///< Quantisation info about ranges of all unchanging quat channels
+
+  uint32_t  m_unknown2; // always zero !!!
+  uint32_t  m_unknown3; // always zero !!!
+  uint32_t  m_unknown4; // always zero !!!
 
   UnchangingKeyVec3*                m_unchangingPosData;              ///< Table of default values for unvarying pos channels quantised
                                                                       ///< into the [qMin, qMax] range of unchangingPosKeysInfo

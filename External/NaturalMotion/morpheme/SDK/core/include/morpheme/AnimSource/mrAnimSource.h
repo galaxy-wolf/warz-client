@@ -169,24 +169,27 @@ public:
   NM_INLINE AnimType getType() { return m_animType; }
 
   // Get the requirements of this animation instance. NOTE: excludes any section data.
-  NM_INLINE const NMP::Memory::Format& getInstanceMemoryRequirements() const { return m_animInstanceMemReqs; }
+  // NM_INLINE const NMP::Memory::Format& getInstanceMemoryRequirements() const { return m_animInstanceMemReqs; }
 
   // use some pointer arithmetic to check if the animation is already located
   NM_INLINE bool isLocated() const { return m_isLocated; }
 
 protected:
-  AnimFunctionTable*  m_funcTable;           ///< Function pointer table providing runtime polymorphisms for Animation Source Class Types.
-                                             ///<  Inherited Objects must set this pointer to their own table of functions.
-                                             ///<  This table is only intended to implement the functions required by Animation sources
-                                             ///<  that are to be used by NaturalMotion Source Nodes.
-  NMP::Memory::Format m_animInstanceMemReqs; ///< Requirements of this animation.
-  AnimType            m_animType;
-  bool                m_isLocated;
-  uint8_t             m_padding[2];
 #ifdef NM_HOST_64_BIT
   // This padding is required to ensure that llvm and msvc 64-bit compilers pack sub-class members in the same alignment
   uint32_t            m_padding64;
 #endif // NM_HOST_64_BIT
+  AnimType            m_animType;
+  bool                m_isLocated;
+  uint8_t             m_padding[2];
+
+  AnimFunctionTable*  m_funcTable;           ///< Function pointer table providing runtime polymorphisms for Animation Source Class Types.
+                                             ///<  Inherited Objects must set this pointer to their own table of functions.
+                                             ///<  This table is only intended to implement the functions required by Animation sources
+                                             ///<  that are to be used by NaturalMotion Source Nodes.
+  uint32_t m_size;
+  uint32_t m_aligin;
+  // NMP::Memory::Format m_animInstanceMemReqs; ///< Requirements of this animation.
 
 };
 
