@@ -433,13 +433,12 @@ void AnimSourceNSA::zhaoqi_locate()
       REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledQuatCompToAnimMaps[i]);
     }
 
-    // todo: need 
     // Sub-section CAMs themselves
-    //for (uint32_t i = 0; i < m_numChannelSections; ++i)
-    //  m_sampledPosCompToAnimMaps[i]->locate();
+    for (uint32_t i = 0; i < m_numChannelSections; ++i)
+      m_sampledPosCompToAnimMaps[i]->locate();
 
-    //for (uint32_t i = 0; i < m_numChannelSections; ++i)
-    //  m_sampledQuatCompToAnimMaps[i]->locate();
+    for (uint32_t i = 0; i < m_numChannelSections; ++i)
+      m_sampledQuatCompToAnimMaps[i]->locate();
 
     //-----------------------
     // Quantisation scale and offset information (Common to all sections)
@@ -480,24 +479,19 @@ void AnimSourceNSA::zhaoqi_locate()
   
   //-----------------------
   // Unchanging channel set data
-// todo: m_unchangingData == NULL
-  if (m_unchangingData)
-  {
-      NMP_ASSERT(m_unchangingData);
-      REFIX_SWAP_PTR(UnchangingDataNSA, m_unchangingData);
-      m_unchangingData->locate();
-  }
+  NMP_ASSERT(m_unchangingData);
+  REFIX_SWAP_PTR(UnchangingDataNSA, m_unchangingData);
+  m_unchangingData->locate();
   
   //-----------------------
   // Section data (DMA alignment)
-  // todo:
-  //for (uint32_t i = 0; i < numSectionEntries; ++i)
-  //{
-  //  REFIX_SWAP_PTR(void, m_sectionData[i].m_data);
-  //  SectionDataNSA* sectionData = (SectionDataNSA*) m_sectionData[i].m_data;
-  //  NMP_ASSERT(sectionData);
-  //  sectionData->locate();
-  //}
+  for (uint32_t i = 0; i < numSectionEntries; ++i)
+  {
+    REFIX_SWAP_PTR(void, m_sectionData[i].m_data);
+    SectionDataNSA* sectionData = (SectionDataNSA*) m_sectionData[i].m_data;
+    NMP_ASSERT(sectionData);
+    sectionData->locate();
+  }
 
   //-----------------------
   // Trajectory (DMA alignment)
