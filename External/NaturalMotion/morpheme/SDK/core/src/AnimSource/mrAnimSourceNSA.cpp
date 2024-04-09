@@ -417,6 +417,13 @@ void AnimSourceNSA::zhaoqi_locate()
   m_unchangingPosCompToAnimMap->locate();
   REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unchangingQuatCompToAnimMap);
   m_unchangingQuatCompToAnimMap->locate();
+
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unknownMap1);
+  m_unknownMap1->locate();
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledPosCompToAnimMap);
+  m_sampledPosCompToAnimMap->locate();
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unknownMap3);
+  m_unknownMap3->locate();
   return;
 
   //-----------------------

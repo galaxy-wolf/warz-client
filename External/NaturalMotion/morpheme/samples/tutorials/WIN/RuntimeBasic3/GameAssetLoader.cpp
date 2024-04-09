@@ -368,6 +368,16 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           MR::AnimSourceNSA* qsa_anim = (MR::AnimSourceNSA*)animation_data;
           qsa_anim->zhaoqi_locate();
 
+          if (qsa_anim->m_unknown1 != 0 ||
+              qsa_anim->m_unknown2 != 0 ||
+              qsa_anim->m_unknown3 != 0 ||
+              qsa_anim->m_unknown4 != 0 ||
+              qsa_anim->m_unknown5 != 0 ||
+              qsa_anim->m_unknown6 != 0)
+          {
+              NMP_STDOUT("found not zero unknown!!");
+          }
+
           //animation asset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x \n
 		  //bytes[3], bytes[2], bytes[1], bytes[0],
 		  //bytes[5], bytes[4],
@@ -382,8 +392,11 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               MR::AnimSourceNSA::getNumFrameSections(anim),
               MR::AnimSourceNSA::getNumChannelSections(anim)
               );
+          uint8_t channel_to_map_id[82];
+          memset(channel_to_map_id, 0, sizeof(channel_to_map_id));
+
           int unchangePosChannel = qsa_anim->m_unchangingPosCompToAnimMap->m_numChannels;
-		  NMP_STDOUT("unchange pos num %d  %d", unchangePosChannel, 82-unchangePosChannel)
+          NMP_STDOUT("unchange pos num %d", unchangePosChannel);
           for (int i = 0; i < qsa_anim->m_unchangingPosCompToAnimMap->m_numChannels; ++i)
           {
               int c = qsa_anim->m_unchangingPosCompToAnimMap->m_animChannels[i];
@@ -391,17 +404,72 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               {
                   NMP_STDOUT("Error found not in channel set: %d:%d", i, c);
               }
-			  NMP_STDOUT("%d", c);
+			  // NMP_STDOUT("%d", c);
+              channel_to_map_id[c] = 1;
           }
 
           int unchangeQuatChannel = qsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels;
-		  NMP_STDOUT("unchange quat num %d  %d", unchangeQuatChannel, 82-unchangeQuatChannel)
+          NMP_STDOUT("unchange quat num %d", unchangeQuatChannel);
           for (int i = 0; i < qsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels; ++i)
           {
               int c = qsa_anim->m_unchangingQuatCompToAnimMap->m_animChannels[i];
               if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
               {
                   NMP_STDOUT("Error found not in Quat channel set: %d:%d", i, c);
+              }
+              //NMP_STDOUT("%d", c);
+          }
+
+          int unknownMap1Num = qsa_anim->m_unknownMap1->m_numChannels;
+          NMP_STDOUT("unkonwn map 1 num %d", unknownMap1Num);
+          for (int i = 0; i < unknownMap1Num; ++i)
+          {
+              int c = qsa_anim->m_unknownMap1->m_animChannels[i];
+              if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
+              {
+                  NMP_STDOUT("Error found not in unkown map 1 channel set: %d:%d", i, c);
+              }
+              NMP_STDOUT("%d", c);
+          }
+
+          int unknownMap2Num = qsa_anim->m_sampledPosCompToAnimMap->m_numChannels;
+          NMP_STDOUT("unkonwn map 2 num %d", unknownMap2Num);
+          for (int i = 0; i < unknownMap2Num; ++i)
+          {
+              int c = qsa_anim->m_sampledPosCompToAnimMap->m_animChannels[i];
+              if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
+              {
+                  NMP_STDOUT("Error found not in unkown map 2 channel set: %d:%d", i, c);
+              }
+              // NMP_STDOUT("%d", c);
+              if (channel_to_map_id[c] != 0)
+              {
+                  NMP_STDOUT("Error found channel used asset id : %d channel id %d", anim_asset_id, c);
+              }
+              channel_to_map_id[c] = 2;
+          }
+          int unknownMap3Num = qsa_anim->m_unknownMap3->m_numChannels;
+          NMP_STDOUT("unkonwn map 3 num %d", unknownMap3Num);
+          if (unknownMap3Num == 0)
+          {
+              uint16_t unknown3 = qsa_anim->m_unknownMap3->m_animChannels[0];
+              if (unknown3 != 65535)
+				  NMP_STDOUT("unknown map3 %x", unknown3)
+          }
+          for (int i = 0; i < unknownMap3Num; ++i)
+          {
+              int c = qsa_anim->m_unknownMap3->m_animChannels[i];
+              if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
+              {
+                  NMP_STDOUT("Error found not in unkown map 3 channel set: %d:%d", i, c);
+              }
+              // NMP_STDOUT("%d", c);
+          }
+          for (int i = 0; i < 82; ++i)
+          {
+              if (channel_to_map_id[i] == 0)
+              {
+                  NMP_STDOUT("Error found channel not used! anim asset id: %d : channel %d ", anim_asset_id, i);
               }
           }
 

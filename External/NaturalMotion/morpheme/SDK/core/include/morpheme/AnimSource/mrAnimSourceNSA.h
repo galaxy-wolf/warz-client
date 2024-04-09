@@ -154,24 +154,27 @@ public:
   uint32_t                        m_maxNumCompChannels;               ///< The maximum number of compression channels that are used
   CompToAnimChannelMap*           m_unchangingPosCompToAnimMap;       ///< The unchanging pos comp to anim channel map
   CompToAnimChannelMap*           m_unchangingQuatCompToAnimMap;      ///< The unchanging quat comp to anim channel map
-  CompToAnimChannelMap**          m_sampledPosCompToAnimMaps;         ///< A table of pointers to the channel-wise sampled pos comp to anim channel maps
-  CompToAnimChannelMap**          m_sampledQuatCompToAnimMaps;        ///< A table of pointers to the channel-wise sampled quat comp to anim channel maps
+
+  CompToAnimChannelMap*           m_unknownMap1;      
+  CompToAnimChannelMap*           m_sampledPosCompToAnimMap;     
+  CompToAnimChannelMap*           m_unknownMap3;     
 
   //-----------------------
   // Quantisation scale and offset information (Common to all sections)
   QuantisationScaleAndOffsetVec3  m_posMeansQuantisationInfo;         ///< Global quantisation range for the pos means.
 
-  uint32_t                        m_unknown1;
-  uint32_t                        m_unknown2;
+  uint32_t                        m_unknown1;   // 全部等于0
+  uint32_t                        m_unknown2;   // 全部等于0
                                                                       ///< Global quantisation range for the quat means is between [-1:1] (tan quarter angle rotvec)
   uint32_t                        m_sampledPosNumQuantisationSets;    ///< The number of quantisation sets used to encode the sectioned position channels
   uint32_t                        m_sampledQuatNumQuantisationSets;   ///< The number of quantisation sets used to encode the sectioned orientation channels                                                                      
-  uint32_t                        m_unknown3;
-  uint32_t                        m_unknown4;
+  uint32_t                        m_unknown3; // 全部等于0
+  uint32_t                        m_unknown4;  // 全部等于0
   QuantisationScaleAndOffsetVec3* m_sampledPosQuantisationInfo;       ///< Quantisation scale and offset info for all sampled pos channels
   QuantisationScaleAndOffsetVec3* m_sampledQuatQuantisationInfo;      ///< Quantisation scale and offset info for all sampled quat channels
-  uint32_t                        m_unknown5;
-  uint32_t                        m_unknown6;
+  uint32_t                        m_unknown5;  // 全部等于0
+  uint32_t                        m_unknown6;  // 全部等于0 
+
 
   //-----------------------
   // Unchanging channel set data
@@ -191,6 +194,10 @@ public:
   //-----------------------
   // Channel names table
   NMP::OrderedStringTable*               m_channelNames;               ///< Optional string table holding the names of each channel set in this anim.
+
+  CompToAnimChannelMap**          m_sampledPosCompToAnimMaps;         ///< A table of pointers to the channel-wise sampled pos comp to anim channel maps
+  CompToAnimChannelMap**          m_sampledQuatCompToAnimMaps;        ///< A table of pointers to the channel-wise sampled quat comp to anim channel maps
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
