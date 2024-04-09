@@ -339,6 +339,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
   size_t size;
 
   size_t anim_type_ok_count = 0;
+  size_t anim_asset_id = 0;
 
   while (bundleReader.readNextAsset(unkown1, unkown2, asset, size))
   {
@@ -352,6 +353,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
       }
       else if (unkown1 == 0x5c07569f && unkown2 == 0x985d2cd6) // MorphemeAnimationResource
       { 
+          ++anim_asset_id;
           // skip uuid
           bytes += 16;
           // finally found MorphemeAssets
@@ -362,18 +364,46 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
 
           void* animation_data = NMPMemoryAllocateFromFormat(assetMemReqs).ptr;
           NMP::Memory::memcpy(animation_data, bytes, assetMemReqs.size);
-          NMP_STDOUT("sizeof bool %d", sizeof(bool));
           MR::AnimSourceBase* anim = (MR::AnimSourceBase*)animation_data;
           MR::AnimSourceNSA* qsa_anim = (MR::AnimSourceNSA*)animation_data;
           qsa_anim->zhaoqi_locate();
 
-		  NMP_STDOUT("animation asset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x type %d",
-			  bytes[3], bytes[2], bytes[1], bytes[0],
-			  bytes[5], bytes[4],
-			  bytes[7], bytes[6],
-			  bytes[8], bytes[9],
-			  bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
-			  unkown1, unkown2, anim->getType());
+          //animation asset uuid %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x unkown1: %x unkown2: %x \n
+		  //bytes[3], bytes[2], bytes[1], bytes[0],
+		  //bytes[5], bytes[4],
+		  //bytes[7], bytes[6],
+		  //bytes[8], bytes[9],
+		  //bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
+		  //unkown1, unkown2,
+          NMP_STDOUT("%d : m_numChannelSet %d m_numFrameSections %f %d m_numChannelSections %d",
+              anim_asset_id,
+              MR::AnimSourceNSA::getNumChannelSets(anim),
+              MR::AnimSourceNSA::getDuration(anim),
+              MR::AnimSourceNSA::getNumFrameSections(anim),
+              MR::AnimSourceNSA::getNumChannelSections(anim)
+              );
+          int unchangePosChannel = qsa_anim->m_unchangingPosCompToAnimMap->m_numChannels;
+		  NMP_STDOUT("unchange pos num %d  %d", unchangePosChannel, 82-unchangePosChannel)
+          for (int i = 0; i < qsa_anim->m_unchangingPosCompToAnimMap->m_numChannels; ++i)
+          {
+              int c = qsa_anim->m_unchangingPosCompToAnimMap->m_animChannels[i];
+              if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
+              {
+                  NMP_STDOUT("Error found not in channel set: %d:%d", i, c);
+              }
+			  NMP_STDOUT("%d", c);
+          }
+
+          int unchangeQuatChannel = qsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels;
+		  NMP_STDOUT("unchange quat num %d  %d", unchangeQuatChannel, 82-unchangeQuatChannel)
+          for (int i = 0; i < qsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels; ++i)
+          {
+              int c = qsa_anim->m_unchangingQuatCompToAnimMap->m_animChannels[i];
+              if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
+              {
+                  NMP_STDOUT("Error found not in Quat channel set: %d:%d", i, c);
+              }
+          }
 
 
           //if (animType != 2)
