@@ -472,17 +472,17 @@ void AnimSourceNSA::zhaoqi_locate()
     }
 
     ///// todo: ÕâÀïÁÙÊ±×¢ÊÍµô¡£
-    ////-----------------------
-    //// Sectioning information
-    //NMP::endianSwap(m_maxSectionSize);
-    //REFIX_SWAP_PTR(uint32_t, m_sectionStartFrames);
-    //NMP::endianSwapArray(m_sectionStartFrames, m_numFrameSections + 1);
+    //-----------------------
+    // Sectioning information
+    NMP::endianSwap(m_maxSectionSize);
+    REFIX_SWAP_PTR(uint32_t, m_sectionStartFrames);
+    NMP::endianSwapArray(m_sectionStartFrames, m_numFrameSections + 1);
 
-    //REFIX_SWAP_PTR(uint32_t, m_sectionSizes);
-    //NMP::endianSwapArray(m_sectionSizes, numSectionEntries);
+    REFIX_SWAP_PTR(uint32_t, m_sectionSizes);
+    NMP::endianSwapArray(m_sectionSizes, numSectionEntries);
 
-    //// Sections DataRef grid (pointers to section data packets)
-    //REFIX_SWAP_PTR(MR::DataRef, m_sectionData);
+    // Sections DataRef grid (pointers to section data packets)
+    REFIX_SWAP_PTR(MR::DataRef, m_sectionData);
   }
   
   //-----------------------
@@ -491,7 +491,6 @@ void AnimSourceNSA::zhaoqi_locate()
   REFIX_SWAP_PTR(UnchangingDataNSA, m_unchangingData);
   m_unchangingData->locate();
 
-  return;
   
   //-----------------------
   // Section data (DMA alignment)
@@ -503,6 +502,7 @@ void AnimSourceNSA::zhaoqi_locate()
     sectionData->locate();
   }
 
+  return;
   //-----------------------
   // Trajectory (DMA alignment)
   if (m_trajectoryData.m_data)

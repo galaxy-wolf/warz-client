@@ -183,21 +183,16 @@ public:
   // Unchanging channel set data
   UnchangingDataNSA*              m_unchangingData;             ///< Section data for the unchanging channels
 
-  // 上面的十分确定是正确的解释。 因为UnchangingDataNSA 可以完全对应上。
-  //---------------------------------------------------------
-
   //-----------------------
   // Sectioning information
-  DataRef*                        m_sectionData;                ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
-
-  ///// 这个绝对正确， 已经和trajectoryNSA 完全对上了。
-  //-----------------------
-  // Trajectory
-  DataRef                         m_trajectoryData;             ///< Holds a set of animation data for handling a trajectory bone (can be NULL) - DMA alignment
   uint32_t                        m_maxSectionSize;             ///< The maximum section size amoungst the sectioned data
   uint32_t*                       m_sectionStartFrames;         ///< The start frames for each frame-wise section dividing up the sampled keyframe data
   uint32_t*                       m_sectionSizes;               ///< A 2D grid of memory sizes for the sectioned data (frame major, channel minor)
+  DataRef*                        m_sectionData;                ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
 
+  //-----------------------
+  // Trajectory
+  DataRef                         m_trajectoryData;             ///< Holds a set of animation data for handling a trajectory bone (can be NULL) - DMA alignment
 
   //-----------------------
   // Channel names table
