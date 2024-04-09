@@ -373,7 +373,9 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               qsa_anim->m_unknown3 != 0 ||
               qsa_anim->m_unknown4 != 0 ||
               qsa_anim->m_unknown5 != 0 ||
-              qsa_anim->m_unknown6 != 0)
+              qsa_anim->m_unknown6 != 0 ||
+              qsa_anim->m_unknown7 != 0 ||
+              qsa_anim->m_unknown8 != 0 )
           {
               NMP_STDOUT("found not zero unknown!!");
           }

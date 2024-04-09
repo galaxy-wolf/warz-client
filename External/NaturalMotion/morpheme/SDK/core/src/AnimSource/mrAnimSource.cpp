@@ -319,7 +319,9 @@ void AttribDataSourceAnim::setTrajectorySource(const TrajectorySourceBase* traje
   if (trajectorySource)
   {
     // Store the memory requirements of the referenced source trajectory.
-    NMP::Memory::Format memReqs = trajectorySource->getInstanceMemoryRequirements();
+    NMP::Memory::Format memReqs;
+    memReqs.size = trajectorySource->size;
+    memReqs.alignment = trajectorySource->alignment;
     m_trajectorySize = (uint32_t)memReqs.size;
     NMP_ASSERT((memReqs.size > 0) && (memReqs.alignment > 0) && (memReqs.alignment <= NMP_VECTOR_ALIGNMENT));
   }

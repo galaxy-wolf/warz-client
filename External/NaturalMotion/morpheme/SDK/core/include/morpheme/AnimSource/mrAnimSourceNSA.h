@@ -188,12 +188,37 @@ public:
 
   //-----------------------
   // Sectioning information
-  DataRef*                        m_sectionData;                ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
+  SectionDataNSA* m_sectionDataGood;  // 这玩意只有一个，不是2d的。
+  ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
+  // 这个被上面的 m_sectionDataGood 替换掉了。可能是因为pc 上没有dma 读取！！
+  // DataRef*                        m_sectionData;                ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
 
   ///// 这个绝对正确， 已经和trajectoryNSA 完全对上了。
   //-----------------------
   // Trajectory
+  TrajectorySourceNSA* m_trajectoryDataGood;     
+  // 这个被上面的替换掉了， 可能是因为pc 上没有dma 读取！！
+  // DataRef                         m_trajectoryData;             ///< Holds a set of animation data for handling a trajectory bone (can be NULL) - DMA alignment
+
+  ///// 
+
+  uint32_t                        m_unknown7;  // 全部等于0 
+  uint32_t                        m_unknown8;  // 全部等于0
+
+
+
+  DataRef*                        m_sectionData;                ///< A 2D grid of data references to sectioned data (frame major, channel minor) - DMA alignmnent
   DataRef                         m_trajectoryData;             ///< Holds a set of animation data for handling a trajectory bone (can be NULL) - DMA alignment
+
+
+
+
+
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+  // 后面的都是空没有用的！！！！
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+  // 而且我知道后面最多一个指针 或者两个int， 你们看着办。
   uint32_t                        m_maxSectionSize;             ///< The maximum section size amoungst the sectioned data
   uint32_t*                       m_sectionStartFrames;         ///< The start frames for each frame-wise section dividing up the sampled keyframe data
   uint32_t*                       m_sectionSizes;               ///< A 2D grid of memory sizes for the sectioned data (frame major, channel minor)
