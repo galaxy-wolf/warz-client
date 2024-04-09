@@ -418,35 +418,34 @@ void AnimSourceNSA::zhaoqi_locate()
   REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unchangingQuatCompToAnimMap);
   m_unchangingQuatCompToAnimMap->locate();
 
-  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unknownMap1);
-  m_unknownMap1->locate();
   REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledPosCompToAnimMap);
   m_sampledPosCompToAnimMap->locate();
+  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledQuatCompToAnimMap);
+  m_sampledQuatCompToAnimMap->locate();
   REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_unknownMap3);
   m_unknownMap3->locate();
-  return;
 
   //-----------------------
   if (numSectionEntries > 0)
   {
     // Pointers table to sub-section CAMs
-    REFIX_SWAP_PTR(MR::CompToAnimChannelMap*, m_sampledPosCompToAnimMaps);
-    for (uint32_t i = 0; i < m_numChannelSections; ++i)
-    {
-      REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledPosCompToAnimMaps[i]);
-    }
-    REFIX_SWAP_PTR(MR::CompToAnimChannelMap*, m_sampledQuatCompToAnimMaps);
-    for (uint32_t i = 0; i < m_numChannelSections; ++i)
-    {
-      REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledQuatCompToAnimMaps[i]);
-    }
+    //REFIX_SWAP_PTR(MR::CompToAnimChannelMap*, m_sampledPosCompToAnimMaps);
+    //for (uint32_t i = 0; i < m_numChannelSections; ++i)
+    //{
+    //  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledPosCompToAnimMaps[i]);
+    //}
+    //REFIX_SWAP_PTR(MR::CompToAnimChannelMap*, m_sampledQuatCompToAnimMaps);
+    //for (uint32_t i = 0; i < m_numChannelSections; ++i)
+    //{
+    //  REFIX_SWAP_PTR(MR::CompToAnimChannelMap, m_sampledQuatCompToAnimMaps[i]);
+    //}
 
     // Sub-section CAMs themselves
-    for (uint32_t i = 0; i < m_numChannelSections; ++i)
-      m_sampledPosCompToAnimMaps[i]->locate();
+    //for (uint32_t i = 0; i < m_numChannelSections; ++i)
+    //  m_sampledPosCompToAnimMaps[i]->locate();
 
-    for (uint32_t i = 0; i < m_numChannelSections; ++i)
-      m_sampledQuatCompToAnimMaps[i]->locate();
+    //for (uint32_t i = 0; i < m_numChannelSections; ++i)
+    //  m_sampledQuatCompToAnimMaps[i]->locate();
 
     //-----------------------
     // Quantisation scale and offset information (Common to all sections)
@@ -472,17 +471,18 @@ void AnimSourceNSA::zhaoqi_locate()
       }
     }
 
-    //-----------------------
-    // Sectioning information
-    NMP::endianSwap(m_maxSectionSize);
-    REFIX_SWAP_PTR(uint32_t, m_sectionStartFrames);
-    NMP::endianSwapArray(m_sectionStartFrames, m_numFrameSections + 1);
+    ///// todo: ÕâÀïÁÙÊ±×¢ÊÍµô¡£
+    ////-----------------------
+    //// Sectioning information
+    //NMP::endianSwap(m_maxSectionSize);
+    //REFIX_SWAP_PTR(uint32_t, m_sectionStartFrames);
+    //NMP::endianSwapArray(m_sectionStartFrames, m_numFrameSections + 1);
 
-    REFIX_SWAP_PTR(uint32_t, m_sectionSizes);
-    NMP::endianSwapArray(m_sectionSizes, numSectionEntries);
+    //REFIX_SWAP_PTR(uint32_t, m_sectionSizes);
+    //NMP::endianSwapArray(m_sectionSizes, numSectionEntries);
 
-    // Sections DataRef grid (pointers to section data packets)
-    REFIX_SWAP_PTR(MR::DataRef, m_sectionData);
+    //// Sections DataRef grid (pointers to section data packets)
+    //REFIX_SWAP_PTR(MR::DataRef, m_sectionData);
   }
   
   //-----------------------
@@ -490,6 +490,8 @@ void AnimSourceNSA::zhaoqi_locate()
   NMP_ASSERT(m_unchangingData);
   REFIX_SWAP_PTR(UnchangingDataNSA, m_unchangingData);
   m_unchangingData->locate();
+
+  return;
   
   //-----------------------
   // Section data (DMA alignment)

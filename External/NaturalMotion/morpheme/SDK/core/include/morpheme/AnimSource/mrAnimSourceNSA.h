@@ -152,12 +152,15 @@ public:
   //-----------------------
   // Compression to animation channel maps
   uint32_t                        m_maxNumCompChannels;               ///< The maximum number of compression channels that are used
-  CompToAnimChannelMap*           m_unchangingPosCompToAnimMap;       ///< The unchanging pos comp to anim channel map
   CompToAnimChannelMap*           m_unchangingQuatCompToAnimMap;      ///< The unchanging quat comp to anim channel map
 
-  CompToAnimChannelMap*           m_unknownMap1;      
-  CompToAnimChannelMap*           m_sampledPosCompToAnimMap;     
-  CompToAnimChannelMap*           m_unknownMap3;     
+  //                    todo: m_unchangingPosCompToAnimMap这部分找不到对应的内存， 但是我们可以从m_sampledPosCompToAnimMap 反推出来。
+///< 长度都是0， 猜测： 大概率是unchanging 的sacale 部分。
+  CompToAnimChannelMap*           m_unchangingPosCompToAnimMap;       ///< The unchanging pos comp to anim channel map
+
+  CompToAnimChannelMap*           m_sampledPosCompToAnimMap;      
+  CompToAnimChannelMap*           m_sampledQuatCompToAnimMap;     
+  CompToAnimChannelMap*           m_unknownMap3;                    // 长度都是 0，猜测： 大概率是sample 的 scale部分。
 
   //-----------------------
   // Quantisation scale and offset information (Common to all sections)
