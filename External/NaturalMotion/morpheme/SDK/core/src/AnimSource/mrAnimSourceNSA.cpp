@@ -452,13 +452,20 @@ void AnimSourceNSA::zhaoqi_locate()
   
   //-----------------------
   // Unchanging channel set data
-  NMP_ASSERT(m_unchangingData);
-  REFIX_SWAP_PTR(UnchangingDataNSA, m_unchangingData);
-  m_unchangingData->locate();
+  
+	if (m_unchangingData)
+	{
+		NMP_ASSERT(m_unchangingData);
+		REFIX_SWAP_PTR(UnchangingDataNSA, m_unchangingData);
+		m_unchangingData->locate();
+	}
 
-  REFIX_SWAP_PTR(SectionDataNSA, m_sectionDataGood);
-  NMP_ASSERT(m_sectionDataGood);
-  m_sectionDataGood->locate();
+  if (m_sectionDataGood)
+  {
+      REFIX_SWAP_PTR(SectionDataNSA, m_sectionDataGood);
+      NMP_ASSERT(m_sectionDataGood);
+      m_sectionDataGood->locate();
+  }
 
   if (m_trajectoryDataGood)
   {

@@ -368,6 +368,15 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           MR::AnimSourceNSA* qsa_anim = (MR::AnimSourceNSA*)animation_data;
           qsa_anim->zhaoqi_locate();
 
+          if (qsa_anim->m_sectionDataGood)
+          {
+              if (fabs(qsa_anim->m_duration * qsa_anim->m_sampleFrequency - (qsa_anim->m_sectionDataGood->m_numSectionAnimFrames - 1)) > 1e-3)
+              {
+                  NMP_STDOUT("num section anim frame not equal to duration * frequency!!");
+              }
+          }
+
+
           if (qsa_anim->m_unknown1 != 0 ||
               qsa_anim->m_unknown2 != 0 ||
               qsa_anim->m_unknown3 != 0 ||

@@ -137,7 +137,7 @@ public:
     float                                   interpolant,
     NMP::DataBuffer*                        outputBuffer) const;
 
-protected:
+public:
   uint32_t                          m_numSectionAnimFrames;         ///< The number of frames contained within this sub-section
   uint32_t                          m_sampledPosNumChannels;        ///< The number of sampled position channels in this sub-section
   uint32_t                          m_sampledQuatNumChannels;       ///< The number of sampled orientation channels in this sub-section
