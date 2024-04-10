@@ -146,12 +146,12 @@ public:
   uint32_t                        m_numChannelSets;             ///< The number of channel sets contained within this animation.
                                                                 ///< A channel set usually contains the key frame animation data for a
                                                                 ///< bone on a rig.
-  uint32_t                        m_numFrameSections;           ///< The number of frame-wise sections dividing up the sampled keyframe data
-  uint32_t                        m_numChannelSections;         ///< The number of channel-wise sections dividing up the sampled keyframe data
+  uint32_t                       m_maxOfChannelNum;         // unchanged; changed; pos, quat 四个Num 中最大的那个。
 
   //-----------------------
   // Compression to animation channel maps
   uint32_t                        m_maxNumCompChannels;               ///< The maximum number of compression channels that are used
+  uint32_t                        m_unknown0;           // 全部等于0
   CompToAnimChannelMap*           m_unchangingQuatCompToAnimMap;      ///< The unchanging quat comp to anim channel map
 
   //                    todo: m_unchangingPosCompToAnimMap这部分找不到对应的内存， 但是我们可以从m_sampledPosCompToAnimMap 反推出来。
@@ -223,6 +223,8 @@ public:
   uint32_t*                       m_sectionStartFrames;         ///< The start frames for each frame-wise section dividing up the sampled keyframe data
   uint32_t*                       m_sectionSizes;               ///< A 2D grid of memory sizes for the sectioned data (frame major, channel minor)
 
+  uint32_t                        m_numChannelSections;         ///< The number of channel-wise sections dividing up the sampled keyframe data
+  uint32_t                        m_numFrameSections;           ///< The number of frame-wise sections dividing up the sampled keyframe data
 
   //-----------------------
   // Channel names table

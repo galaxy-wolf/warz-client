@@ -16,6 +16,7 @@
 #include "morpheme/AnimSource/mrAnimSourceNSA.h"
 #include <fstream>
 #include <string>
+#include <algorithm>
 //----------------------------------------------------------------------------------------------------------------------
 
 namespace Game
@@ -356,6 +357,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
       else if (unkown1 == 0x5c07569f && unkown2 == 0x985d2cd6) // MorphemeAnimationResource
       { 
           ++anim_asset_id;
+          uint32_t max_of_channel_num = 0;
           // skip uuid
           bytes += 16;
           // finally found MorphemeAssets
@@ -367,12 +369,12 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           void* animation_data = NMPMemoryAllocateFromFormat(assetMemReqs).ptr;
           NMP::Memory::memcpy(animation_data, bytes, assetMemReqs.size);
           MR::AnimSourceBase* anim = (MR::AnimSourceBase*)animation_data;
-          MR::AnimSourceNSA* qsa_anim = (MR::AnimSourceNSA*)animation_data;
-          qsa_anim->zhaoqi_locate();
+          MR::AnimSourceNSA* nsa_anim = (MR::AnimSourceNSA*)animation_data;
+          nsa_anim->zhaoqi_locate();
 
-          if (qsa_anim->m_sectionDataGood)
+          if (nsa_anim->m_sectionDataGood)
           {
-              if (fabs(qsa_anim->m_duration * qsa_anim->m_sampleFrequency - (qsa_anim->m_sectionDataGood->m_numSectionAnimFrames - 1)) > 1e-3)
+              if (fabs(nsa_anim->m_duration * nsa_anim->m_sampleFrequency - (nsa_anim->m_sectionDataGood->m_numSectionAnimFrames - 1)) > 1e-3)
               {
                   NMP_STDOUT("num section anim frame not equal to duration * frequency!!");
               }
@@ -384,23 +386,23 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           path = path + std::to_string(anim_asset_id) + ".txt";
           animfile.open(path);
 
-          animfile << qsa_anim->m_duration << std::endl;
-          animfile << qsa_anim->m_sampleFrequency << std::endl;
+          animfile << nsa_anim->m_duration << std::endl;
+          animfile << nsa_anim->m_sampleFrequency << std::endl;
           animfile.close();
 
-          if (qsa_anim->m_unknown1 != 0 ||
-              qsa_anim->m_unknown2 != 0 ||
-              qsa_anim->m_unknown3 != 0 ||
-              qsa_anim->m_unknown4 != 0 ||
-              qsa_anim->m_unknown5 != 0 ||
-              qsa_anim->m_unknown6 != 0 ||
-              qsa_anim->m_unknown7 != 0 ||
-              qsa_anim->m_unknown8 != 0 )
+          if (nsa_anim->m_unknown1 != 0 ||
+              nsa_anim->m_unknown2 != 0 ||
+              nsa_anim->m_unknown3 != 0 ||
+              nsa_anim->m_unknown4 != 0 ||
+              nsa_anim->m_unknown5 != 0 ||
+              nsa_anim->m_unknown6 != 0 ||
+              nsa_anim->m_unknown7 != 0 ||
+              nsa_anim->m_unknown8 != 0 )
           {
               NMP_STDOUT("found not zero unknown!!");
           }
 
-          if (qsa_anim->m_unchangingData->m_unknown1 != 0 || qsa_anim->m_unchangingData->m_unknown2 != 0 || qsa_anim->m_unchangingData->m_unknown3 != 0 || qsa_anim->m_unchangingData->m_unknown4 != 0) 
+          if (nsa_anim->m_unchangingData->m_unknown1 != 0 || nsa_anim->m_unchangingData->m_unknown2 != 0 || nsa_anim->m_unchangingData->m_unknown3 != 0 || nsa_anim->m_unchangingData->m_unknown4 != 0) 
           {
               NMP_STDOUT("found m_unchangingData not zero unknown!!");
           }
@@ -412,21 +414,23 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
 		  //bytes[8], bytes[9],
 		  //bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
 		  //unkown1, unkown2,
-          NMP_STDOUT("%d : m_numChannelSet %d m_numFrameSections %f %d m_numChannelSections %d",
+          NMP_STDOUT("%d : m_numChannelSet %d m_duration %fs m_numSectionAnimFrames %d, m_maxNumCompChannels %d",
               anim_asset_id,
               MR::AnimSourceNSA::getNumChannelSets(anim),
               MR::AnimSourceNSA::getDuration(anim),
-              MR::AnimSourceNSA::getNumFrameSections(anim),
-              MR::AnimSourceNSA::getNumChannelSections(anim)
+			  nsa_anim->m_sectionDataGood ? nsa_anim->m_sectionDataGood->m_numSectionAnimFrames : 0,
+              nsa_anim->m_maxNumCompChannels
               );
-          NMP_STDOUT("unchanging data pos num %d  quat num %d",  qsa_anim->m_unchangingData->m_unchangingPosNumChannels,
-              qsa_anim->m_unchangingData->m_unchangingQuatNumChannels)
+          NMP_STDOUT("unchanging data pos num %d  quat num %d", nsa_anim->m_unchangingData->m_unchangingPosNumChannels,
+              nsa_anim->m_unchangingData->m_unchangingQuatNumChannels);
+		  max_of_channel_num = std::max(max_of_channel_num, nsa_anim->m_unchangingData->m_unchangingPosNumChannels);
+		  max_of_channel_num = std::max(max_of_channel_num, nsa_anim->m_unchangingData->m_unchangingQuatNumChannels);
 
-          int unchanging_pos_num = qsa_anim->m_unchangingPosCompToAnimMap->m_numChannels;
+          int unchanging_pos_num = nsa_anim->m_unchangingPosCompToAnimMap->m_numChannels;
           NMP_STDOUT("unchange pos num %d", unchanging_pos_num);
           for (int i = 0; i < unchanging_pos_num; ++i)
           {
-              int c = qsa_anim->m_unchangingPosCompToAnimMap->m_animChannels[i];
+              int c = nsa_anim->m_unchangingPosCompToAnimMap->m_animChannels[i];
               if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
               {
                   NMP_STDOUT("Error found not in channel set: %d:%d", i, c);
@@ -441,11 +445,11 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           uint8_t channel_to_map_id[82];
           memset(channel_to_map_id, 0, sizeof(channel_to_map_id));
 
-          int unchangeQuatChannel = qsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels;
+          int unchangeQuatChannel = nsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels;
           NMP_STDOUT("unchange quat num %d", unchangeQuatChannel);
-          for (int i = 0; i < qsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels; ++i)
+          for (int i = 0; i < nsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels; ++i)
           {
-              int c = qsa_anim->m_unchangingQuatCompToAnimMap->m_animChannels[i];
+              int c = nsa_anim->m_unchangingQuatCompToAnimMap->m_animChannels[i];
               if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
               {
                   NMP_STDOUT("Error found not in Quat channel set: %d:%d", i, c);
@@ -454,23 +458,24 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               channel_to_map_id[c] = 1;
           }
 
-          int sample_pos_num = qsa_anim->m_sampledPosCompToAnimMap->m_numChannels;
+          int sample_pos_num = nsa_anim->m_sampledPosCompToAnimMap->m_numChannels;
           NMP_STDOUT("sample pos num %d", sample_pos_num);
           for (int i = 0; i < sample_pos_num; ++i)
           {
-              int c = qsa_anim->m_sampledPosCompToAnimMap->m_animChannels[i];
+              int c = nsa_anim->m_sampledPosCompToAnimMap->m_animChannels[i];
               if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
               {
                   NMP_STDOUT("Error found not sample pos map 1 channel set: %d:%d", i, c);
               }
               // NMP_STDOUT("%d", c);
           }
+          max_of_channel_num = std::max(max_of_channel_num, (uint32_t)( nsa_anim->m_sampledPosCompToAnimMap->m_numChannels));
 
-          int sample_quat_num = qsa_anim->m_sampledQuatCompToAnimMap->m_numChannels;
+          int sample_quat_num = nsa_anim->m_sampledQuatCompToAnimMap->m_numChannels;
           NMP_STDOUT("sample quat num %d", sample_quat_num);
           for (int i = 0; i < sample_quat_num; ++i)
           {
-              int c = qsa_anim->m_sampledQuatCompToAnimMap->m_animChannels[i];
+              int c = nsa_anim->m_sampledQuatCompToAnimMap->m_animChannels[i];
               if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
               {
                   NMP_STDOUT("Error found not in sample quat channel set: %d:%d", i, c);
@@ -482,11 +487,12 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               }
               channel_to_map_id[c] = 2;
           }
-          int unknownMap3Num = qsa_anim->m_unknownMap3->m_numChannels;
+          max_of_channel_num = std::max(max_of_channel_num, (uint32_t)( nsa_anim->m_sampledQuatCompToAnimMap->m_numChannels));
+          int unknownMap3Num = nsa_anim->m_unknownMap3->m_numChannels;
           NMP_STDOUT("unkonwn map 3 num %d", unknownMap3Num);
           if (unknownMap3Num == 0)
           {
-              uint16_t unknown3 = qsa_anim->m_unknownMap3->m_animChannels[0];
+              uint16_t unknown3 = nsa_anim->m_unknownMap3->m_animChannels[0];
               if (unknown3 != 65535)
 				  NMP_STDOUT("unknown map3 %x", unknown3)
           }
@@ -496,7 +502,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           }
           for (int i = 0; i < unknownMap3Num; ++i)
           {
-              int c = qsa_anim->m_unknownMap3->m_animChannels[i];
+              int c = nsa_anim->m_unknownMap3->m_animChannels[i];
               if (c<0 || c> MR::AnimSourceNSA::getNumChannelSets(anim))
               {
                   NMP_STDOUT("Error found not in unkown map 3 channel set: %d:%d", i, c);
@@ -509,6 +515,10 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               {
                   NMP_STDOUT("Error found channel not used! anim asset id: %d : channel %d ", anim_asset_id, i);
               }
+          }
+          if (nsa_anim->m_maxOfChannelNum != max_of_channel_num)
+          {
+              NMP_STDOUT("max channel num %d not equal to real max of channel %d", nsa_anim->m_maxOfChannelNum, max_of_channel_num);
           }
 
           //if (animType != 2)
