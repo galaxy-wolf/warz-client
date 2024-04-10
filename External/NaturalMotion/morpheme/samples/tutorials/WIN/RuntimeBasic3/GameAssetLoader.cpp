@@ -445,12 +445,14 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
 		  //bytes[8], bytes[9],
 		  //bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
 		  //unkown1, unkown2,
-          NMP_STDOUT("%d : m_numChannelSet %d m_duration %fs m_numSectionAnimFrames %d, m_maxNumCompChannels %d",
+          NMP_STDOUT("%d : m_numChannelSet %d m_duration %fs m_numSectionAnimFrames %d, m_maxNumCompChannels %d\nsampledPosNumQuantis %d sampledQuatNumQuantis %d",
               anim_asset_id,
               MR::AnimSourceNSA::getNumChannelSets(anim),
               MR::AnimSourceNSA::getDuration(anim),
-			  nsa_anim->m_sectionDataGood ? nsa_anim->m_sectionDataGood->m_numSectionAnimFrames : 0,
-              nsa_anim->m_maxNumCompChannels
+              nsa_anim->m_sectionDataGood ? nsa_anim->m_sectionDataGood->m_numSectionAnimFrames : 0,
+              nsa_anim->m_maxNumCompChannels,
+              nsa_anim->m_sampledPosNumQuantisationSets,
+              nsa_anim->m_sampledQuatNumQuantisationSets
               );
           NMP_STDOUT("unchanging data pos num %d  quat num %d", nsa_anim->m_unchangingData->m_unchangingPosNumChannels,
               nsa_anim->m_unchangingData->m_unchangingQuatNumChannels);
