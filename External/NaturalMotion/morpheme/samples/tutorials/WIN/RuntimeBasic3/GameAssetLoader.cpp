@@ -14,6 +14,8 @@
 #include "GameCharacterManager.h"
 #include "simpleBundle/simpleBundle.h"
 #include "morpheme/AnimSource/mrAnimSourceNSA.h"
+#include <fstream>
+#include <string>
 //----------------------------------------------------------------------------------------------------------------------
 
 namespace Game
@@ -339,7 +341,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
   size_t size;
 
   size_t anim_type_ok_count = 0;
-  size_t anim_asset_id = 0;
+  size_t anim_asset_id = 2;
 
   while (bundleReader.readNextAsset(unkown1, unkown2, asset, size))
   {
@@ -376,6 +378,15 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               }
           }
 
+          // 导出文本文件。
+          std::ofstream animfile;
+          std::string path = "F:/horizon_files/aloy_animations/";
+          path = path + std::to_string(anim_asset_id) + ".txt";
+          animfile.open(path);
+
+          animfile << qsa_anim->m_duration << std::endl;
+          animfile << qsa_anim->m_sampleFrequency << std::endl;
+          animfile.close();
 
           if (qsa_anim->m_unknown1 != 0 ||
               qsa_anim->m_unknown2 != 0 ||
