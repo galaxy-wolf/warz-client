@@ -49,6 +49,7 @@ AnimSourceNSA::AnimSourceNSA()
 void AnimSourceNSA::HZDComputeAtFrame(
     const AnimSourceBase* sourceAnimation,
     int frameIndex,
+    std::vector<int>& unchangingPosCompToAnimMap,
     std::vector<float>& oneFrame  // posX, posY, posZ, posW, quatX, quatY, quatZ, quatW; posX .... 
 )
 {
@@ -60,7 +61,7 @@ void AnimSourceNSA::HZDComputeAtFrame(
 
   NMP_ASSERT(compressedSource->m_unchangingPosCompToAnimMap);
   unchangingData->HZDUnchangingPosDecompress(
-    compressedSource->m_unchangingPosCompToAnimMap,
+      unchangingPosCompToAnimMap,
     oneFrame);
   NMP_ASSERT(compressedSource->m_unchangingQuatCompToAnimMap);
   unchangingData->HZDUnchangingQuatDecompress(

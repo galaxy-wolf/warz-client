@@ -58,6 +58,7 @@ public:
     static void HZDComputeAtFrame(
         const AnimSourceBase* sourceAnimation,
         int frameIndex,
+		std::vector<int>& unchangingPosCompToAnimMap,
         std::vector<float>& oneFrame  // posX, posY, posZ, posW, quatX, quatY, quatZ, quatW; posX .... 
     );
   //-----------------------

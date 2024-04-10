@@ -122,21 +122,19 @@ UnchangingDataNSA* UnchangingDataNSA::relocate(void*& ptr)
 #ifdef NMP_PLATFORM_SIMD
 
   void UnchangingDataNSA::HZDUnchangingPosDecompress(
-    const CompToAnimChannelMap* compToAnimTableMap,
+    std::vector<int>& unchangingPosCompToAnimMap,
     std::vector<float>& oneFrame) const
   {
-    const uint16_t* animChannelIndices = compToAnimTableMap->getAnimChannels();
-
 	  NMP::Vector3 qScale, qOffset;
 	  m_unchangingPosQuantisationInfo.unpack(qScale, qOffset);
 
 	  // Iterate over the compression channels in blocks of four
-	  for (uint32_t indx = 0; indx < compToAnimTableMap->getNumChannels(); ++indx)
+	  for (uint32_t indx = 0; indx < unchangingPosCompToAnimMap.size(); ++indx)
 	  {
           NMP::Vector3 vec;
           m_unchangingPosData[indx].unpack(vec);
           NMP::Vector3 ret = vec * qScale + qOffset;
-          int channelIndex = animChannelIndices[indx];
+          int channelIndex = unchangingPosCompToAnimMap[indx];
           oneFrame[channelIndex * 8 + 0] = ret.x;
           oneFrame[channelIndex * 8 + 1] = ret.y;
           oneFrame[channelIndex * 8 + 2] = ret.z;

@@ -50,7 +50,7 @@ public:
   NM_INLINE void relocate();
 
   void HZDUnchangingPosDecompress(
-    const CompToAnimChannelMap* compToAnimTableMap,
+    std::vector<int>& unchangingPosCompToAnimMap,
     std::vector<float>& oneFrame) const;
   
   void HZDUnchangingQuatDecompress(

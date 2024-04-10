@@ -372,6 +372,25 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           MR::AnimSourceNSA* nsa_anim = (MR::AnimSourceNSA*)animation_data;
           nsa_anim->zhaoqi_locate();
 
+          // 修复 m_unchangingPosCompToAnimMap 这个是空的， 其实要从m_sampledPosCompToAnimMap 这个推断出来。
+          std::vector<int> unchangingPosCompToAnimMap;
+          {
+              int sampledPoseCount = nsa_anim->m_sampledPosCompToAnimMap->m_numChannels;
+              int iSamplePoseIndex = 0;
+              for (uint16_t iChannel = 0; iChannel < nsa_anim->m_numChannelSets; ++iChannel)
+              {
+                  if (iSamplePoseIndex < sampledPoseCount &&
+                      nsa_anim->m_sampledPosCompToAnimMap->m_animChannels[iSamplePoseIndex] == iChannel)
+                  {
+                      ++iSamplePoseIndex;
+                  }
+                  else {
+                      unchangingPosCompToAnimMap.push_back(iChannel);
+                  }
+              }
+              NMP_ASSERT(unchangingPosCompToAnimMap.size() + sampledPoseCount == nsa_anim->m_numChannelSets);
+          }
+
           if (nsa_anim->m_sectionDataGood)
           {
               if (fabs(nsa_anim->m_duration * nsa_anim->m_sampleFrequency - (nsa_anim->m_sectionDataGood->m_numSectionAnimFrames - 1)) > 1e-3)
@@ -394,7 +413,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               std::vector<float> one_frame;
               for (int frameIndex = 0; frameIndex < nsa_anim->m_sectionDataGood->m_numSectionAnimFrames + 1; ++frameIndex)
               {
-                  MR::AnimSourceNSA::HZDComputeAtFrame(anim, frameIndex, one_frame);
+                  MR::AnimSourceNSA::HZDComputeAtFrame(anim, frameIndex, unchangingPosCompToAnimMap, one_frame);
                   for (int iChannel = 0; iChannel < nsa_anim->m_numChannelSets; ++iChannel)
                   {
                       for (int iComp = 0; iComp < 8; ++iComp)
@@ -409,7 +428,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               animfile << 1 << std::endl;
 			  std::vector<float> one_frame;
               // 有多帧， 但是只有一个固定帧， 那只能输出一帧喽。
-			  MR::AnimSourceNSA::HZDComputeAtFrame(anim, 0, one_frame);
+			  MR::AnimSourceNSA::HZDComputeAtFrame(anim, 0, unchangingPosCompToAnimMap, one_frame);
               for (int iChannel = 0; iChannel < nsa_anim->m_numChannelSets; ++iChannel)
               {
                   for (int iComp = 0; iComp < 8; ++iComp)
