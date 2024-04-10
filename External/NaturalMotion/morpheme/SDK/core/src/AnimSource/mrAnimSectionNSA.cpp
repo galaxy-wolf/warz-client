@@ -120,6 +120,52 @@ UnchangingDataNSA* UnchangingDataNSA::relocate(void*& ptr)
 }
 
 #ifdef NMP_PLATFORM_SIMD
+
+  void UnchangingDataNSA::HZDUnchangingPosDecompress(
+    const CompToAnimChannelMap* compToAnimTableMap,
+    std::vector<float>& oneFrame) const
+  {
+    const uint16_t* animChannelIndices = compToAnimTableMap->getAnimChannels();
+
+	  NMP::Vector3 qScale, qOffset;
+	  m_unchangingPosQuantisationInfo.unpack(qScale, qOffset);
+
+	  // Iterate over the compression channels in blocks of four
+	  for (uint32_t indx = 0; indx < compToAnimTableMap->getNumChannels(); ++indx)
+	  {
+          NMP::Vector3 vec;
+          m_unchangingPosData[indx].unpack(vec);
+          NMP::Vector3 ret = vec * qScale + qOffset;
+          int channelIndex = animChannelIndices[indx];
+          oneFrame[channelIndex * 8 + 0] = ret.x;
+          oneFrame[channelIndex * 8 + 1] = ret.y;
+          oneFrame[channelIndex * 8 + 2] = ret.z;
+          oneFrame[channelIndex * 8 + 3] = 0.0f;
+	  }
+  }
+
+  void UnchangingDataNSA::HZDUnchangingQuatDecompress(
+    const CompToAnimChannelMap* compToAnimTableMap,
+    std::vector<float>& oneFrame) const
+  {
+    const uint16_t* animChannelIndices = compToAnimTableMap->getAnimChannels();
+
+	  NMP::Vector3 qScale, qOffset;
+	  m_unchangingQuatQuantisationInfo.unpack(qScale, qOffset);
+
+	  // Iterate over the compression channels in blocks of four
+	  for (uint32_t indx = 0; indx < compToAnimTableMap->getNumChannels(); ++indx)
+	  {
+          NMP::Vector3 vec;
+          m_unchangingQuatData[indx].unpack(vec);
+          NMP::Vector3 ret = vec * qScale + qOffset;
+          int channelIndex = animChannelIndices[indx];
+          oneFrame[channelIndex * 8 + 4 + 0] = ret.x;
+          oneFrame[channelIndex * 8 + 4 + 1] = ret.y;
+          oneFrame[channelIndex * 8 + 4 + 2] = ret.z;
+          oneFrame[channelIndex * 8 + 4 + 3] = 0.0f;
+	  }
+  }
 //----------------------------------------------------------------------------------------------------------------------
 void UnchangingDataNSA::unchangingPosDecompress(
   const AnimToRigTableMap*    animToRigTableMap,
@@ -655,6 +701,189 @@ SectionDataNSA* SectionDataNSA::relocate(void*& ptr)
 
 #ifdef NMP_PLATFORM_SIMD
 //----------------------------------------------------------------------------------------------------------------------
+
+void SectionDataNSA::HZDSampledPosDecompress(
+    const QuantisationScaleAndOffsetVec3& posMeansQuantisationInfo,
+    const QuantisationScaleAndOffsetVec3* sampledPosQuantisationInfo,
+    const CompToAnimChannelMap* compToAnimTableMap,
+    uint32_t                                sectionFrameIndex,
+    std::vector<float>& oneFrame) const
+{
+  NMP_ASSERT(compToAnimTableMap);
+
+  // Check we have some key-frame data
+  if (m_sampledPosNumChannels == 0)
+    return;
+
+  NMP_ASSERT(sampledPosQuantisationInfo);
+  NMP_ASSERT(NMP_IS_ALIGNED(m_sampledPosQuantisationData, NMP_NATURAL_TYPE_ALIGNMENT));
+
+  // Avoid decompressing any channels that are not required by this LOD
+  const uint16_t* animChannelIndices = compToAnimTableMap->getAnimChannels();
+  NMP_ASSERT(animChannelIndices);
+
+  // Get the sampled keys
+  size_t alignment;
+  size_t keyFrameDataStride;
+  size_t keyFrameDataMemReqs;
+  SectionDataNSA::getMemoryReqsSampledPosData(
+    m_numSectionAnimFrames,
+    m_sampledPosNumChannels,
+    alignment,
+    keyFrameDataStride,
+    keyFrameDataMemReqs);
+
+  NMP_ASSERT(m_sampledPosData);
+  NMP_ASSERT(NMP_IS_ALIGNED(m_sampledPosData, alignment));
+  const uint8_t* data = (const uint8_t*) m_sampledPosData;
+  data += (sectionFrameIndex * keyFrameDataStride);
+  const SampledPosKey* sampledPosKeysA = (const SampledPosKey*)data;
+
+  // Compute the quantisation scale and offset information for the channel means
+  NMP::Vector3 qScaleMean, qOffsetMean;
+  posMeansQuantisationInfo.unpack(qScaleMean, qOffsetMean);
+
+  // Iterate over the compression channels
+  for (uint32_t indx = 0; indx < compToAnimTableMap->getNumChannels(); ++indx)
+  {
+    uint32_t channelIndex = animChannelIndices[indx];
+    NMP_ASSERT(indx < compToAnimTableMap->getNumChannels());
+
+    // Dequantise the channel mean
+    NMP::Vector3 vecMean;
+    const QuantisationMeanAndSetVec3& qData = m_sampledPosQuantisationData[indx];
+    qData.unpackQMean(vecMean);
+    NMP::Vector3 pbar = vecMean * qScaleMean + qOffsetMean;
+
+    // Quantisation set basis
+    uint32_t qSet[3];
+    qData.unpackQSet(qSet);
+    const QuantisationScaleAndOffsetVec3& qSetX = sampledPosQuantisationInfo[qSet[0]];
+    const QuantisationScaleAndOffsetVec3& qSetY = sampledPosQuantisationInfo[qSet[1]];
+    const QuantisationScaleAndOffsetVec3& qSetZ = sampledPosQuantisationInfo[qSet[2]];
+    NMP::Vector3 qScale;
+    qScale.x = qSetX.getQuantisationSetScaleX();
+    qScale.y = qSetY.getQuantisationSetScaleY();
+    qScale.z = qSetZ.getQuantisationSetScaleZ();
+    NMP::Vector3 qOffset;
+    qOffset.x = qSetX.getQuantisationSetOffsetX();
+    qOffset.y = qSetY.getQuantisationSetOffsetY();
+    qOffset.z = qSetZ.getQuantisationSetOffsetZ();
+
+    // Dequantise the channel data
+    NMP::Vector3 vecA, vecB;
+    sampledPosKeysA[indx].unpack(vecA);
+    
+    // Interpolate
+    NMP::Vector3 posRel;
+    posRel = vecA;
+    posRel = posRel * qScale + qOffset;
+
+    // Re-apply the channel mean
+    
+    posRel = posRel + pbar;
+    oneFrame[channelIndex * 8 + 0] = posRel.x;
+    oneFrame[channelIndex * 8 + 1] = posRel.y;
+    oneFrame[channelIndex * 8 + 2] = posRel.z;
+    oneFrame[channelIndex * 8 + 3] = 0.0f;
+  }
+}
+
+void SectionDataNSA::HZDSampledQuatDecompress(
+const QuantisationScaleAndOffsetVec3*   sampledQuatQuantisationInfo,
+const CompToAnimChannelMap*             compToAnimTableMap,
+uint32_t                                sectionFrameIndex,
+std::vector<float>& oneFrame) const
+{
+
+  NMP_ASSERT(compToAnimTableMap);
+
+  // Check we have some key-frame data
+  if (m_sampledQuatNumChannels == 0)
+    return;
+
+  NMP_ASSERT(sampledQuatQuantisationInfo);
+  NMP_ASSERT(NMP_IS_ALIGNED(m_sampledQuatQuantisationData, NMP_NATURAL_TYPE_ALIGNMENT));
+
+  // Avoid decompressing any channels that are not required by this LOD
+  const uint16_t* animChannelIndices = compToAnimTableMap->getAnimChannels();
+  NMP_ASSERT(animChannelIndices);
+
+  // Get the sampled keys
+  size_t alignment;
+  size_t keyFrameDataStride;
+  size_t keyFrameDataMemReqs;
+  SectionDataNSA::getMemoryReqsSampledQuatData(
+    m_numSectionAnimFrames,
+    m_sampledQuatNumChannels,
+    alignment,
+    keyFrameDataStride,
+    keyFrameDataMemReqs);
+
+  NMP_ASSERT(m_sampledQuatData);
+  NMP_ASSERT(NMP_IS_ALIGNED(m_sampledQuatData, alignment));
+  const uint8_t* data = (const uint8_t*) m_sampledQuatData;
+  data += (sectionFrameIndex * keyFrameDataStride);
+  const SampledQuatKeyTQA* sampledQuatKeysA = (const SampledQuatKeyTQA*)data;
+
+  // Compute the quantisation scale and offset information for the means
+  NMP::Vector3 qScaleMean, qOffsetMean;
+  qScaleMean.set(2.0f / 255);
+  qOffsetMean.set(-1.0f);
+
+  // Iterate over the compression channels
+  for (uint32_t indx = 0; indx < compToAnimTableMap->getNumChannels(); ++indx)
+  {
+    NMP_ASSERT(indx < compToAnimTableMap->getNumChannels());
+    uint32_t channelIndex = animChannelIndices[indx];
+
+    // Dequantise the channel mean
+    NMP::Vector3 vecMean;
+    const QuantisationMeanAndSetVec3& qData = m_sampledQuatQuantisationData[indx];
+    qData.unpackQMean(vecMean);
+    vecMean = vecMean * qScaleMean + qOffsetMean;
+    NMP::Quat qbar;
+    MR::fromRotationVectorTQA(vecMean, qbar);
+
+    // Quantisation set basis
+    uint32_t qSet[3];
+    qData.unpackQSet(qSet);
+    const QuantisationScaleAndOffsetVec3& qSetX = sampledQuatQuantisationInfo[qSet[0]];
+    const QuantisationScaleAndOffsetVec3& qSetY = sampledQuatQuantisationInfo[qSet[1]];
+    const QuantisationScaleAndOffsetVec3& qSetZ = sampledQuatQuantisationInfo[qSet[2]];
+    NMP::Vector3 qScale;
+    qScale.x = qSetX.getQuantisationSetScaleX();
+    qScale.y = qSetY.getQuantisationSetScaleY();
+    qScale.z = qSetZ.getQuantisationSetScaleZ();
+    NMP::Vector3 qOffset;
+    qOffset.x = qSetX.getQuantisationSetOffsetX();
+    qOffset.y = qSetY.getQuantisationSetOffsetY();
+    qOffset.z = qSetZ.getQuantisationSetOffsetZ();
+
+    // Dequantise the channel data
+    NMP::Vector3 vecA, vecB;
+    sampledQuatKeysA[indx].unpack(vecA);
+    vecA = vecA * qScale + qOffset;
+
+    // Convert the tan quarter angle rotation vectors back to quaternions
+    NMP::Quat quatA, quatB;
+    MR::fromRotationVectorTQA(vecA, quatA);
+
+    // Interpolation
+    //float fromDotTo = quatA.dot(quatB);
+    //float dotSign = NMP::floatSelect(fromDotTo, 1.0f, -1.0f);
+    //quatB *= dotSign;
+    //fromDotTo *= dotSign;
+    NMP::Quat quatRel = quatA;
+    //quatRel.fastSlerp(quatA, quatB, interpolant, fromDotTo);
+    quatRel = qbar * quatRel;
+    oneFrame[channelIndex * 8 + 4 + 0] = quatRel.x;
+    oneFrame[channelIndex * 8 + 4 + 1] = quatRel.y;
+    oneFrame[channelIndex * 8 + 4 + 2] = quatRel.z;
+    oneFrame[channelIndex * 8 + 4 + 3] = quatRel.w;
+  }
+}
+
 void SectionDataNSA::sampledPosDecompress(
   const QuantisationScaleAndOffsetVec3&   posMeansQuantisationInfo,
   const QuantisationScaleAndOffsetVec3*   sampledPosQuantisationInfo,

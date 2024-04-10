@@ -19,6 +19,7 @@
 #include "morpheme/AnimSource/mrAnimSource.h"
 #include "morpheme/AnimSource/mrAnimSourceUtils.h"
 #include "NMPlatform/NMBuffer.h"
+#include <vector>
 //----------------------------------------------------------------------------------------------------------------------
 
 namespace MR
@@ -47,6 +48,14 @@ public:
   void locate();
   void dislocate();
   NM_INLINE void relocate();
+
+  void HZDUnchangingPosDecompress(
+    const CompToAnimChannelMap* compToAnimTableMap,
+    std::vector<float>& oneFrame) const;
+  
+  void HZDUnchangingQuatDecompress(
+    const CompToAnimChannelMap* compToAnimTableMap,
+    std::vector<float>& oneFrame) const;
   
   void unchangingPosDecompress(
     const AnimToRigTableMap*    animToRigTableMap,
@@ -119,6 +128,19 @@ public:
   void locate();
   void dislocate();
   NM_INLINE void relocate();
+
+  void HZDSampledPosDecompress(
+      const QuantisationScaleAndOffsetVec3& posMeansQuantisationInfo,
+      const QuantisationScaleAndOffsetVec3* sampledPosQuantisationInfo,
+      const CompToAnimChannelMap* compToAnimTableMap,
+      uint32_t                                sectionFrameIndex,
+      std::vector<float>& oneFrame) const;
+
+  void HZDSampledQuatDecompress(
+    const QuantisationScaleAndOffsetVec3*   sampledQuatQuantisationInfo,
+    const CompToAnimChannelMap*             compToAnimTableMap,
+    uint32_t                                sectionFrameIndex,
+    std::vector<float>& oneFrame) const;
 
   void sampledPosDecompress(
     const QuantisationScaleAndOffsetVec3&   posMeansQuantisationInfo,

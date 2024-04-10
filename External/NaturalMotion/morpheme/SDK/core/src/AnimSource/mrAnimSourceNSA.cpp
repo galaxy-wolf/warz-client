@@ -46,6 +46,46 @@ AnimSourceNSA::AnimSourceNSA()
   NMP_ASSERT_FAIL();
 }
 
+void AnimSourceNSA::HZDComputeAtFrame(
+    const AnimSourceBase* sourceAnimation,
+    int frameIndex,
+    std::vector<float>& oneFrame  // posX, posY, posZ, posW, quatX, quatY, quatZ, quatW; posX .... 
+)
+{
+  const AnimSourceNSA* compressedSource = static_cast<const AnimSourceNSA*> (sourceAnimation);
+  const UnchangingDataNSA* unchangingData = compressedSource->m_unchangingData;
+  NMP_ASSERT(unchangingData)
+
+  oneFrame.resize(8 * compressedSource->m_numChannelSets);
+
+  NMP_ASSERT(compressedSource->m_unchangingPosCompToAnimMap);
+  unchangingData->HZDUnchangingPosDecompress(
+    compressedSource->m_unchangingPosCompToAnimMap,
+    oneFrame);
+  NMP_ASSERT(compressedSource->m_unchangingQuatCompToAnimMap);
+  unchangingData->HZDUnchangingQuatDecompress(
+    compressedSource->m_unchangingQuatCompToAnimMap,
+    oneFrame);
+
+  const SectionDataNSA* sectionData = compressedSource->m_sectionDataGood;
+  if (sectionData)
+  {
+
+      sectionData->HZDSampledPosDecompress(
+          compressedSource->m_posMeansQuantisationInfo,
+          compressedSource->m_sampledPosQuantisationInfo,
+          compressedSource->m_sampledPosCompToAnimMap,
+          frameIndex,
+          oneFrame);
+
+      sectionData->HZDSampledQuatDecompress(
+          compressedSource->m_sampledQuatQuantisationInfo,
+          compressedSource->m_sampledQuatCompToAnimMap,
+          frameIndex,
+          oneFrame);
+  }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 void AnimSourceNSA::computeAtTime(
   const AnimSourceBase* sourceAnimation,        // IN: Animation to sample.

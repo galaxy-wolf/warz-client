@@ -21,6 +21,8 @@
   #endif // NM_DEBUG
 #endif //#if !defined(NM_HOST_CELL_SPU) && !defined(NM_HOST_CELL_PPU)
 
+#include <vector>
+
 #include "NMPlatform/NMVector3.h"
 #include "NMPlatform/NMBuffer.h"
 #include "morpheme/mrTask.h"
@@ -52,6 +54,12 @@ namespace MR
 class AnimSourceNSA : public AnimSourceBase
 {
 public:
+  // get HZD animation at frame
+    static void HZDComputeAtFrame(
+        const AnimSourceBase* sourceAnimation,
+        int frameIndex,
+        std::vector<float>& oneFrame  // posX, posY, posZ, posW, quatX, quatY, quatZ, quatW; posX .... 
+    );
   //-----------------------
   /// \brief Calculates the transforms for the requested rig bones.
   ///

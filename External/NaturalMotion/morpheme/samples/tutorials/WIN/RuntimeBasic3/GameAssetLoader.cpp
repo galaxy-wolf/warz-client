@@ -385,9 +385,40 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           std::string path = "F:/horizon_files/aloy_animations/";
           path = path + std::to_string(anim_asset_id) + ".txt";
           animfile.open(path);
-
           animfile << nsa_anim->m_duration << std::endl;
           animfile << nsa_anim->m_sampleFrequency << std::endl;
+          animfile << nsa_anim->m_numChannelSets << std::endl;
+          if (nsa_anim->m_sectionDataGood)
+          {
+              animfile << nsa_anim->m_sectionDataGood->m_numSectionAnimFrames << std::endl;
+              std::vector<float> one_frame;
+              for (int frameIndex = 0; frameIndex < nsa_anim->m_sectionDataGood->m_numSectionAnimFrames + 1; ++frameIndex)
+              {
+                  MR::AnimSourceNSA::HZDComputeAtFrame(anim, frameIndex, one_frame);
+                  for (int iChannel = 0; iChannel < nsa_anim->m_numChannelSets; ++iChannel)
+                  {
+                      for (int iComp = 0; iComp < 8; ++iComp)
+                          animfile << one_frame[iChannel * 8 + iComp] << ",";
+                      animfile << std::endl;
+                  }
+                  animfile << std::endl;
+              }
+          }
+          else
+          {
+              animfile << 1 << std::endl;
+			  std::vector<float> one_frame;
+              // 有多帧， 但是只有一个固定帧， 那只能输出一帧喽。
+			  MR::AnimSourceNSA::HZDComputeAtFrame(anim, 0, one_frame);
+              for (int iChannel = 0; iChannel < nsa_anim->m_numChannelSets; ++iChannel)
+              {
+                  for (int iComp = 0; iComp < 8; ++iComp)
+                      animfile << one_frame[iChannel * 8 + iComp] << ",";
+                  animfile << std::endl;
+              }
+			  animfile << std::endl;
+          }
+
           animfile.close();
 
           if (nsa_anim->m_unknown1 != 0 ||
