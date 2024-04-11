@@ -391,14 +391,6 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               }
               NMP_ASSERT(unchangingPosCompToAnimMap.size() + sampledPoseCount == nsa_anim->m_numChannelSets);
           }
-          std::set<int> unchangingQuatCompChannelSet;
-          {
-              for (uint16_t Index = 0; Index < nsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels; ++Index)
-              {
-                  unchangingQuatCompChannelSet.insert(nsa_anim->m_unchangingQuatCompToAnimMap->m_animChannels[Index]);
-              }
-
-          }
 
           if (nsa_anim->m_sectionDataGood)
           {
@@ -428,11 +420,21 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
                       for (int iComp = 0; iComp < 8; ++iComp)
                           animfile << one_frame[iChannel * 8 + iComp] << ",";
                       animfile << std::endl;
-                      if (unchangingQuatCompChannelSet.find(iChannel) != unchangingQuatCompChannelSet.end())
+                  // 测试quat 是否正确， 验证了没有问题。 现在先关闭。
+                      if (0)
                       {
-                          if (one_frame[iChannel * 8 + 7] != 0.0f)
+                          float a = one_frame[iChannel * 8 + 4];
+                          float b = one_frame[iChannel * 8 + 5];
+                          float c = one_frame[iChannel * 8 + 6];
+                          float d = one_frame[iChannel * 8 + 7];
+                          if (fabs(a*a + b*b + c*c + d*d - 1.0) > 1e-3)
                           {
-							  NMP_STDOUT("found unchanging quat not zero %f!!", one_frame[iChannel*8+7]);
+                              NMP_STDOUT("found quat not normalized %f %f %f %f = %f", a, b, c, d, a*a + b*b + c*c + d*d);
+                          }
+                          const float limit = 1.0f + 1e-5;
+                          if (fabs(a) > limit || fabs(b) > limit || fabs(c) > limit || fabs(d) > limit)
+                          {
+                              NMP_STDOUT("found quat  %f %f %f %f > 1.0f", a, b, c, d);
                           }
                       }
                   }
@@ -450,11 +452,21 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
                   for (int iComp = 0; iComp < 8; ++iComp)
                       animfile << one_frame[iChannel * 8 + iComp] << ",";
                   animfile << std::endl;
-				  if (unchangingQuatCompChannelSet.find(iChannel) != unchangingQuatCompChannelSet.end())
+                  // 测试quat 是否正确， 验证了没有问题。 
+                  if (0)
 				  {
-					  if (one_frame[iChannel * 8 + 7] != 0.0f)
+					  float a = one_frame[iChannel * 8 + 4];
+					  float b = one_frame[iChannel * 8 + 5];
+					  float c = one_frame[iChannel * 8 + 6];
+					  float d = one_frame[iChannel * 8 + 7];
+					  if (fabs(a*a + b*b + c*c + d*d - 1.0) > 1e-3)
 					  {
-						  NMP_STDOUT("found unchanging quat not zero %f!!", one_frame[iChannel*8+7]);
+						  NMP_STDOUT("found quat not normalized %f %f %f %f = %f", a, b, c, d, a*a + b*b + c*c + d*d);
+					  }
+					  const float limit = 1.0f + 1e-5;
+					  if (fabs(a) > limit || fabs(b) > limit || fabs(c) > limit || fabs(d) > limit)
+					  {
+						  NMP_STDOUT("found quat  %f %f %f %f > 1.0f", a, b, c, d);
 					  }
 				  }
               }
