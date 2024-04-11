@@ -412,6 +412,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           {
               animfile << nsa_anim->m_sectionDataGood->m_numSectionAnimFrames << std::endl;
               std::vector<float> one_frame;
+			  float max_x = -9999.0f, min_x=99999.0f, max_y=-99999.0f, min_y=99999.0f, max_z=-99999.0f, min_z=99999.0f;
               for (int frameIndex = 0; frameIndex < nsa_anim->m_sectionDataGood->m_numSectionAnimFrames + 1; ++frameIndex)
               {
                   MR::AnimSourceNSA::HZDComputeAtFrame(anim, frameIndex, unchangingPosCompToAnimMap, one_frame);
@@ -420,6 +421,15 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
                       for (int iComp = 0; iComp < 8; ++iComp)
                           animfile << one_frame[iChannel * 8 + iComp] << ",";
                       animfile << std::endl;
+                      float x = one_frame[iChannel * 8 + 0];
+                      float y = one_frame[iChannel * 8 + 1];
+                      float z = one_frame[iChannel * 8 + 2];
+                      max_x = std::max(x, max_x);
+                      min_x = std::min(x, min_x);
+                      max_y = std::max(y, max_y);
+                      min_y = std::min(y, min_y);
+                      max_z = std::max(z, max_z);
+                      min_z = std::min(z, min_z);
                   // 测试quat 是否正确， 验证了没有问题。 现在先关闭。
                       if (0)
                       {
@@ -440,6 +450,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
                   }
                   animfile << std::endl;
               }
+              NMP_STDOUT("%f < x < %f; %f < y < %f; %f < z < %f", min_x, max_x, min_y, max_y, min_z, max_z);
           }
           else
           {
