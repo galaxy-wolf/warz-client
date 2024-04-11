@@ -17,6 +17,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <set>
 //----------------------------------------------------------------------------------------------------------------------
 
 namespace Game
@@ -390,6 +391,14 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               }
               NMP_ASSERT(unchangingPosCompToAnimMap.size() + sampledPoseCount == nsa_anim->m_numChannelSets);
           }
+          std::set<int> unchangingQuatCompChannelSet;
+          {
+              for (uint16_t Index = 0; Index < nsa_anim->m_unchangingQuatCompToAnimMap->m_numChannels; ++Index)
+              {
+                  unchangingQuatCompChannelSet.insert(nsa_anim->m_unchangingQuatCompToAnimMap->m_animChannels[Index]);
+              }
+
+          }
 
           if (nsa_anim->m_sectionDataGood)
           {
@@ -419,6 +428,13 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
                       for (int iComp = 0; iComp < 8; ++iComp)
                           animfile << one_frame[iChannel * 8 + iComp] << ",";
                       animfile << std::endl;
+                      if (unchangingQuatCompChannelSet.find(iChannel) != unchangingQuatCompChannelSet.end())
+                      {
+                          if (one_frame[iChannel * 8 + 7] != 0.0f)
+                          {
+							  NMP_STDOUT("found unchanging quat not zero %f!!", one_frame[iChannel*8+7]);
+                          }
+                      }
                   }
                   animfile << std::endl;
               }
@@ -434,6 +450,13 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
                   for (int iComp = 0; iComp < 8; ++iComp)
                       animfile << one_frame[iChannel * 8 + iComp] << ",";
                   animfile << std::endl;
+				  if (unchangingQuatCompChannelSet.find(iChannel) != unchangingQuatCompChannelSet.end())
+				  {
+					  if (one_frame[iChannel * 8 + 7] != 0.0f)
+					  {
+						  NMP_STDOUT("found unchanging quat not zero %f!!", one_frame[iChannel*8+7]);
+					  }
+				  }
               }
 			  animfile << std::endl;
           }

@@ -121,49 +121,61 @@ UnchangingDataNSA* UnchangingDataNSA::relocate(void*& ptr)
 
 #ifdef NMP_PLATFORM_SIMD
 
-  void UnchangingDataNSA::HZDUnchangingPosDecompress(
-    std::vector<int>& unchangingPosCompToAnimMap,
-    std::vector<float>& oneFrame) const
-  {
-	  NMP::Vector3 qScale, qOffset;
-	  m_unchangingPosQuantisationInfo.unpack(qScale, qOffset);
+void UnchangingDataNSA::HZDUnchangingPosDecompress(
+	std::vector<int>& unchangingPosCompToAnimMap,
+	std::vector<float>& oneFrame) const
+{
+  NMP::Vector3 qScale, qOffset;
+  m_unchangingPosQuantisationInfo.unpack(qScale, qOffset);
 
-	  // Iterate over the compression channels in blocks of four
-	  for (uint32_t indx = 0; indx < unchangingPosCompToAnimMap.size(); ++indx)
-	  {
-          NMP::Vector3 vec;
-          m_unchangingPosData[indx].unpack(vec);
-          NMP::Vector3 ret = vec * qScale + qOffset;
-          int channelIndex = unchangingPosCompToAnimMap[indx];
-          oneFrame[channelIndex * 8 + 0] = ret.x;
-          oneFrame[channelIndex * 8 + 1] = ret.y;
-          oneFrame[channelIndex * 8 + 2] = ret.z;
-          oneFrame[channelIndex * 8 + 3] = 0.0f;
-	  }
+  // Iterate over the compression channels in blocks of four
+  for (uint32_t indx = 0; indx < unchangingPosCompToAnimMap.size(); ++indx)
+  {
+	  NMP::Vector3 vec;
+	  m_unchangingPosData[indx].unpack(vec);
+	  NMP::Vector3 ret = vec * qScale + qOffset;
+	  int channelIndex = unchangingPosCompToAnimMap[indx];
+	  oneFrame[channelIndex * 8 + 0] = ret.x;
+	  oneFrame[channelIndex * 8 + 1] = ret.y;
+	  oneFrame[channelIndex * 8 + 2] = ret.z;
+	  oneFrame[channelIndex * 8 + 3] = 0.0f;
   }
+}
 
-  void UnchangingDataNSA::HZDUnchangingQuatDecompress(
-    const CompToAnimChannelMap* compToAnimTableMap,
-    std::vector<float>& oneFrame) const
-  {
-    const uint16_t* animChannelIndices = compToAnimTableMap->getAnimChannels();
+void UnchangingDataNSA::HZDUnchangingQuatDecompress(
+	const CompToAnimChannelMap* compToAnimTableMap,
+	std::vector<float>& oneFrame) const
+ {
+	  NMP_ASSERT(compToAnimTableMap);
 
+	  // Avoid decompressing any channels that are not required by this LOD
+	  const uint16_t* animChannelIndices = compToAnimTableMap->getAnimChannels();
+	  NMP_ASSERT(animChannelIndices);
+
+	  //-----------------------
+	  // Compute the quantisation scale and offset information 
 	  NMP::Vector3 qScale, qOffset;
 	  m_unchangingQuatQuantisationInfo.unpack(qScale, qOffset);
 
-	  // Iterate over the compression channels in blocks of four
+	  // Iterate over the compression channels
 	  for (uint32_t indx = 0; indx < compToAnimTableMap->getNumChannels(); ++indx)
 	  {
-          NMP::Vector3 vec;
-          m_unchangingQuatData[indx].unpack(vec);
-          NMP::Vector3 ret = vec * qScale + qOffset;
-          int channelIndex = animChannelIndices[indx];
-          oneFrame[channelIndex * 8 + 4 + 0] = ret.x;
-          oneFrame[channelIndex * 8 + 4 + 1] = ret.y;
-          oneFrame[channelIndex * 8 + 4 + 2] = ret.z;
-          oneFrame[channelIndex * 8 + 4 + 3] = 0.0f;
+		NMP_ASSERT(indx < compToAnimTableMap->getNumChannels());
+
+		// Dequantise the tan quarter angle rotation vector
+		NMP::Vector3 v;
+		m_unchangingQuatData[indx].unpack(v);
+		NMP::Vector3 quatTQA = v * qScale + qOffset;
+        NMP::Quat result;
+		// Convert the tan quarter angle rotation vector back to a quaternion
+        MR::fromRotationVectorTQA(quatTQA, result);
+        int iChannel = compToAnimTableMap->m_animChannels[indx];
+        oneFrame[iChannel * 8 + 4 + 0] = result.x;
+        oneFrame[iChannel * 8 + 4 + 1] = result.y;
+        oneFrame[iChannel * 8 + 4 + 2] = result.z;
+        oneFrame[iChannel * 8 + 4 + 3] = result.w;
 	  }
-  }
+}
 //----------------------------------------------------------------------------------------------------------------------
 void UnchangingDataNSA::unchangingPosDecompress(
   const AnimToRigTableMap*    animToRigTableMap,
@@ -744,7 +756,6 @@ void SectionDataNSA::HZDSampledPosDecompress(
   // Iterate over the compression channels
   for (uint32_t indx = 0; indx < compToAnimTableMap->getNumChannels(); ++indx)
   {
-    uint32_t channelIndex = animChannelIndices[indx];
     NMP_ASSERT(indx < compToAnimTableMap->getNumChannels());
 
     // Dequantise the channel mean
@@ -780,6 +791,7 @@ void SectionDataNSA::HZDSampledPosDecompress(
     // Re-apply the channel mean
     
     posRel = posRel + pbar;
+    uint32_t channelIndex = animChannelIndices[indx];
     oneFrame[channelIndex * 8 + 0] = posRel.x;
     oneFrame[channelIndex * 8 + 1] = posRel.y;
     oneFrame[channelIndex * 8 + 2] = posRel.z;
@@ -833,7 +845,6 @@ std::vector<float>& oneFrame) const
   for (uint32_t indx = 0; indx < compToAnimTableMap->getNumChannels(); ++indx)
   {
     NMP_ASSERT(indx < compToAnimTableMap->getNumChannels());
-    uint32_t channelIndex = animChannelIndices[indx];
 
     // Dequantise the channel mean
     NMP::Vector3 vecMean;
@@ -875,6 +886,8 @@ std::vector<float>& oneFrame) const
     NMP::Quat quatRel = quatA;
     //quatRel.fastSlerp(quatA, quatB, interpolant, fromDotTo);
     quatRel = qbar * quatRel;
+
+    uint32_t channelIndex = animChannelIndices[indx];
     oneFrame[channelIndex * 8 + 4 + 0] = quatRel.x;
     oneFrame[channelIndex * 8 + 4 + 1] = quatRel.y;
     oneFrame[channelIndex * 8 + 4 + 2] = quatRel.z;
