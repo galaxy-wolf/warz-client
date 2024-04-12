@@ -58,6 +58,7 @@ public:
 
   /// \brief Prepare a dislocated Rig for use.
   bool locate();
+  bool zhaoqi_locate();
 
   /// \brief Dislocate a Rig ready to move to a new memory location or storing as a binary asset.
   bool dislocate();
@@ -78,6 +79,8 @@ protected:
   NMP::Vector3    m_blendFrameTranslation;  ///< All animation blending takes place within the frame of this transform.
                                             ///<  Also forms the basis for mapping between physics 
                                             ///<  and animation rig positions.
+  uint32_t         unknown1;        // 0x17 23 可能时个count
+  void* unknown2;       //  肯定是一个指针， 但是指向什么不清楚！尝试过， 不是m_bindPose; 
 
   NMP::Hierarchy* m_hierarchy;              ///< Each entry contains the parent index of each bone.
   uint32_t        m_trajectoryBoneIndex;    ///< Root index of bone hierarchy.
@@ -86,6 +89,11 @@ protected:
                                             //    MORPH-21343: There could validly be several of these, need to
                                             //    update this to an array.
   NMP::OrderedStringTable*   m_boneNameMap; ///< Map of bone index to string names for each joint.
+
+
+  /// <summary>
+  /// 下面这个没法解析， 我们先跳过。
+  /// </summary>
   AttribDataTransformBuffer* m_bindPose;    ///< Bind-pose orientations/positions.
 };
 

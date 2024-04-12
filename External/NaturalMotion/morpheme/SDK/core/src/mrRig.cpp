@@ -13,6 +13,7 @@
 #include "morpheme/mrRig.h"
 #include "morpheme/mrManager.h"
 #include "sharedDefines/mAnimDebugInterface.h"
+#include <fstream>
 
 #ifdef NM_HOST_CELL_SPU
   #include "NMPlatform/ps3/NMSPUDMAController.h"
@@ -36,12 +37,32 @@ bool AnimRigDef::locate()
 
   REFIX_SWAP_PTR(NMP::OrderedStringTable, m_boneNameMap);
   m_boneNameMap->locate();
+  // 输出到文件中。
+
+  std::ofstream myfile;
+  myfile.open("F:/horizon_files/rigdefine.txt");
+  myfile << m_trajectoryBoneIndex << std::endl;
+  myfile << m_characterRootBoneIndex << std::endl;
+  myfile << std::endl;
+  myfile << m_hierarchy->getNumEntries() << std::endl;
+  for (int i = 0; i < m_hierarchy->getNumEntries(); ++i)
+  {
+      myfile << m_hierarchy->getParentIndex(i) << std::endl;
+  }
+  myfile << std::endl;
+  myfile << m_boneNameMap->getNumEntries() << std::endl;
+  for (int i = 0; i < m_boneNameMap->getNumEntries(); ++i)
+  {
+      myfile << m_boneNameMap->getEntryString(i) << std::endl;
+  }
+
+  myfile.close();
+  return true;
 
   REFIX_SWAP_PTR(AttribDataTransformBuffer, m_bindPose);
   AttribDataTransformBuffer::locate(m_bindPose);
-
-  return true;
 }
+
 
 //----------------------------------------------------------------------------------------------------------------------
 bool AnimRigDef::dislocate()

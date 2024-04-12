@@ -420,7 +420,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
                       continue;
                   }
 
-                  if (assetType == MR::Manager::kAsset_Rig || assetType == MR::Manager::kAsset_RigToAnimMap || 
+                  if (assetType == MR::Manager::kAsset_RigToAnimMap || 
                       assetType == MR::Manager::kAsset_PhysicsRigDef)
                   {
                       // The basic tutorials only the morpheme core so doesn't have any plugin restrictions
