@@ -413,7 +413,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               animfile << nsa_anim->m_sectionDataGood->m_numSectionAnimFrames << std::endl;
               std::vector<float> one_frame;
 			  float max_x = -9999.0f, min_x=99999.0f, max_y=-99999.0f, min_y=99999.0f, max_z=-99999.0f, min_z=99999.0f;
-              for (int frameIndex = 0; frameIndex < nsa_anim->m_sectionDataGood->m_numSectionAnimFrames + 1; ++frameIndex)
+              for (int frameIndex = 0; frameIndex < nsa_anim->m_sectionDataGood->m_numSectionAnimFrames; ++frameIndex)
               {
                   MR::AnimSourceNSA::HZDComputeAtFrame(anim, frameIndex, unchangingPosCompToAnimMap, one_frame);
                   for (int iChannel = 0; iChannel < nsa_anim->m_numChannelSets; ++iChannel)
