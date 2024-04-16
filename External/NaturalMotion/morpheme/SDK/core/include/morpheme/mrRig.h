@@ -24,6 +24,43 @@
 
 namespace MR
 {
+    struct TransformerBufferData
+    {
+        NMP::Vector3* translations;
+        NMP::Quat* quats;
+    };
+    struct TransformerHeader
+    {
+        uint32_t m_mem_size;
+        uint32_t m_mem_alignment;
+        uint32_t m_size;  // 53
+        bool m_unknown0; // 01 CDCDCD
+        uint32_t m_unknown1; // 20 00 00 00
+        void* m_unknown3; // 44 00 00 00 00 00 00 00
+        TransformerBufferData* m_buffer_data; // 5c 00 00 00 00 00 00 00
+        void* m_unknown4; // 30 00 00 00 00 00 00 00
+        // 后面的不知道是什么
+        void locate()
+        {
+            REFIX_SWAP_PTR(TransformerBufferData, m_buffer_data);
+            REFIX_SWAP_PTR(NMP::Vector3, m_buffer_data->translations);
+            REFIX_SWAP_PTR(NMP::Quat, m_buffer_data->quats);
+        }
+    };
+
+    struct TPoseHeader
+    {
+        uint32_t padding1;
+        uint32_t padding2;
+        uint32_t unknown;
+        TransformerHeader* m_transform;
+        void locate()
+        {
+            REFIX_SWAP_PTR(TransformerHeader, m_transform);
+            m_transform->locate();
+        }
+	};
+
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \class MR::AnimRigDef
@@ -90,6 +127,7 @@ protected:
                                             //    update this to an array.
   NMP::OrderedStringTable*   m_boneNameMap; ///< Map of bone index to string names for each joint.
 
+  TPoseHeader* m_t_pose_header;
 
   /// <summary>
   /// 下面这个没法解析， 我们先跳过。

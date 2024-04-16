@@ -37,6 +37,8 @@ bool AnimRigDef::locate()
 
   REFIX_SWAP_PTR(NMP::OrderedStringTable, m_boneNameMap);
   m_boneNameMap->locate();
+  REFIX_SWAP_PTR(TPoseHeader, m_t_pose_header);
+  m_t_pose_header->locate();
   // 输出到文件中。
 
   std::ofstream myfile;
@@ -54,6 +56,19 @@ bool AnimRigDef::locate()
   for (int i = 0; i < m_boneNameMap->getNumEntries(); ++i)
   {
       myfile << m_boneNameMap->getEntryString(i) << std::endl;
+  }
+
+  myfile << std::endl;
+  const int bone_size = m_t_pose_header->m_transform->m_size;
+  myfile << bone_size << std::endl;
+  NMP::Vector3* translations = m_t_pose_header->m_transform->m_buffer_data->translations;
+  NMP::Quat* quats = m_t_pose_header->m_transform->m_buffer_data->quats;
+  for (int i = 0; i < bone_size; ++i)
+  {
+      const NMP::Vector3& t = translations[i];
+      const NMP::Quat& q = quats[i];
+      myfile << t.x << "," << t.y << "," << t.z << "," << t.w << "," << q.x << "," << q.y << "," << q.z << "," << q.w << std::endl;
+
   }
 
   myfile.close();
