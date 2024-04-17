@@ -19,6 +19,8 @@
 #include "morpheme/Nodes/mrNodeStateMachine.h"
 #include "morpheme/mrCharacterControllerAttribData.h"
 #include "morpheme/mrMirroredAnimMapping.h"
+#include <vector>
+#include <set>
 
 #include <stdio.h>
 //----------------------------------------------------------------------------------------------------------------------
@@ -186,7 +188,31 @@ void NetworkDef::locate()
           myfile << input->m_sourceNodeID << std::endl;
           myfile << input->m_sourcePinIndex << std::endl;
       }
+      {
+          std::set<int> animation_source_ids;
+          for (uint16_t i = 0; i < n->m_numAttribDataHandles; ++i)
+          {
+              if (n->m_nodeAttribDataHandles[i].m_attribData)
+              {
+                  // Locate the attrib data itself
+                  AttribDataType type = n->m_nodeAttribDataHandles[i].m_attribData->getType();
+                  if (type == ATTRIB_TYPE_SOURCE_ANIM)
+                  {
+                      AttribDataSourceAnim* a = (AttribDataSourceAnim*)(n->m_nodeAttribDataHandles[i].m_attribData);
+                      NMP_STDOUT("     data source anim %d %f", a->m_animAssetID, a->m_sourceAnimDuration);
+                      animation_source_ids.insert(a->m_animAssetID);
+                  }
+              }
+          }
+          myfile << animation_source_ids.size() << std::endl;
+          for (auto id : animation_source_ids)
+          {
+              myfile << id << std::endl;
+          }
+      }
 	  myfile << std::endl;
+
+
                
       NMP_STDOUT("");
   }

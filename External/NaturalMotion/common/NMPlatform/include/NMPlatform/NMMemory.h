@@ -335,9 +335,9 @@ private:
 struct Format
 {
   explicit Format() : size(0), alignment(NMP_NATURAL_TYPE_ALIGNMENT) {}
-  explicit Format(size_t s, size_t a = NMP_NATURAL_TYPE_ALIGNMENT) : size(s), alignment(a) {}
+  explicit Format(uint32_t s, uint32_t a = NMP_NATURAL_TYPE_ALIGNMENT) : size(s), alignment(a) {}
 
-  NM_FORCEINLINE void set(size_t s, size_t a) { size = s; alignment = a; }
+  NM_FORCEINLINE void set(uint32_t s, uint32_t a) { size = s; alignment = a; }
 
   /// Increment format size to be aligned to the alignment value.
   NM_FORCEINLINE void align();
@@ -354,8 +354,8 @@ struct Format
   /// Expand this Format to be large enough to hold n times the amount of data, aligned correctly.
   Format operator * (const uint32_t n) const;
 
-  size_t size;
-  size_t alignment;
+  uint32_t size;
+  uint32_t alignment;
 };
 
 /// Structure to describe a block of memory.

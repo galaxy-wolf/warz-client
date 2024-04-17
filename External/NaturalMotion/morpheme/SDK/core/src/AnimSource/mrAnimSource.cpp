@@ -112,12 +112,12 @@ void AttribDataSourceAnim::locate(AttribData* target)
   AttribData::locate(result);
 
   NMP::endianSwap(result->m_registeredAnimFormatIndex);
-  uint8_t formatIndex;
-  #ifdef NMP_ENABLE_ASSERTS
-  bool success =
-  #endif
-    Manager::getInstance().findAnimationFormatRegistryEntryIndex(result->m_registeredAnimFormatIndex, formatIndex);
-  NMP_ASSERT(success);
+  uint8_t formatIndex = 0;
+  //#ifdef NMP_ENABLE_ASSERTS
+  //bool success =
+  //#endif
+  //  Manager::getInstance().findAnimationFormatRegistryEntryIndex(result->m_registeredAnimFormatIndex, formatIndex);
+  //NMP_ASSERT(success);
   result->m_registeredAnimFormatIndex = formatIndex;
 
   // Note: We don't endian swap or unfix the animation ptr as it is currently rebound by the application at runtime.

@@ -234,6 +234,10 @@ struct AttribDataHandle
 {
   NM_FORCEINLINE void set(AttribData* attribData, const NMP::Memory::Format& format) { m_attribData = attribData; m_format = format; }
   NM_INLINE void endianSwap();
+  void locate()
+  {
+        REFIX_PTR(AttribData, m_attribData);
+  }
 
   AttribData*          m_attribData;
   NMP::Memory::Format  m_format;

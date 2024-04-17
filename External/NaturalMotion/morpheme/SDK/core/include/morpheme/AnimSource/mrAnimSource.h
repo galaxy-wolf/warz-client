@@ -208,6 +208,7 @@ public:
   NM_INLINE static AttribDataType getDefaultType() { return ATTRIB_TYPE_SOURCE_ANIM; }
 
   static void locate(AttribData* target);
+  static void zhaoqi_locate(AttribData* target);
   static void dislocate(AttribData* target);
   static void prepAnimForSPU(AttribData* target, NMP::MemoryAllocator* allocator);
   static void prepRigToAnimMapForSPU(AttribData* target, NMP::MemoryAllocator* allocator);
@@ -231,18 +232,17 @@ public:
   NMP::Quat                   m_transformAtEndQuat;
 
   const TrajectorySourceBase* m_sourceTrajectoryChannel;    ///< Pointer into shared array of resources.
-  uint32_t                    m_animSize;                   ///< Requirements of referenced animation.
-  uint32_t                    m_rigToAnimMapSize;           ///< Requirements of referenced rig to anim map.
-  uint32_t                    m_trajectorySize;             ///< Requirements of referenced trajectory.
 
+  uint32_t m_padding2; // cdcd
+  RuntimeAssetID              m_rigToAnimMapAssetID;        ///< The Network specific runtime ID of the RigToAnimMap asset used by
+                                                            ///< this binding.
   
+  uint32_t m_padding1; // cdcd
   /// This is the global ID that will be passed to the runtime animation loader function.  It is the app's
   /// responsibility to convert this to a filename, or resolve it to a resource handle, depending on their asset
   /// packing scheme.
   RuntimeAnimAssetID          m_animAssetID;
 
-  RuntimeAssetID              m_rigToAnimMapAssetID;        ///< The Network specific runtime ID of the RigToAnimMap asset used by
-                                                            ///< this binding.
 
   uint8_t                     m_registeredAnimFormatIndex;  ///< This is the registry index for the animation source format.
 
@@ -253,6 +253,7 @@ public:
                                                             ///<  Note that if before event zero this number will still be zero.
   uint8_t                     m_clipEndSyncEventIndex;      ///< The event index within which the clip end point lies.
                                                             ///<  Specified within the source discrete tracks event space.
+  uint8_t                   m_unknown2;   // unkown 00
   
   float                       m_clipStartFraction;          ///< Fractional playback start point. 0.0 - 1.0.
   float                       m_clipEndFraction;            ///< Fractional playback end point. 0.0 - 1.0.
@@ -261,6 +262,15 @@ public:
   uint32_t                    m_syncEventTrackIndex;        ///< ID of discrete event track to create sync event track from.
 
   bool                        m_playBackwards;              ///< Bool - update this node backwards.
+
+
+  /// <summary>
+  /// 下面内容没有在内存中找到。 
+  /// </summary>
+
+  uint32_t                    m_animSize;                   ///< Requirements of referenced animation.
+  uint32_t                    m_rigToAnimMapSize;           ///< Requirements of referenced rig to anim map.
+  uint32_t                    m_trajectorySize;             ///< Requirements of referenced trajectory.
 };
 
 } // namespace MR

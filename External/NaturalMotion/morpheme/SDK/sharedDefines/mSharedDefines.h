@@ -393,6 +393,7 @@ enum AttribDataTypeEnum
   ATTRIB_TYPE_DURATION_EVENT_TRACK_SET,         ///< A set of duration event tracks.
 
   ATTRIB_TYPE_RIG,                              ///< Describes hierarchy of bones etc.
+  ATTRIB_TYPE_UNKNOWN1,                          /// todo: before source anim there are one unkown type added!!!
   ATTRIB_TYPE_SOURCE_ANIM,                      ///< A source animation in any format.
 
   ATTRIB_TYPE_RIG_TO_ANIM_MAP,                  ///< Maps rig channels to animation channels.

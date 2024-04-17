@@ -273,6 +273,7 @@ NodeDef* NodeDef::init(
 
 void NodeDef::zhaoqi_locate()
 {
+  MR::Manager& manager = MR::Manager::getInstance();
   if (m_childNodeIDs != NULL)
   {
     REFIX_SWAP_PTR(NodeID, m_childNodeIDs);
@@ -302,6 +303,36 @@ void NodeDef::zhaoqi_locate()
       m_nodePinAttribDataInfo[i].endianSwap();
     }
   }
+
+  NMP::endianSwap(m_numAttribDataHandles);
+  if (m_nodeAttribDataHandles != NULL)
+  {
+    REFIX_SWAP_PTR(AttribDataHandle, m_nodeAttribDataHandles);
+    for (uint16_t i = 0; i < m_numAttribDataHandles; ++i)
+    {
+      m_nodeAttribDataHandles[i].endianSwap();
+      if (m_nodeAttribDataHandles[i].m_attribData)
+      {
+        m_nodeAttribDataHandles[i].locate();
+
+        // Locate the attrib data itself
+        AttribDataType type = m_nodeAttribDataHandles[i].m_attribData->getTypeUnlocated();
+        // todo: 目前我只关心 animation source 这一种attrib 后续的可以往这里面加。
+        if (type != ATTRIB_TYPE_SOURCE_ANIM)
+            continue;
+
+        MR::AttribLocateFn locateFn = manager.getAttribLocateFn(type);
+        NMP_ASSERT(locateFn);
+        locateFn(m_nodeAttribDataHandles[i].m_attribData);
+
+        //NMP_ASSERT_MSG(m_nodeAttribDataHandles[i].m_attribData->getRefCount() == MR::IS_DEF_ATTRIB_DATA,
+        //  "Invalid ref count in node[%i] def data.  Make sure the ref count is set to MR::IS_DEF_ATTRIB_DATA in the "
+        //  "asset compiler.", m_nodeID);
+        //NMP_ASSERT(m_nodeAttribDataHandles[i].m_attribData->m_allocator == NULL);
+      }
+    }
+  }
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------

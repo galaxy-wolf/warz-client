@@ -12,6 +12,7 @@
 *.cache
 *.ilk
 *.log
+*.bin
 [Bb]in
 [Dd]ebug*/
 *.sbr
@@ -421,3 +422,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+

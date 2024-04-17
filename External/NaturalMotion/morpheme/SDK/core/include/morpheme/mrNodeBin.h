@@ -35,6 +35,7 @@ struct NodeBinEntry
 {
   NodeBinEntry*         m_next;
   AttribDataHandle      m_attribDataHandle;
+  uint64_t              m_padding;  // zhaoqi add!! padding for NodeBinEntry;;;
   AttribAddress         m_address;
   NMP::MemoryAllocator* m_allocatorUsed;  ///< This represents the allocator used to allocate this entry and the attrib
                                           ///<  data hanging off it.
@@ -76,6 +77,7 @@ struct OutputCPPin
   FrameCount       m_lastUpdateFrame;  ///< The last frame this control param output pin was updated.
                                        ///<  Avoids duplicate evaluation.
   AttribDataHandle m_attribDataHandle; ///< Included for parameter handling in SPU dispatcher.
+  uint64_t         m_padding; // for size;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

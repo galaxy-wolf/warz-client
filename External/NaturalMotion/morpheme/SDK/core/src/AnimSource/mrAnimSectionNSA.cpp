@@ -613,13 +613,15 @@ SectionDataNSA* SectionDataNSA::relocate(void*& ptr)
   {
     // Sampled pos quantised data (Not block-4 aligned)
     NMP::Memory::Format memReqsPos;
+    size_t mem_size = memReqsPos.size;
+    size_t mem_aligment = memReqsPos.alignment;
     size_t keyFrameDataStride;
     MR::SectionDataNSA::getMemoryReqsSampledPosData(
       result->m_numSectionAnimFrames,
       result->m_sampledPosNumChannels,
-      memReqsPos.alignment,
+      mem_aligment,
       keyFrameDataStride,
-      memReqsPos.size);
+      mem_size);
     result->m_sampledPosData = (MR::SampledPosKey*) NMP::Memory::alignAndIncrement(ptr, memReqsPos);
 
     // Sampled pos quantisation mean and qSet.
@@ -634,12 +636,14 @@ SectionDataNSA* SectionDataNSA::relocate(void*& ptr)
     // Sampled quat quantised data (Not block-4 aligned)
     NMP::Memory::Format memReqsQuat;
     size_t keyFrameDataStride;
+    size_t mem_size = memReqsQuat.size;
+    size_t mem_aligment = memReqsQuat.alignment;
     MR::SectionDataNSA::getMemoryReqsSampledQuatData(
-      result->m_numSectionAnimFrames,
-      result->m_sampledQuatNumChannels,
-      memReqsQuat.alignment,
-      keyFrameDataStride,
-      memReqsQuat.size);
+        result->m_numSectionAnimFrames,
+        result->m_sampledQuatNumChannels,
+        mem_aligment,
+        keyFrameDataStride,
+        mem_size);
     result->m_sampledQuatData = (MR::SampledQuatKeyTQA*) NMP::Memory::alignAndIncrement(ptr, memReqsQuat);
 
     // Sampled quat quantisation mean and qSet.

@@ -365,7 +365,7 @@ public:
   /// \brief Set the message to be emitted when this node is activated.  For use in the asset compiler.
   void setOnEnterMessage(uint32_t eventIndex, MessageID messageID, bool external);
 
-protected:
+public:
   NodeType                        m_nodeTypeID;                   ///< The type of this node definition
   NodeFlags                       m_nodeFlags;                    ///< Specifies if the node belongs to any special groups
                                                                   ///<  (e.g. anim source nodes, control parameters).
