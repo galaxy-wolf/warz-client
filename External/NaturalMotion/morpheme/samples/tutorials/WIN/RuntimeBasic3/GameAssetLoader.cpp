@@ -416,6 +416,22 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               for (int frameIndex = 0; frameIndex < nsa_anim->m_sectionDataGood->m_numSectionAnimFrames; ++frameIndex)
               {
                   MR::AnimSourceNSA::HZDComputeAtFrame(anim, frameIndex, unchangingPosCompToAnimMap, one_frame);
+
+                  NMP::Quat trajectoryQuat;
+				  NMP::Vector3 trajectoryPos;
+                  MR::TrajectorySourceNSA::computeTrajectoryTransformAtFrame(
+                      nsa_anim->m_trajectoryDataGood,
+                      frameIndex,
+                      trajectoryQuat, trajectoryPos);
+                  // first line is always trajectory
+                  animfile << trajectoryPos.x << "," 
+						   << trajectoryPos.y << "," 
+						   << trajectoryPos.z << "," 
+						   << 0.0f << ","
+						   << trajectoryQuat.x << ","
+						   << trajectoryQuat.y << ","
+						   << trajectoryQuat.z << ","
+						   << trajectoryQuat.w << "," << std::endl << std::endl;
                   for (int iChannel = 0; iChannel < nsa_anim->m_numChannelSets; ++iChannel)
                   {
                       for (int iComp = 0; iComp < 8; ++iComp)
@@ -455,6 +471,22 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
           else
           {
               animfile << 1 << std::endl;
+
+			  NMP::Quat trajectoryQuat;
+			  NMP::Vector3 trajectoryPos;
+			  MR::TrajectorySourceNSA::computeTrajectoryTransformAtFrame(
+				  nsa_anim->m_trajectoryDataGood,
+				  0,
+				  trajectoryQuat, trajectoryPos);
+			  // first line is always trajectory
+			  animfile << trajectoryPos.x << "," 
+					   << trajectoryPos.y << "," 
+					   << trajectoryPos.z << "," 
+					   << 0.0f << ","
+					   << trajectoryQuat.x << ","
+					   << trajectoryQuat.y << ","
+					   << trajectoryQuat.z << ","
+					   << trajectoryQuat.w << "," << std::endl << std::endl;
 			  std::vector<float> one_frame;
               // 有多帧， 但是只有一个固定帧， 那只能输出一帧喽。
 			  MR::AnimSourceNSA::HZDComputeAtFrame(anim, 0, unchangingPosCompToAnimMap, one_frame);

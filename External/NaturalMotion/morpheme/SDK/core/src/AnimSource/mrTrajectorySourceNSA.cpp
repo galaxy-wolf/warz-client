@@ -305,6 +305,51 @@ void TrajectorySourceNSA::computeTrajectoryTransformAtTime(
   }
 }
 
+void TrajectorySourceNSA::computeTrajectoryTransformAtFrame(
+  const TrajectorySourceBase* trajectoryControl,
+  uint32_t                    animFrameIndex,
+  NMP::Quat&                  resultQuat,
+  NMP::Vector3&               resultPos)
+{
+  NMP_ASSERT(trajectoryControl);
+  const TrajectorySourceNSA* compressedSource = static_cast<const TrajectorySourceNSA*> (trajectoryControl);
+
+  float interpolant = 0.0f;
+
+  //-----------------------
+  // Special case for the last frame. mustn't interpolate beyond the last frame
+  uint32_t lastAnimFrame = (uint32_t)compressedSource->m_numAnimFrames - 1;
+  if (animFrameIndex == lastAnimFrame)
+  {
+    animFrameIndex--;
+    interpolant = 1.0f;
+  }
+
+  //-----------------------
+  // Pos
+  if (compressedSource->m_sampledDeltaPosKeys)
+  {
+    compressedSource->sampledDeltaPosDecompress(animFrameIndex, interpolant, resultPos);
+  }
+  else
+  {
+    // Set the unchanging position
+    compressedSource->m_sampledDeltaPosKeysInfo.unpack4(resultPos.getPtr());
+  }
+  
+  //-----------------------
+  // Quat
+  if (compressedSource->m_sampledDeltaQuatKeys)
+  {
+    compressedSource->sampledDeltaQuatDecompress(animFrameIndex, interpolant, resultQuat);
+  }
+  else
+  {
+    // Set the unchanging orientation
+    compressedSource->m_sampledDeltaQuatKeysInfo.unpack4(resultQuat.getPtr());
+  }
+}
+
 } // namespace MR
 
 //----------------------------------------------------------------------------------------------------------------------

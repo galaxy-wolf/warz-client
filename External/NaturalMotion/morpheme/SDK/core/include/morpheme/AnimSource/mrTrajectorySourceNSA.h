@@ -68,6 +68,12 @@ public:
     NMP::Quat&                  resultQuat,
     NMP::Vector3&               resultPos);
 
+  static void computeTrajectoryTransformAtFrame(
+    const TrajectorySourceBase* trajectoryControl,
+    uint32_t                    animFrameIndex,
+    NMP::Quat&                  resultQuat,
+    NMP::Vector3&               resultPos);
+
 protected:
   void sampledDeltaPosDecompress(
     uint32_t animFrameIndex,
