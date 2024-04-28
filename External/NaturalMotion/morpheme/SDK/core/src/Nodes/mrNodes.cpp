@@ -884,7 +884,7 @@ void registerCoreAttribDataTypes()
     MR_NULL_NO_OUTPUT_DEBUGGING(AttribDataDurationEventTrackSet::serializeTx));
   manager.registerAttrDataType(
     REG_FUNC_ARGS(ATTRIB_TYPE_SOURCE_EVENT_TRACKS),
-    NMP_NULL_ON_SPU(AttribDataSourceEventTrackSet::locate),
+    NMP_NULL_ON_SPU(AttribDataSourceEventTrackSet::zhaoqi_locate),
     NMP_NULL_ON_SPU(AttribDataSourceEventTrackSet::dislocate),
     NULL,
     AttribDataSourceEventTrackSet::relocate,

@@ -21,6 +21,7 @@
 #include "morpheme/mrMirroredAnimMapping.h"
 #include <vector>
 #include <set>
+#include <map>
 
 #include <stdio.h>
 //----------------------------------------------------------------------------------------------------------------------
@@ -124,6 +125,46 @@ bool NodeInitDataArrayDef::dislocate()
   return true;
 }
 
+struct TrackRefStruct
+{
+  int duration_num;
+  uint32_t duration_asset_id = 0;
+  int discrete_num = 0;
+  uint32_t discrete_asset_id = 0;
+  int curve_num = 0;
+  uint32_t curve_asset_id = 0;
+};
+void output_event_ref_data(
+    uint32_t node_id, 
+	std::map<int, int>& semantic_2_animaton_id,
+	std::map<int, TrackRefStruct>& semantic_2_track_ref,
+    std::ofstream& file)
+{
+    if (semantic_2_animaton_id.empty() && semantic_2_track_ref.empty())
+        return;
+
+    file << node_id << std::endl;
+    file << semantic_2_animaton_id.size() << std::endl;
+    for (const auto & t : semantic_2_animaton_id)
+    {
+        file << t.first << std::endl;
+        file << t.second << std::endl;
+    }
+    file << semantic_2_track_ref.size() << std::endl;
+    for (const auto& t : semantic_2_track_ref)
+    {
+        file << t.first << std::endl;
+        file << t.second.curve_num << std::endl;
+        file << t.second.curve_asset_id << std::endl;
+        file << t.second.discrete_num << std::endl;
+        file << t.second.discrete_asset_id << std::endl;
+        file << t.second.duration_num << std::endl;
+        file << t.second.duration_asset_id << std::endl;
+    }
+
+    file << std::endl;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 // MR::NetworkDef
 //----------------------------------------------------------------------------------------------------------------------
@@ -154,6 +195,8 @@ void NetworkDef::locate()
   // NodeDefs
   std::ofstream myfile;
   myfile.open("F:/horizon_files/morpheme_graph.txt");
+  std::ofstream event_ref_file;
+  event_ref_file.open("F:/horizon_files/morpheme_event_ref.txt");
 
   myfile << m_numNodes << std::endl;
   REFIX_SWAP_PTR(NodeDef*, m_nodes);
@@ -190,6 +233,8 @@ void NetworkDef::locate()
       }
       {
           std::set<int> animation_source_ids;
+          std::map<int, int> semantic_2_animaton_id;
+          std::map<int, TrackRefStruct> semantic_2_track_ref;
           for (uint16_t i = 0; i < n->m_numAttribDataHandles; ++i)
           {
               if (n->m_nodeAttribDataHandles[i].m_attribData)
@@ -199,11 +244,29 @@ void NetworkDef::locate()
                   if (type == ATTRIB_TYPE_SOURCE_ANIM)
                   {
                       AttribDataSourceAnim* a = (AttribDataSourceAnim*)(n->m_nodeAttribDataHandles[i].m_attribData);
-                      NMP_STDOUT("     data source anim %d %f", a->m_animAssetID, a->m_sourceAnimDuration);
+                      NMP_STDOUT("     %d : data source anim %d %f", i, a->m_animAssetID, a->m_sourceAnimDuration);
                       animation_source_ids.insert(a->m_animAssetID);
+                      semantic_2_animaton_id[i] = a->m_animAssetID;
+                  }
+                  else if (type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS)
+                  {
+                      AttribDataSourceEventTrackSet* a = (AttribDataSourceEventTrackSet*)(n->m_nodeAttribDataHandles[i].m_attribData);
+					  NMP_STDOUT("     %d : discrete event track %d : %u", i, a->m_numDiscreteEventTracks, ((uint32_t*)(a->m_sourceDiscreteEventTracks))[0]);
+					  NMP_STDOUT("     %d : duration event track %d : %u", i, a->m_numDurEventTracks, ((uint32_t*)(a->m_sourceDurEventTracks))[0]);
+                      semantic_2_track_ref[i] = TrackRefStruct();
+                      semantic_2_track_ref[i].discrete_num = a->m_numDiscreteEventTracks;
+                      if (a->m_sourceDiscreteEventTracks)
+						  semantic_2_track_ref[i].discrete_asset_id = ((uint32_t*)(a->m_sourceDiscreteEventTracks))[0];
+                      semantic_2_track_ref[i].duration_num = a->m_numDurEventTracks;
+                      if (a->m_sourceDurEventTracks)
+						  semantic_2_track_ref[i].duration_asset_id = ((uint32_t*)(a->m_sourceDurEventTracks))[0];
+                      semantic_2_track_ref[i].curve_num = a->m_numCurveEventTracks;
+                      if (a->m_sourceCurveEventTracks)
+						  semantic_2_track_ref[i].curve_asset_id = ((uint32_t*)(a->m_sourceCurveEventTracks))[0];
                   }
               }
           }
+          output_event_ref_data(n->getNodeID(), semantic_2_animaton_id, semantic_2_track_ref, event_ref_file);
           myfile << animation_source_ids.size() << std::endl;
           for (auto id : animation_source_ids)
           {
@@ -218,6 +281,7 @@ void NetworkDef::locate()
   }
   myfile << "hello" << std::endl;
   myfile.close();
+  event_ref_file.close();
 
   // Output control parameter Node IDs and semantics
   if (m_emittedControlParamsInfo)

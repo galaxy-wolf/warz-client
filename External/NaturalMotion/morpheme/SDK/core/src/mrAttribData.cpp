@@ -3761,6 +3761,79 @@ void AttribDataSourceEventTrackSet::locate(AttribData* target)
   }
 }
 
+void AttribDataSourceEventTrackSet::zhaoqi_locate(AttribData* target)
+{
+  MR::Manager& manager = MR::Manager::getInstance();
+  AttribDataSourceEventTrackSet* result = (AttribDataSourceEventTrackSet*)target;
+
+  AttribData::locate(target);
+
+  // Discrete events
+  NMP::endianSwap(result->m_numDiscreteEventTracks);
+
+  NMP::endianSwap(result->m_sourceDiscreteEventTracks);
+  if (result->m_sourceDiscreteEventTracks)
+  {
+      REFIX_PTR_RELATIVE(EventTrackDefDiscrete*, result->m_sourceDiscreteEventTracks, result);
+  }
+
+  //NMP::endianSwap(result->m_sourceDiscreteEventTrackSizes);
+  //REFIX_PTR_RELATIVE(uint32_t, result->m_sourceDiscreteEventTrackSizes, result);
+
+  //for (uint32_t i = 0; i < result->m_numDiscreteEventTracks; i++)
+  //{
+  //  // Fixup each of the actual event tracks
+  //  NMP::endianSwap(result->m_sourceDiscreteEventTracks[i]);
+  //  result->m_sourceDiscreteEventTracks[i] = (EventTrackDefDiscrete*)
+  //    manager.getObjectPtrFromObjectID((ObjectID)result->m_sourceDiscreteEventTracks[i]);
+
+  //  NMP::endianSwap(result->m_sourceDiscreteEventTrackSizes[i]);
+  //}
+
+  // Curve events
+  NMP::endianSwap(result->m_numCurveEventTracks);
+
+  NMP::endianSwap(result->m_sourceCurveEventTracks);
+  if (result->m_sourceCurveEventTracks)
+  {
+      REFIX_PTR_RELATIVE(EventTrackDefCurve*, result->m_sourceCurveEventTracks, result);
+  }
+
+  //NMP::endianSwap(result->m_sourceCurveEventTrackSizes);
+  //REFIX_PTR_RELATIVE(uint32_t, result->m_sourceCurveEventTrackSizes, result);
+
+  //for (uint32_t i = 0; i < result->m_numCurveEventTracks; i++)
+  //{
+  //  // Fixup each of the actual event tracks
+  //  NMP::endianSwap(result->m_sourceCurveEventTracks[i]);
+  //  result->m_sourceCurveEventTracks[i] = (EventTrackDefCurve*)
+  //    manager.getObjectPtrFromObjectID((ObjectID)result->m_sourceCurveEventTracks[i]);
+
+  //  NMP::endianSwap(result->m_sourceCurveEventTrackSizes[i]);
+  //}
+
+  // Duration events
+  NMP::endianSwap(result->m_numDurEventTracks);
+
+  NMP::endianSwap(result->m_sourceDurEventTracks);
+  if (result->m_sourceDurEventTracks)
+  {
+      REFIX_PTR_RELATIVE(EventTrackDefDuration*, result->m_sourceDurEventTracks, result);
+  }
+
+  //NMP::endianSwap(result->m_sourceDurEventTrackSizes);
+  //REFIX_PTR_RELATIVE(uint32_t, result->m_sourceDurEventTrackSizes, result);
+
+  //for (uint32_t i = 0; i < result->m_numDurEventTracks; ++i)
+  //{
+  //  // Fixup each of the actual event tracks
+  //  NMP::endianSwap(result->m_sourceDurEventTracks[i]);
+  //  result->m_sourceDurEventTracks[i] = (EventTrackDefDuration*)
+  //    Manager::getInstance().getObjectPtrFromObjectID((ObjectID)result->m_sourceDurEventTracks[i]);
+  //  NMP::endianSwap(result->m_sourceDurEventTrackSizes[i]);
+  //}
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 void AttribDataSourceEventTrackSet::dislocate(AttribData* target)
 {

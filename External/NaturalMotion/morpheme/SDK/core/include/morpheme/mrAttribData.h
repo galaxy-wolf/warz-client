@@ -1574,6 +1574,7 @@ public:
 
   /// For Manager registration.
   static void locate(AttribData* target);
+  static void zhaoqi_locate(AttribData* target);
   static void dislocate(AttribData* target);
   static void relocate(AttribData* target, void* location);
   static void relocate(AttribData* target) { relocate(target, target); }
