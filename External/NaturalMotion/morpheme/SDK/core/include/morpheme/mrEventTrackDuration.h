@@ -94,7 +94,7 @@ protected:
   EventTrackDefDuration();
   ~EventTrackDefDuration();
 
-protected:
+public:
   EventDefDuration* m_events;    ///< Array of all events.
 };
 

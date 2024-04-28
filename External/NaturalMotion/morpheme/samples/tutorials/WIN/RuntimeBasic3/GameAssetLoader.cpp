@@ -9,6 +9,8 @@
 // NaturalMotion in writing.
 
 //----------------------------------------------------------------------------------------------------------------------
+#include <fstream>
+
 #include "GameAssetLoader.h"
 
 #include "GameCharacterManager.h"
@@ -69,6 +71,40 @@ void AssetLoaderBasic::evalBundleRequirements(
       ++numClientAssets;
     }
   }
+}
+
+void output_morpheme_event_discrete(std::ofstream& myfile, MR::EventTrackDefDiscrete* event)
+{
+    myfile << event->m_name << std::endl;
+    myfile << event->m_type << std::endl;
+    myfile << event->m_trackID << std::endl;
+    myfile << event->m_userData << std::endl;
+
+    myfile << event->m_numEvents << std::endl;
+    for (int i = 0; i < event->m_numEvents; ++i)
+    {
+        myfile << event->m_events[i].getStartTime() << std::endl;
+        myfile << event->m_events[i].getDuration() << std::endl;
+        myfile << event->m_events[i].getUserData() << std::endl;
+    }
+    myfile << std::endl;
+}
+
+void output_morpheme_event_duration(std::ofstream& myfile, MR::EventTrackDefDuration* event)
+{
+    myfile << event->m_name << std::endl;
+    myfile << event->m_type << std::endl;
+    myfile << event->m_trackID << std::endl;
+    myfile << event->m_userData << std::endl;
+
+    myfile << event->m_numEvents << std::endl;
+    for (int i = 0; i < event->m_numEvents; ++i)
+    {
+        myfile << event->m_events[i].getStartTime() << std::endl;
+        myfile << event->m_events[i].getDuration() << std::endl;
+        myfile << event->m_events[i].getUserData() << std::endl;
+    }
+    myfile << std::endl;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -347,6 +383,9 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
   uint32_t unkown2;
   size_t size;
 
+  std::ofstream myfile;
+  myfile.open("F:/horizon_files/morpheme_events.txt");
+
   while (bundleReader.readNextAsset(unkown1, unkown2, HZDasset, size))
   {
       uint8_t * bytes = (uint8_t*)HZDasset;
@@ -480,9 +519,22 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
                   // Special case for the network definition
                   if (assetType == MR::Manager::kAsset_NetworkDef)
                   {
+				      myfile.close();
                       NMP_ASSERT(!networkDef);  // We only expect one network definition per bundle
                       networkDef = (MR::NetworkDef*)asset;
                   }
+				  if (assetType == MR::Manager::kAsset_EventTrackDiscrete)
+				  {
+					  MR::EventTrackDefDiscrete* e = (MR::EventTrackDefDiscrete*)asset;
+					  myfile << assetID << std::endl;
+					  output_morpheme_event_discrete(myfile, e);
+				  }
+				  if (assetType == MR::Manager::kAsset_EventTrackDuration)
+				  {
+					  MR::EventTrackDefDuration* e = (MR::EventTrackDefDuration*)asset;
+					  myfile << assetID << std::endl;
+					  output_morpheme_event_duration(myfile, e);
+				  }
 
                   //----------------------------
                   // Log the asset ID for use in UnloadMorphemeNetwork().

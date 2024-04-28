@@ -61,7 +61,7 @@ public:
   uint32_t getTrackID() const { return m_trackID; }
   void setTrackID(uint32_t trackID) { m_trackID = trackID; }
 
-protected:
+public:
   EventTrackDefBase() {};
   ~EventTrackDefBase() {};
 

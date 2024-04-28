@@ -160,7 +160,7 @@ protected:
     float              rangeEnd,             ///< The animation clip range end.
     bool               inclusiveStart) const;///< Whether the start of the range should be included or not.
 
-protected:
+public:
   EventDefDiscrete* m_events;    ///< Array of all events.
 };
 
