@@ -119,6 +119,7 @@
 #include "morpheme/TransitConditions/mrTransitConditionOnMessage.h"
 #include "morpheme/TransitConditions/mrTransitConditionNodeActive.h"
 #include "morpheme/TransitConditions/mrTransitConditionRayHit.h"
+#include "morpheme/TransitConditions/mrTransitConditionControlParamBoolSet.h"
 
 #include "morpheme/Prediction/mrPredictionModelNDMesh.h"
 //----------------------------------------------------------------------------------------------------------------------
@@ -1489,6 +1490,17 @@ void registerCoreTransitConditions()
     TransitConditionDef::defaultInstanceGetMemoryRequirements,
     TransitConditionDefControlParamUIntInRange::instanceInit,
     TransitConditionDefControlParamUIntInRange::instanceUpdate,
+    TransitConditionDef::defaultInstanceQueueDeps,
+    TransitConditionDef::defaultInstanceReset);
+
+  manager.registerTransitCondType(
+    TRANSCOND_CONTROL_PARAM_BOOL_SET_ID,
+	TransitConditionDefControlParamBoolSet::defLocate,
+    TransitConditionDefControlParamBoolSet::defDislocate,
+    NULL, // no relocate function required
+    TransitConditionDef::defaultInstanceGetMemoryRequirements,
+    TransitConditionDefControlParamBoolSet::instanceInit,
+    TransitConditionDefControlParamBoolSet::instanceUpdate,
     TransitConditionDef::defaultInstanceQueueDeps,
     TransitConditionDef::defaultInstanceReset);
 }

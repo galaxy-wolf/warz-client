@@ -421,6 +421,9 @@ enum AttribDataTypeEnum
   ATTRIB_TYPE_CLOSEST_ANIM_DEF_ANIM_SET,  ///< Setup data for the closest anim node (anim set specific).
   ATTRIB_TYPE_CLOSEST_ANIM_STATE,         ///< State data for the closest anim node
 
+  ATTRIB_TYPE_UNKOWN0,          ///<     we don't know it!!!!
+  ATTRIB_TYPE_UNKOWN1,          ///< 
+
   ATTRIB_TYPE_STATE_MACHINE_DEF,          ///< Holds the full definition of a state machine.
   ATTRIB_TYPE_STATE_MACHINE,              ///< Holds the current state of a state machine.
 

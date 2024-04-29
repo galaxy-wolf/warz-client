@@ -135,9 +135,10 @@ public:
 #endif // MR_INCLUDE_CONNECTIVITY
 
 public:
-  /// The node that will be instanced as the root node of a State Machine when this state is active.
-  NodeID          m_nodeID;                   
-
+  ConditionIndex* m_entryConditionIndexes;
+  ConditionIndex* m_exitConditionIndexes;     
+  ConditionIndex* m_exitBreakoutConditions;     
+  StateID*        m_exitTransitionStateIDs;
   //--------------------------
   /// The condition set that must be satisfied to enter this transition state.
   ///  Only applies if this is a transition state.
@@ -145,19 +146,12 @@ public:
   ///  MORPH-21330: Move this data in to a separate structure and reference from here with a pointer.
   ///               Saving space, but check that further indirection does not slow things down.
   ConditionIndex  m_numEntryConditions;
-  ConditionIndex* m_entryConditionIndexes;
-#ifdef MR_INCLUDE_CONNECTIVITY
-  StateID         m_sourceStateID;      ///< Only used if this is a transition state. INVALID_STATE_ID otherwise.
-                                        ///<  Can still be INVALID_STATE_ID if this is a global transition.
-  StateID         m_destinationStateID; ///< Used if this is a transition state. INVALID_STATE_ID otherwise.
-#endif // MR_INCLUDE_CONNECTIVITY
 
   //--------------------------
   /// Collection of the conditions on all transitions from this state. Indexes in to StateMachines array.
   ///  Individual conditions specified here may be referenced by more than one exit transition state
   ///  in this StateDef. When this State is active all of these conditions are updated.
   ConditionIndex  m_numExitConditions;
-  ConditionIndex* m_exitConditionIndexes;     
 
   /// Number of breakout conditions used by transitions from this state, stored first in the m_exitConditionIndexes array.
   ///  Used when this is a destination state.
@@ -168,7 +162,18 @@ public:
   ///  Each initiated by a sub-set of the above exit conditions being satisfied.
   ///  Only when a full set of conditions is satisfied will a transition start.
   StateID         m_numExitTransitionStates;
-  StateID*        m_exitTransitionStateIDs;
+
+  StateID m_UnknownNum;
+
+  /// The node that will be instanced as the root node of a State Machine when this state is active.
+  NodeID          m_nodeID;                   
+
+
+#ifdef MR_INCLUDE_CONNECTIVITY
+  StateID         m_sourceStateID;      ///< Only used if this is a transition state. INVALID_STATE_ID otherwise.
+                                        ///<  Can still be INVALID_STATE_ID if this is a global transition.
+  StateID         m_destinationStateID; ///< Used if this is a transition state. INVALID_STATE_ID otherwise.
+#endif // MR_INCLUDE_CONNECTIVITY
 };
 
 //----------------------------------------------------------------------------------------------------------------------

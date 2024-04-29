@@ -45,7 +45,7 @@ void AttribDataStateMachineDef::locate(AttribData* target)
       REFIX_PTR_RELATIVE(TransitConditionDef, result->m_conditions[i], result);
 
       // Locate condition.
-      TransitConditionDef::locate(result->m_conditions[i]);
+      // TransitConditionDef::locate(result->m_conditions[i]);
     }
   }
 
@@ -315,10 +315,12 @@ bool StateDef::locate()
   NMP::endianSwap(m_numExitBreakoutConditions);
   NMP::endianSwap(m_numExitTransitionStates);
   NMP::endianSwap(m_nodeID);
-
   // Exit transition conditions.
   if (m_numExitConditions > 0)
   {
+	// 发现这有这样才能和内存数据对应上。
+	this->m_numExitConditions -= 1;
+
     REFIX_SWAP_PTR(ConditionIndex, m_exitConditionIndexes);
     NMP::endianSwapArray(m_exitConditionIndexes, m_numExitConditions);
   }
@@ -328,6 +330,12 @@ bool StateDef::locate()
   {
     REFIX_SWAP_PTR(ConditionIndex, m_entryConditionIndexes);
     NMP::endianSwapArray(m_entryConditionIndexes, m_numEntryConditions);
+  }
+
+  if (m_numExitBreakoutConditions > 0)
+  {
+    REFIX_SWAP_PTR(ConditionIndex, m_exitBreakoutConditions);
+    NMP::endianSwapArray(m_exitBreakoutConditions, m_numExitBreakoutConditions);
   }
 
   // Exit state changes.

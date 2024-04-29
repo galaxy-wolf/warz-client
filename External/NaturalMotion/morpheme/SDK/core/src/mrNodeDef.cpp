@@ -317,10 +317,15 @@ void NodeDef::zhaoqi_locate()
 
         // Locate the attrib data itself
         AttribDataType type = m_nodeAttribDataHandles[i].m_attribData->getTypeUnlocated();
-        // todo: 目前我只关心 animation source 这一种attrib 后续的可以往这里面加。
-        if (type != ATTRIB_TYPE_SOURCE_ANIM && type != ATTRIB_TYPE_SOURCE_EVENT_TRACKS)
-            continue;
 
+        if (m_nodeID == 663)
+		   NMP_STDOUT("663 attribute type id is %d", type)
+
+        // todo: 目前我只关心 animation source 这一种attrib 后续的可以往这里面加。
+        if (!(type == ATTRIB_TYPE_SOURCE_ANIM || 
+            type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS ||
+            type == ATTRIB_TYPE_STATE_MACHINE_DEF))
+            continue;
         MR::AttribLocateFn locateFn = manager.getAttribLocateFn(type);
         NMP_ASSERT(locateFn);
         locateFn(m_nodeAttribDataHandles[i].m_attribData);
