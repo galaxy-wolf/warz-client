@@ -324,7 +324,7 @@ void NodeDef::zhaoqi_locate()
         // todo: 目前我只关心 animation source 这一种attrib 后续的可以往这里面加。
         if (!(type == ATTRIB_TYPE_SOURCE_ANIM || 
             type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS ||
-            type == ATTRIB_TYPE_STATE_MACHINE_DEF && m_nodeID == 663))
+            type == ATTRIB_TYPE_STATE_MACHINE_DEF))
             continue;
         MR::AttribLocateFn locateFn = manager.getAttribLocateFn(type);
         NMP_ASSERT(locateFn);
@@ -336,8 +336,6 @@ void NodeDef::zhaoqi_locate()
         //NMP_ASSERT(m_nodeAttribDataHandles[i].m_attribData->m_allocator == NULL);
       }
     }
-    if (m_nodeID == 663)
-        NMP_STDOUT("zzz");
   }
 
 }

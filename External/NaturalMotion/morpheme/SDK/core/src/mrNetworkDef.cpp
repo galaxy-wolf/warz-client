@@ -23,6 +23,8 @@
 #include <set>
 #include <map>
 
+#include <string>
+
 #include <stdio.h>
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -197,6 +199,12 @@ void NetworkDef::locate()
   myfile.open("F:/horizon_files/morpheme_graph.txt");
   std::ofstream event_ref_file;
   event_ref_file.open("F:/horizon_files/morpheme_event_ref.txt");
+  std::ofstream state_machine_file;
+  state_machine_file.open("F:/horizon_files/state_machine.txt");
+  std::ofstream attrib_type_file;
+  attrib_type_file.open("F:/horizon_files/attrib_type.txt");
+
+  std::set<int> all_condition_types;
 
   myfile << m_numNodes << std::endl;
   REFIX_SWAP_PTR(NodeDef*, m_nodes);
@@ -235,12 +243,15 @@ void NetworkDef::locate()
           std::set<int> animation_source_ids;
           std::map<int, int> semantic_2_animaton_id;
           std::map<int, TrackRefStruct> semantic_2_track_ref;
+          std::set<int> attrib_data_types;
+          bool has_state_machine = false;
           for (uint16_t i = 0; i < n->m_numAttribDataHandles; ++i)
           {
               if (n->m_nodeAttribDataHandles[i].m_attribData)
               {
                   // Locate the attrib data itself
                   AttribDataType type = n->m_nodeAttribDataHandles[i].m_attribData->getType();
+                  attrib_data_types.insert(type);
                   if (type == ATTRIB_TYPE_SOURCE_ANIM)
                   {
                       AttribDataSourceAnim* a = (AttribDataSourceAnim*)(n->m_nodeAttribDataHandles[i].m_attribData);
@@ -264,8 +275,89 @@ void NetworkDef::locate()
                       if (a->m_sourceCurveEventTracks)
 						  semantic_2_track_ref[i].curve_asset_id = ((uint32_t*)(a->m_sourceCurveEventTracks))[0];
                   }
+                  else if (type == ATTRIB_TYPE_STATE_MACHINE_DEF)
+                  {
+                      if (has_state_machine)
+                      {
+                          NMP_STDOUT("error : too many state machine!!");
+                      }
+                      has_state_machine = true;
+                      // get all condition type
+                      AttribDataStateMachineDef * a = (AttribDataStateMachineDef *)(n->m_nodeAttribDataHandles[i].m_attribData);
+                      for (ConditionIndex i = 0; i < a->getNumConditions(); ++i)
+                      {
+                          auto condition_def = a->getConditionDef(i);
+                          auto tt = condition_def->getType();
+                          all_condition_types.insert(tt);
+                      }
+
+                      state_machine_file << "node id:" << n->getNodeID() << std::endl;
+                      state_machine_file << "index: " << i << std::endl;
+                      state_machine_file << "num states:" << a->getNumStates() << " num child:" << n->getNumChildNodes() << std::endl;
+                      state_machine_file << "num conditions:" << a->getNumConditions() << std::endl;
+                      if (a->getNumStates() != n->getNumChildNodes())
+                          NMP_STDOUT("error: state num != child num");
+                      state_machine_file << "default state: " << a->getDefaultStartingStateID() << std::endl;
+                      auto output_list = [&state_machine_file, &a](uint16_t* ids, uint16_t num, uint16_t index) {
+                          state_machine_file << "\t\t list " << index << " count:[" << num << "]";
+                          if (ids && num > 0)
+                          {
+							  bool in_range_state = true;
+							  bool in_range_condition = true;
+                              for (int index_id = 0; index_id < num; index_id++)
+                              {
+                                  state_machine_file << ids[index_id] << " ";
+                                  if (ids[index_id] >= a->getNumStates())
+                                      in_range_state = false;
+                                  if (ids[index_id] >= a->getNumConditions())
+                                      in_range_condition = false;
+                              }
+                              state_machine_file << "{" << std::hex << ids[num] << ", " << ids[num + 1] << "}" << std::dec << std::endl;
+                              if (!in_range_state)
+                                  state_machine_file << "\t\tLIST_" << index << " out of state range." << std::endl;
+                              if (!in_range_condition)
+                                  state_machine_file << "\t\tLIST_" << index << " out of condition range." << std::endl;
+                          }
+                          else
+                          {
+                              state_machine_file << std::endl;
+                          }
+					  };
+                      auto output_state_def = [&state_machine_file, output_list, &a](StateDef* sd, std::string& name_or_id, uint16_t childid) {
+                          state_machine_file << "\t" << name_or_id << "\tnode id: " << sd->getNodeID();
+                          state_machine_file << "\tchild ID:" << childid;
+                          state_machine_file << "\tunkown id is: " << sd->m_UnknownNum << std::endl;
+                          if (sd->m_UnknownNum > 0 && sd->m_UnknownNum > a->getNumConditions())
+                              state_machine_file << "unknown num out of conditin range" << std::endl;
+                          output_list(sd->m_entryConditionIndexes, sd->m_numEntryConditions, 0);
+                          output_list(sd->m_exitConditionIndexes, sd->m_numExitConditions, 1);
+                          output_list(sd->m_exitBreakoutConditions, sd->m_numExitBreakoutConditions, 2);
+                          output_list(sd->m_exitTransitionStateIDs, sd->m_numExitTransitionStates, 3);
+                          state_machine_file << "\t\t src id:" << sd->getTransitSourceStateID();
+                          state_machine_file << "  dst id:" << sd->getTransitDestinationStateID();
+                          state_machine_file << std::endl;
+                          };
+                      for (StateID sid = 0; sid < a->getNumStates(); ++sid)
+                      {
+                          StateDef* sd = a->getStateDef(sid);
+                          output_state_def(sd, std::to_string(sid), n->getChildNodeID(sid));
+                      }
+                      if (StateDef* sd = a->getGlobalStateDef())
+                      {
+                          output_state_def(sd, std::string("global"), 0xFFFF);
+                      }
+                      state_machine_file << std::endl;
+                  }
               }
           }
+		  attrib_type_file << "Node: " << n->getNodeID() << std::endl << "\t";
+          for (auto tt : attrib_data_types)
+          {
+			  attrib_type_file << tt << " ";
+          }
+          attrib_type_file << std::endl;
+          attrib_type_file << std::endl;
+
           output_event_ref_data(n->getNodeID(), semantic_2_animaton_id, semantic_2_track_ref, event_ref_file);
           myfile << animation_source_ids.size() << std::endl;
           for (auto id : animation_source_ids)
@@ -282,6 +374,14 @@ void NetworkDef::locate()
   myfile << "hello" << std::endl;
   myfile.close();
   event_ref_file.close();
+  state_machine_file.close();
+  attrib_type_file.close();
+
+  NMP_STDOUT(" condition type count %d", all_condition_types.size());
+  for (auto tt : all_condition_types)
+  {
+      NMP_STDOUT(" \t%d", tt);
+  }
 
   // Output control parameter Node IDs and semantics
   if (m_emittedControlParamsInfo)
