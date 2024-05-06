@@ -19,6 +19,15 @@
 #include "morpheme/Nodes/mrNodeStateMachine.h"
 #include "morpheme/mrCharacterControllerAttribData.h"
 #include "morpheme/mrMirroredAnimMapping.h"
+#include "morpheme/TransitConditions/mrTransitConditionControlParamBoolSet.h"
+#include "morpheme/TransitConditions/mrTransitConditionNodeActive.h"
+#include "morpheme/TransitConditions/mrTransitConditionInDurationEvent.h"
+#include "morpheme/TransitConditions/mrTransitConditionControlParamFloatGreater.h"
+#include "morpheme/TransitConditions/mrTransitConditionControlParamFloatLess.h"
+#include "morpheme/TransitConditions/mrTransitConditionControlParamFloatInRange.h"
+#include "morpheme/TransitConditions/mrTransitConditionInSyncEventRange.h"
+#include "morpheme/TransitConditions/mrTransitConditionCrossedDurationFraction.h"
+#include "morpheme/TransitConditions/mrTransitConditionOnMessage.h"
 #include <vector>
 #include <set>
 #include <map>
@@ -167,6 +176,182 @@ void output_event_ref_data(
     file << std::endl;
 }
 
+class TransitCondition_631: public TransitConditionDef
+{
+public:
+    uint16_t m_unknown0; // 0x0084
+    uint16_t m_unknown1; // 0x0000
+    uint16_t m_unknown2; // 0x0000
+    uint16_t m_unknown3; // 0x4040
+};
+
+class TransitCondition_634: public TransitConditionDef
+{
+public:
+    uint16_t m_unknown0; // 0x0084
+    uint16_t m_unknown1; // 0x0000
+    float m_float; // 0x00007a43   = 250
+};
+
+class TransitCondition_16384 : public TransitConditionDef
+{
+public:
+  CPConnection  m_cpConnection; ///< Connection to the input Control Parameter attribute data to check against.
+  bool          m_value;        ///< Condition will be satisfied if values are equal.
+};
+
+class TransitCondition_16385 : public TransitConditionDef
+{
+public:
+  uint16_t m_unknown;        
+};
+
+class TransitCondition_16386 : public TransitConditionDef
+{
+public:
+  float m_float; // 0x004041     12.0   
+};
+
+class TransitCondition_16387 : public TransitConditionDef
+{
+public:
+    void locate()
+    {
+        REFIX_SWAP_PTR(char, m_some_name);
+    }
+public:
+  char* m_some_name;        
+  uint16_t m_unknown;
+};
+
+void output_condition(std::ofstream& condition_file, TransitConditionDef* condition_def)
+{
+  auto tt = condition_def->getType();
+  condition_file << condition_def->getType() << std::endl;
+  // 看过内存, 有些特殊时候会是00， 大部分时候是CD，变量未初始化？？
+  condition_file << condition_def->getInvertFlag() << std::endl;
+
+  auto output_attr_address = [&condition_file](const AttribAddress* attr_address) {
+      condition_file << attr_address->m_owningNodeID << std::endl;
+      condition_file << attr_address->m_targetNodeID << std::endl;
+      condition_file << attr_address->m_semantic << std::endl;
+      condition_file << attr_address->m_animSetIndex << std::endl;
+      condition_file << attr_address->m_validFrame << std::endl;
+      };
+
+  if (tt == TRANSCOND_ON_MESSAGE_ID)
+  { 
+      TransitConditionDefOnMessage* cd = (TransitConditionDefOnMessage*)condition_def;
+      condition_file << cd->getMessageID() << std::endl;
+  }
+  else if (tt == TRANSCOND_CONTROL_PARAM_BOOL_SET_ID)
+  {
+	  TransitConditionDefControlParamBoolSet* cd = (TransitConditionDefControlParamBoolSet*)condition_def;
+	  condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+	  condition_file << cd->getCPConnection()->m_sourcePinIndex << std::endl;
+  }
+  else if (tt == TRANSCOND_CROSSED_DURATION_FRACTION_ID)
+  {
+      TransitConditionDefCrossedDurationFraction* cd = (TransitConditionDefCrossedDurationFraction*)condition_def;
+      output_attr_address(cd->getSourceNodeFractionalPosAttribAddress());
+      condition_file << cd->getTriggerFraction() << std::endl;
+      // todo:bool last???
+  }
+  else if (tt == TRANSCOND_CONTROL_PARAM_FLOAT_LESS_ID)
+  {
+      TransitConditionDefControlParamFloatGreater* cd = (TransitConditionDefControlParamFloatGreater*)condition_def;
+      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getTestValue() << std::endl;
+      condition_file << cd->getOrEqual() << std::endl;
+  }
+  else if (tt == TRANSCOND_CONTROL_PARAM_FLOAT_GREATER_ID)
+  {
+      TransitConditionDefControlParamFloatGreater* cd = (TransitConditionDefControlParamFloatGreater*)condition_def;
+      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getTestValue() << std::endl;
+      condition_file << cd->getOrEqual() << std::endl;
+  }
+  else if (tt == TRANSCOND_IN_SYNC_EVENT_RANGE_ID)
+  {
+      TransitConditionDefInSyncEventRange* cd = (TransitConditionDefInSyncEventRange*)condition_def;
+      output_attr_address(cd->getSourceNodeSyncEventPlaybackPosAttribAddress());
+      output_attr_address(cd->getSourceNodeSyncEventTrackAttribAddress());
+      condition_file << cd->m_eventRangeStart << std::endl;
+      condition_file << cd->m_eventRangeEnd << std::endl;
+  }
+  else if (tt == TRANSCOND_NODE_ACTIVE_ID)
+  {
+	  TransitConditionDefNodeActive* cd = (TransitConditionDefNodeActive*)condition_def;
+	  condition_file << cd->getNodeID() << std::endl;
+  }
+  else if (tt == TRANSCOND_IN_DURATION_EVENT_ID)
+  {
+	  TransitConditionDefInDurationEvent * cd = (TransitConditionDefInDurationEvent *)condition_def;
+      output_attr_address(cd->getSourceNodeSampledEventsAttribAddress());
+	  condition_file << cd->m_eventTrackUserData << std::endl;
+	  condition_file << cd->m_eventUserData << std::endl;
+  }
+  else if (tt == TRANSCOND_CONTROL_PARAM_FLOAT_IN_RANGE_ID)
+  {
+	  TransitConditionDefControlParamFloatInRange* cd = (TransitConditionDefControlParamFloatInRange*)condition_def;
+      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getLowerTestValue() << std::endl;
+      condition_file << cd->getUpperTestValue() << std::endl;
+  }
+  else if (tt == 631)
+  {
+	  TransitCondition_631* cd = (TransitCondition_631*)condition_def;
+      condition_file << cd->m_unknown0 << std::endl;
+      condition_file << cd->m_unknown1 << std::endl;
+      condition_file << cd->m_unknown2 << std::endl;
+      condition_file << cd->m_unknown3 << std::endl;
+  }
+  else if (tt == 634)
+  {
+      TransitCondition_634* cd = (TransitCondition_634*)condition_def;
+      condition_file << cd->m_unknown0 << std::endl;
+      condition_file << cd->m_unknown1 << std::endl;
+      condition_file << cd->m_float << std::endl;
+  }
+  else if (tt == 16384)
+  {
+	  // 猜测这玩意就是条件取反？？
+	  TransitCondition_16384* cd = (TransitCondition_16384*)condition_def;
+	  condition_file << cd->m_cpConnection.m_sourceNodeID << std::endl;
+	  condition_file << cd->m_cpConnection.m_sourcePinIndex << std::endl;
+  }
+  else if (tt == 16385)
+  {
+	  // 猜测这玩意就是条件取反？？
+	  TransitCondition_16385* cd = (TransitCondition_16385*)condition_def;
+	  // 猜测这个可能是 1. node id， 判断node 是否active。 
+	  // 2.其他condition 的id， 然后这个将别人的结果取反。
+	  condition_file << cd->m_unknown << std::endl;
+  }
+  else if (tt == 16386)
+  {
+	  TransitCondition_16386* cd = (TransitCondition_16386*)condition_def;
+      // 比大小吗？
+	  condition_file << cd->m_float << std::endl;
+  }
+  else if (tt == 16387)
+  {
+	  TransitCondition_16387* cd = (TransitCondition_16387*)condition_def;
+	  cd->locate();
+	  condition_file << cd->m_some_name << std::endl;
+	  condition_file << cd->m_unknown << std::endl;
+  }
+  else
+  {
+	  NMP_STDOUT("not process condition type");
+  }
+
+  condition_file << std::endl;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 // MR::NetworkDef
 //----------------------------------------------------------------------------------------------------------------------
@@ -293,9 +478,12 @@ void NetworkDef::locate()
                       for (ConditionIndex i = 0; i < a->getNumConditions(); ++i)
                       {
                           auto condition_def = a->getConditionDef(i);
-                          auto tt = condition_def->getType();
-                          all_condition_types.insert(tt);
-                          condition_file << condition_def->getType() << std::endl << condition_def->getInvertFlag() << std::endl;
+
+                          {
+                              auto tt = condition_def->getType();
+                              all_condition_types.insert(tt);
+                          }
+                          output_condition(condition_file, condition_def);
                       }
 
                       state_machine_file << "node id:" << n->getNodeID() << std::endl;

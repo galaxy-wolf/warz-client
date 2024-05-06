@@ -59,7 +59,7 @@ public:
   NM_INLINE uint32_t getEventUserData() const { return m_eventUserData; }
   NM_INLINE void setEventUserData(uint32_t userTypeID) { m_eventUserData = userTypeID; }
 
-protected:
+public:
   TransitConditionDefInDurationEvent() { m_type = TRANSCOND_IN_DURATION_EVENT_ID; };
 
   AttribAddress m_sourceNodeSampledEventsAttribAddress; ///< Address of the sample events buffer from the source

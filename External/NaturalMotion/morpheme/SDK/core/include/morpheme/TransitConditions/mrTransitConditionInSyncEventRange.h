@@ -72,7 +72,7 @@ public:
     const AttribDataSyncEventTrack* syncEventTrack  ///< IN: The current sync event track.
     );
 
-protected:
+public:
   TransitConditionDefInSyncEventRange() { m_type = TRANSCOND_IN_SYNC_EVENT_RANGE_ID; }
 
   AttribAddress m_sourceNodeSyncEventPlaybackPosAddress; ///< Address of the sync event playback pos attrib of the source node of the transition.
