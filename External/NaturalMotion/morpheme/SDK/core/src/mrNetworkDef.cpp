@@ -259,9 +259,9 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   }
   else if (tt == TRANSCOND_CONTROL_PARAM_FLOAT_LESS_ID)
   {
-      TransitConditionDefControlParamFloatGreater* cd = (TransitConditionDefControlParamFloatGreater*)condition_def;
+      TransitConditionDefControlParamFloatLess* cd = (TransitConditionDefControlParamFloatLess*)condition_def;
       condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
-      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getCPConnection()->m_sourcePinIndex<< std::endl;
       condition_file << cd->getTestValue() << std::endl;
       condition_file << cd->getOrEqual() << std::endl;
   }
@@ -269,7 +269,7 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   {
       TransitConditionDefControlParamFloatGreater* cd = (TransitConditionDefControlParamFloatGreater*)condition_def;
       condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
-      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getCPConnection()->m_sourcePinIndex<< std::endl;
       condition_file << cd->getTestValue() << std::endl;
       condition_file << cd->getOrEqual() << std::endl;
   }
@@ -297,7 +297,7 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   {
 	  TransitConditionDefControlParamFloatInRange* cd = (TransitConditionDefControlParamFloatInRange*)condition_def;
       condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
-      condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
+      condition_file << cd->getCPConnection()->m_sourcePinIndex << std::endl;
       condition_file << cd->getLowerTestValue() << std::endl;
       condition_file << cd->getUpperTestValue() << std::endl;
   }
@@ -475,6 +475,7 @@ void NetworkDef::locate()
                       AttribDataStateMachineDef * a = (AttribDataStateMachineDef *)(n->m_nodeAttribDataHandles[i].m_attribData);
                       condition_file << n->getNodeID() << std::endl;
                       condition_file << a->getNumConditions() << std::endl;
+                      condition_file << "##" << std::endl;
                       for (ConditionIndex i = 0; i < a->getNumConditions(); ++i)
                       {
                           auto condition_def = a->getConditionDef(i);
