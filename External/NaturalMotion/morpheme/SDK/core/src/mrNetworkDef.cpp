@@ -249,6 +249,7 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
 	  TransitConditionDefControlParamBoolSet* cd = (TransitConditionDefControlParamBoolSet*)condition_def;
 	  condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
 	  condition_file << cd->getCPConnection()->m_sourcePinIndex << std::endl;
+      condition_file << cd->getTestValue() << std::endl;
   }
   else if (tt == TRANSCOND_CROSSED_DURATION_FRACTION_ID)
   {
