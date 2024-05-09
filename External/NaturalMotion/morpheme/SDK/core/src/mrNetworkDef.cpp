@@ -179,17 +179,14 @@ void output_event_ref_data(
 class TransitCondition_631: public TransitConditionDef
 {
 public:
-    uint16_t m_unknown0; // 0x0084
-    uint16_t m_unknown1; // 0x0000
-    uint16_t m_unknown2; // 0x0000
-    uint16_t m_unknown3; // 0x4040
+    uint32_t m_unknown0; 
+    float m_float; 
 };
 
 class TransitCondition_634: public TransitConditionDef
 {
 public:
-    uint16_t m_unknown0; // 0x0084
-    uint16_t m_unknown1; // 0x0000
+    uint32_t m_unknown0; // 0x0084
     float m_float; // 0x00007a43   = 250
 };
 
@@ -306,15 +303,12 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   {
 	  TransitCondition_631* cd = (TransitCondition_631*)condition_def;
       condition_file << cd->m_unknown0 << std::endl;
-      condition_file << cd->m_unknown1 << std::endl;
-      condition_file << cd->m_unknown2 << std::endl;
-      condition_file << cd->m_unknown3 << std::endl;
+      condition_file << cd->m_float<< std::endl;
   }
   else if (tt == 634)
   {
       TransitCondition_634* cd = (TransitCondition_634*)condition_def;
       condition_file << cd->m_unknown0 << std::endl;
-      condition_file << cd->m_unknown1 << std::endl;
       condition_file << cd->m_float << std::endl;
   }
   else if (tt == 16384)
