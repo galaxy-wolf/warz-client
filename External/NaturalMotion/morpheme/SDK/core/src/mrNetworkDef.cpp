@@ -323,6 +323,7 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
 	  TransitCondition_16384* cd = (TransitCondition_16384*)condition_def;
 	  condition_file << cd->m_cpConnection.m_sourceNodeID << std::endl;
 	  condition_file << cd->m_cpConnection.m_sourcePinIndex << std::endl;
+      condition_file << cd->m_value << std::endl;
   }
   else if (tt == 16385)
   {
