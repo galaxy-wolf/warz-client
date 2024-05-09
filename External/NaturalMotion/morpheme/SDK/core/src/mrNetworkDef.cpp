@@ -138,12 +138,9 @@ bool NodeInitDataArrayDef::dislocate()
 
 struct TrackRefStruct
 {
-  int duration_num;
-  uint32_t duration_asset_id = 0;
-  int discrete_num = 0;
-  uint32_t discrete_asset_id = 0;
-  int curve_num = 0;
-  uint32_t curve_asset_id = 0;
+  std::vector<uint32_t> duration_asset_ids;
+  std::vector<uint32_t> discrete_asset_ids;
+  std::vector<uint32_t> curve_asset_ids;
 };
 void output_event_ref_data(
     uint32_t node_id, 
@@ -162,15 +159,18 @@ void output_event_ref_data(
         file << t.second << std::endl;
     }
     file << semantic_2_track_ref.size() << std::endl;
+    auto output_vector = [&file](const std::vector<uint32_t>& v)
+        {
+            file << v.size() << std::endl;
+            for (auto i : v)
+                file << i << std::endl;
+        };
     for (const auto& t : semantic_2_track_ref)
     {
         file << t.first << std::endl;
-        file << t.second.curve_num << std::endl;
-        file << t.second.curve_asset_id << std::endl;
-        file << t.second.discrete_num << std::endl;
-        file << t.second.discrete_asset_id << std::endl;
-        file << t.second.duration_num << std::endl;
-        file << t.second.duration_asset_id << std::endl;
+        output_vector(t.second.curve_asset_ids);
+        output_vector(t.second.discrete_asset_ids);
+        output_vector(t.second.duration_asset_ids);
     }
 
     file << std::endl;
@@ -449,16 +449,18 @@ void NetworkDef::locate()
                       AttribDataSourceEventTrackSet* a = (AttribDataSourceEventTrackSet*)(n->m_nodeAttribDataHandles[i].m_attribData);
 					  NMP_STDOUT("     %d : discrete event track %d : %u", i, a->m_numDiscreteEventTracks, ((uint32_t*)(a->m_sourceDiscreteEventTracks))[0]);
 					  NMP_STDOUT("     %d : duration event track %d : %u", i, a->m_numDurEventTracks, ((uint32_t*)(a->m_sourceDurEventTracks))[0]);
+                      auto convert_to_uint32_vector = [](std::vector<uint32_t>& output, uint32_t num, void* input_uint64_array) 
+                          {
+							  output.clear();
+							  for (int i = 0; i < num; ++i)
+							  {
+								  output.push_back((uint32_t)((uint64_t*)input_uint64_array)[i]);
+							  }
+						  };
                       semantic_2_track_ref[i] = TrackRefStruct();
-                      semantic_2_track_ref[i].discrete_num = a->m_numDiscreteEventTracks;
-                      if (a->m_sourceDiscreteEventTracks)
-						  semantic_2_track_ref[i].discrete_asset_id = ((uint32_t*)(a->m_sourceDiscreteEventTracks))[0];
-                      semantic_2_track_ref[i].duration_num = a->m_numDurEventTracks;
-                      if (a->m_sourceDurEventTracks)
-						  semantic_2_track_ref[i].duration_asset_id = ((uint32_t*)(a->m_sourceDurEventTracks))[0];
-                      semantic_2_track_ref[i].curve_num = a->m_numCurveEventTracks;
-                      if (a->m_sourceCurveEventTracks)
-						  semantic_2_track_ref[i].curve_asset_id = ((uint32_t*)(a->m_sourceCurveEventTracks))[0];
+                      convert_to_uint32_vector(semantic_2_track_ref[i].discrete_asset_ids, a->m_numDiscreteEventTracks, a->m_sourceDiscreteEventTracks);
+					  convert_to_uint32_vector(semantic_2_track_ref[i].duration_asset_ids, a->m_numDurEventTracks, a->m_sourceDurEventTracks);
+					  convert_to_uint32_vector(semantic_2_track_ref[i].curve_asset_ids, a->m_numCurveEventTracks, a->m_sourceCurveEventTracks);
                   }
                   else if (type == ATTRIB_TYPE_STATE_MACHINE_DEF)
                   {
