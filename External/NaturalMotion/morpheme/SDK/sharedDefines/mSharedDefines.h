@@ -388,12 +388,12 @@ enum AttribDataTypeEnum
   ATTRIB_TYPE_TRAJECTORY_DELTA_TRANSFORM,       ///< The trajectory channels delta transform for this frame.
   ATTRIB_TYPE_TRANSFORM,                        ///< The trajectory channel transform.  (Needed between frames)
   ATTRIB_TYPE_VELOCITY,                         ///< Linear and angular velocity.
+  ATTRIB_TYPE_UNKNOWN1,                          /// todo: before source anim there are one unkown type added!!!
   ATTRIB_TYPE_SYNC_EVENT_TRACK,                 ///< Synchronisation event track.
   ATTRIB_TYPE_SAMPLED_EVENTS_BUFFER,            ///< Buffer of sampled events.
   ATTRIB_TYPE_DURATION_EVENT_TRACK_SET,         ///< A set of duration event tracks.
 
   ATTRIB_TYPE_RIG,                              ///< Describes hierarchy of bones etc.
-  ATTRIB_TYPE_UNKNOWN1,                          /// todo: before source anim there are one unkown type added!!!
   ATTRIB_TYPE_SOURCE_ANIM,                      ///< A source animation in any format.
 
   ATTRIB_TYPE_RIG_TO_ANIM_MAP,                  ///< Maps rig channels to animation channels.

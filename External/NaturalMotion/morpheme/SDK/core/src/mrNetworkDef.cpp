@@ -390,6 +390,7 @@ void NetworkDef::locate()
   condition_file.open("F:/horizon_files/conditions.txt");
 
   std::set<int> all_condition_types;
+  std::set<int> all_attribute_types;
 
   myfile << m_numNodes << std::endl;
   REFIX_SWAP_PTR(NodeDef*, m_nodes);
@@ -437,6 +438,7 @@ void NetworkDef::locate()
                   // Locate the attrib data itself
                   AttribDataType type = n->m_nodeAttribDataHandles[i].m_attribData->getType();
                   attrib_data_types.insert(type);
+                  all_attribute_types.insert(type);
                   if (type == ATTRIB_TYPE_SOURCE_ANIM)
                   {
                       AttribDataSourceAnim* a = (AttribDataSourceAnim*)(n->m_nodeAttribDataHandles[i].m_attribData);
@@ -461,6 +463,11 @@ void NetworkDef::locate()
                       convert_to_uint32_vector(semantic_2_track_ref[i].discrete_asset_ids, a->m_numDiscreteEventTracks, a->m_sourceDiscreteEventTracks);
 					  convert_to_uint32_vector(semantic_2_track_ref[i].duration_asset_ids, a->m_numDurEventTracks, a->m_sourceDurEventTracks);
 					  convert_to_uint32_vector(semantic_2_track_ref[i].curve_asset_ids, a->m_numCurveEventTracks, a->m_sourceCurveEventTracks);
+                  }
+                  else if (type == ATTRIB_TYPE_SYNC_EVENT_TRACK)
+                  {
+                      AttribData* data = n->m_nodeAttribDataHandles[i].m_attribData;
+                      NMP_STDOUT("ATTRIB_TYPE_SYNC_EVENT_TRACK %d", data->getType());
                   }
                   else if (type == ATTRIB_TYPE_STATE_MACHINE_DEF)
                   {
@@ -593,6 +600,12 @@ void NetworkDef::locate()
 
   NMP_STDOUT(" condition type count %d", all_condition_types.size());
   for (auto tt : all_condition_types)
+  {
+      NMP_STDOUT(" \t%d", tt);
+  }
+
+  NMP_STDOUT(" attribute type count %d", all_attribute_types.size());
+  for (auto tt : all_attribute_types)
   {
       NMP_STDOUT(" \t%d", tt);
   }
