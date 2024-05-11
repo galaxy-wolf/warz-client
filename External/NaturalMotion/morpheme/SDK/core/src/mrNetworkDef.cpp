@@ -489,6 +489,8 @@ void NetworkDef::locate()
                       state_machine_raw << n->getNodeID() << std::endl;
 
                       state_machine_file << "index: " << i << std::endl;
+                      state_machine_file << "prioritiseGlobalTransitions: " << a->m_prioritiseGlobalTransitions << std::endl;
+                      state_machine_raw << a->m_prioritiseGlobalTransitions << std::endl;
 
                       state_machine_file << "num states:" << a->getNumStates() << " num child:" << n->getNumChildNodes() << std::endl;
                       state_machine_raw << a->getNumStates() << std::endl;
