@@ -388,6 +388,8 @@ void NetworkDef::locate()
   attrib_type_file.open("F:/horizon_files/attrib_type.txt");
   std::ofstream condition_file;
   condition_file.open("F:/horizon_files/conditions.txt");
+  std::ofstream transition_def_file;
+  transition_def_file.open("F:/horizon_files/transition_def.txt");
 
   std::set<int> all_condition_types;
 
@@ -567,6 +569,24 @@ void NetworkDef::locate()
                       }
                       state_machine_file << std::endl;
                   }
+                  else if (type == ATTRIB_TYPE_TRANSIT_DEF)
+                  {
+                      AttribDataTransitDef* a = (AttribDataTransitDef*)(n->m_nodeAttribDataHandles[i].m_attribData);
+                      transition_def_file << n->getNodeID() << std::endl;
+                      transition_def_file << a->m_duration << std::endl;
+                      transition_def_file << a->m_destinationInitMethod << std::endl;
+					  transition_def_file << a->m_destinationStartFraction << std::endl;
+                      transition_def_file << a->m_destinationStartSyncEvent << std::endl;
+					  transition_def_file << a->m_slerpTrajectoryPosition << std::endl;
+					  transition_def_file << a->m_blendMode << std::endl;
+					  transition_def_file << a->m_freezeSource << std::endl;
+					  transition_def_file << a->m_freezeDest << std::endl;
+					  transition_def_file << a->m_reversible << std::endl;
+                      transition_def_file << a->m_reverseInputCPConnection.m_sourceNodeID << std::endl;
+                      transition_def_file << a->m_reverseInputCPConnection.m_sourcePinIndex << std::endl;
+					  transition_def_file << a->m_unknown << std::endl;  // 验证这个一直是0xfffffff << std::endlf
+                      transition_def_file << std::endl;
+				  }
               }
           }
 		  attrib_type_file << "Node: " << n->getNodeID() << std::endl << "\t";
@@ -597,6 +617,7 @@ void NetworkDef::locate()
   state_machine_raw.close();
   attrib_type_file.close();
   condition_file.close();
+  transition_def_file.close();
 
   NMP_STDOUT(" condition type count %d", all_condition_types.size());
   for (auto tt : all_condition_types)

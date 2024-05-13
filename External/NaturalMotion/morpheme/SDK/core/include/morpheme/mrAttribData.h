@@ -3658,6 +3658,11 @@ public:
                                                         ///<  reverse direction.
                                                         ///<  i.e. instead of completing in the destination state it will
                                                         ///<  complete in the source state.
+  uint32_t m_unknown;  // 验证这个一直是0xffffffff
+
+  /// <summary>
+  /// 下面的内容没有找到。 可能换了类型。
+  /// </summary>
   NodeInitDataArrayDef*    m_nodeInitData;
 };
 

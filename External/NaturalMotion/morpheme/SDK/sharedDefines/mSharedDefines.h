@@ -394,11 +394,11 @@ enum AttribDataTypeEnum
 
   ATTRIB_TYPE_RIG,                              ///< Describes hierarchy of bones etc.
   ATTRIB_TYPE_UNKNOWN1,                          /// todo: before source anim there are one unkown type added!!!
-  ATTRIB_TYPE_SOURCE_ANIM,                      ///< A source animation in any format.
+  ATTRIB_TYPE_SOURCE_ANIM=23,                      ///< A source animation in any format.
 
   ATTRIB_TYPE_RIG_TO_ANIM_MAP,                  ///< Maps rig channels to animation channels.
 
-  ATTRIB_TYPE_SOURCE_EVENT_TRACKS,              ///< A set of source discrete event tracks.
+  ATTRIB_TYPE_SOURCE_EVENT_TRACKS=25,              ///< A set of source discrete event tracks.
 
   ATTRIB_TYPE_HEAD_LOOK_SETUP,            ///< Wraps the params needed to run head look IK solver.
   ATTRIB_TYPE_HEAD_LOOK_CHAIN,            ///< Describes a head look IK chain.
@@ -424,7 +424,7 @@ enum AttribDataTypeEnum
   ATTRIB_TYPE_UNKOWN0,          ///<     we don't know it!!!!
   ATTRIB_TYPE_UNKOWN1,          ///< 
 
-  ATTRIB_TYPE_STATE_MACHINE_DEF,          ///< Holds the full definition of a state machine.
+  ATTRIB_TYPE_STATE_MACHINE_DEF=42,          ///< Holds the full definition of a state machine.
   ATTRIB_TYPE_STATE_MACHINE,              ///< Holds the current state of a state machine.
 
   ATTRIB_TYPE_PHYSICS_RIG,                ///< Holds a pointer to the PhysicsRig
@@ -460,7 +460,7 @@ enum AttribDataTypeEnum
   ATTRIB_TYPE_SWITCH_DEF,                 ///< Switch node definition data
   ATTRIB_TYPE_RAY_CAST_DEF,               ///< Ray cast operator node definition data
 
-  ATTRIB_TYPE_TRANSIT_DEF,                ///< Transition node definition data.
+  ATTRIB_TYPE_TRANSIT_DEF=73,                ///< Transition node definition data.
   ATTRIB_TYPE_TRANSIT_SYNC_EVENTS_DEF,    ///< Transition sync events definition data.
   ATTRIB_TYPE_TRANSIT_SYNC_EVENTS,        ///< Transition sync events state data.
 

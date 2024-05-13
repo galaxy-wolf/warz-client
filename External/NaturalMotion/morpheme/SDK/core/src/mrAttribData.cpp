@@ -6479,12 +6479,12 @@ void AttribDataTransitDef::locate(AttribData* target)
   NMP::endianSwap(result->m_reversible);
   result->m_reverseInputCPConnection.endianSwap();
   
-  if (result->m_nodeInitData)
-  {
-    NMP::endianSwap(result->m_nodeInitData);
-    REFIX_PTR_RELATIVE(MR::NodeInitDataArrayDef, result->m_nodeInitData, result);
-    result->m_nodeInitData->locate();
-  }
+  //if (result->m_nodeInitData)
+  //{
+  //  NMP::endianSwap(result->m_nodeInitData);
+  //  REFIX_PTR_RELATIVE(MR::NodeInitDataArrayDef, result->m_nodeInitData, result);
+  //  result->m_nodeInitData->locate();
+  //}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
