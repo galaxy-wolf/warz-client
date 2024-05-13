@@ -315,15 +315,6 @@ bool StateDef::locate()
   NMP::endianSwap(m_numExitBreakoutConditions);
   NMP::endianSwap(m_numExitTransitionStates);
   NMP::endianSwap(m_nodeID);
-  // Exit transition conditions.
-  if (m_numExitConditions > 0)
-  {
-	// 发现这有这样才能和内存数据对应上。
-	this->m_numExitConditions -= 1;
-
-    REFIX_SWAP_PTR(ConditionIndex, m_exitConditionIndexes);
-    NMP::endianSwapArray(m_exitConditionIndexes, m_numExitConditions);
-  }
 
   // Entry transition conditions.
   if (m_numEntryConditions > 0)
@@ -332,10 +323,19 @@ bool StateDef::locate()
     NMP::endianSwapArray(m_entryConditionIndexes, m_numEntryConditions);
   }
 
-  if (m_numExitBreakoutConditions > 0)
+  // 猜测， breakout condition 只有一个时， 就放在exit state 的entry 中。
+  // 如果多于1个可能就不划算了，就放在自己这，单独判断。
+  if (m_numExitBreakoutConditions > 1)
   {
     REFIX_SWAP_PTR(ConditionIndex, m_exitBreakoutConditions);
-    NMP::endianSwapArray(m_exitBreakoutConditions, m_numExitBreakoutConditions);
+    NMP::endianSwapArray(m_exitBreakoutConditions, m_numExitBreakoutConditions-1);
+  }
+
+  // Exit transition conditions.
+  if (m_numExitConditions > 0)
+  {
+    REFIX_SWAP_PTR(ConditionIndex, m_exitConditionIndexes);
+    NMP::endianSwapArray(m_exitConditionIndexes, m_numExitConditions);
   }
 
   // Exit state changes.

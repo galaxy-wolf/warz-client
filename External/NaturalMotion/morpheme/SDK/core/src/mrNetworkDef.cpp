@@ -542,8 +542,13 @@ void NetworkDef::locate()
                           if (sd->m_UnknownNum > 0 && sd->m_UnknownNum > a->getNumConditions())
                               state_machine_file << "unknown num out of conditin range" << std::endl;
                           output_list(sd->m_entryConditionIndexes, sd->m_numEntryConditions, 0);
-                          output_list(sd->m_exitConditionIndexes, sd->m_numExitConditions, 1);
-                          output_list(sd->m_exitBreakoutConditions, sd->m_numExitBreakoutConditions, 2);
+						  state_machine_file << "\t\t list " << 1 << " origin count:[" << sd->m_numExitBreakoutConditions << "]" << std::endl;
+						  state_machine_raw << sd->m_numExitBreakoutConditions << std::endl;
+                          if (sd->m_numExitBreakoutConditions > 1)
+                          {
+                              output_list(sd->m_exitBreakoutConditions, sd->m_numExitBreakoutConditions - 1, 1);
+                          }
+                          output_list(sd->m_exitConditionIndexes, sd->m_numExitConditions, 2);
                           output_list(sd->m_exitTransitionStateIDs, sd->m_numExitTransitionStates, 3);
                           state_machine_file << "\t\t src id:" << sd->getTransitSourceStateID();
                           state_machine_raw << sd->getTransitSourceStateID() << std::endl;

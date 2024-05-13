@@ -136,8 +136,8 @@ public:
 
 public:
   ConditionIndex* m_entryConditionIndexes;
-  ConditionIndex* m_exitConditionIndexes;     
   ConditionIndex* m_exitBreakoutConditions;     
+  ConditionIndex* m_exitConditionIndexes;     
   StateID*        m_exitTransitionStateIDs;
   //--------------------------
   /// The condition set that must be satisfied to enter this transition state.
@@ -147,15 +147,15 @@ public:
   ///               Saving space, but check that further indirection does not slow things down.
   ConditionIndex  m_numEntryConditions;
 
+  /// Number of breakout conditions used by transitions from this state, stored first in the m_exitConditionIndexes array.
+  ///  Used when this is a destination state.
+  ConditionIndex  m_numExitBreakoutConditions;
+
   //--------------------------
   /// Collection of the conditions on all transitions from this state. Indexes in to StateMachines array.
   ///  Individual conditions specified here may be referenced by more than one exit transition state
   ///  in this StateDef. When this State is active all of these conditions are updated.
   ConditionIndex  m_numExitConditions;
-
-  /// Number of breakout conditions used by transitions from this state, stored first in the m_exitConditionIndexes array.
-  ///  Used when this is a destination state.
-  ConditionIndex  m_numExitBreakoutConditions;
 
   //--------------------------
   /// All possible transition state changes from this state.
