@@ -469,6 +469,9 @@ protected:
   NodeTagTable*             m_tagTable;
   SharedTaskFnTables*       m_taskQueuingFnTables;      ///< Table of shared task functions between node definitions
   SharedTaskFnTables*       m_outputCPTaskFnTables;     ///< Table of shared task functions between node definitions
+  void* unknown_ptr1;
+  void* unknown_ptr2;
+  void* unknown_ptr3;
 
   uint32_t                  m_numMessageDistributors;
   MessageDistributor**      m_messageDistributors;      ///< Array of message distributors so the messages can be

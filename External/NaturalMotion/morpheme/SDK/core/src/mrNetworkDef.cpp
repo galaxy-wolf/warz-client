@@ -367,13 +367,27 @@ void NetworkDef::locate()
   // m_outputCPTaskFnTables->locateOutputCPTaskFnTables();
 
   // Locate the semantic lookup tables. They are used when locating the nodes.
-  //NMP::endianSwap(m_numSemanticLookupTables);
-  //REFIX_SWAP_PTR(SemanticLookupTable*, m_semanticLookupTables);
-  //for (uint32_t i = 0; i < m_numSemanticLookupTables; ++i)
-  //{
-  //  REFIX_SWAP_PTR(SemanticLookupTable, m_semanticLookupTables[i]);
-  //  m_semanticLookupTables[i]->locate();
-  //}
+  std::ofstream semantic_lookup_table_file;
+  semantic_lookup_table_file.open("F:/horizon_files/semantic_lookup_table.txt");
+
+  NMP::endianSwap(m_numSemanticLookupTables);
+  semantic_lookup_table_file << m_numSemanticLookupTables << std::endl;
+  REFIX_SWAP_PTR(SemanticLookupTable*, m_semanticLookupTables);
+  for (uint32_t i = 0; i < m_numSemanticLookupTables; ++i)
+  {
+    REFIX_SWAP_PTR(SemanticLookupTable, m_semanticLookupTables[i]);
+    m_semanticLookupTables[i]->locate();
+
+    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_nodeType) << std::endl;
+    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_numAttribsPerAnimSet) << std::endl;
+    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_numSemantics) << std::endl;
+    for (int j = 0; j < m_semanticLookupTables[i]->m_numSemantics; ++j)
+    {
+        semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_semanticLookup[j]) << std::endl;
+    }
+    semantic_lookup_table_file << std::endl;
+  }
+  semantic_lookup_table_file.close();
   
   // NodeDefs
   std::ofstream myfile;
@@ -390,8 +404,12 @@ void NetworkDef::locate()
   condition_file.open("F:/horizon_files/conditions.txt");
   std::ofstream transition_def_file;
   transition_def_file.open("F:/horizon_files/transition_def.txt");
+  std::ofstream all_attri_data_file;
+  all_attri_data_file.open("F:/horizon_files/all_attri_data_file.txt");
 
   std::set<int> all_condition_types;
+
+  std::set<int> all_attrib_data_types;
 
   myfile << m_numNodes << std::endl;
   REFIX_SWAP_PTR(NodeDef*, m_nodes);
@@ -430,16 +448,22 @@ void NetworkDef::locate()
           std::set<int> animation_source_ids;
           std::map<int, int> semantic_2_animaton_id;
           std::map<int, TrackRefStruct> semantic_2_track_ref;
-          std::set<int> attrib_data_types;
+          std::vector<int> attrib_data_types;
           bool has_state_machine = false;
           for (uint16_t i = 0; i < n->m_numAttribDataHandles; ++i)
           {
+			  attrib_data_types.push_back(INVALID_ATTRIB_TYPE);
               if (n->m_nodeAttribDataHandles[i].m_attribData)
               {
                   // Locate the attrib data itself
                   AttribDataType type = n->m_nodeAttribDataHandles[i].m_attribData->getType();
-                  attrib_data_types.insert(type);
-                  if (type == ATTRIB_TYPE_SOURCE_ANIM)
+                  attrib_data_types[attrib_data_types.size() - 1] = type;
+                  all_attrib_data_types.insert(type);
+                  if (type == 100)
+                  {
+                      NMP_STDOUT("found type 19");
+                  }
+                  else if (type == ATTRIB_TYPE_SOURCE_ANIM)
                   {
                       AttribDataSourceAnim* a = (AttribDataSourceAnim*)(n->m_nodeAttribDataHandles[i].m_attribData);
                       NMP_STDOUT("     %d : data source anim %d %f", i, a->m_animAssetID, a->m_sourceAnimDuration);
@@ -589,13 +613,16 @@ void NetworkDef::locate()
 				  }
               }
           }
-		  attrib_type_file << "Node: " << n->getNodeID() << std::endl << "\t";
-          for (auto tt : attrib_data_types)
+          if (n->getNodeTypeID() == 104)
           {
-			  attrib_type_file << tt << " ";
+              attrib_type_file << n->getNodeID() << " " << attrib_data_types.size() << " " << n->getNodeTypeID() << std::endl;
+              for (auto tt : attrib_data_types)
+              {
+                  attrib_type_file << tt << std::endl;
+              }
+              attrib_type_file << std::endl;
+              attrib_type_file << std::endl;
           }
-          attrib_type_file << std::endl;
-          attrib_type_file << std::endl;
 
           output_event_ref_data(n->getNodeID(), semantic_2_animaton_id, semantic_2_track_ref, event_ref_file);
           myfile << animation_source_ids.size() << std::endl;
@@ -621,6 +648,12 @@ void NetworkDef::locate()
 
   NMP_STDOUT(" condition type count %d", all_condition_types.size());
   for (auto tt : all_condition_types)
+  {
+      NMP_STDOUT(" \t%d", tt);
+  }
+
+  NMP_STDOUT(" all attrib data types count %d", all_attrib_data_types.size());
+  for (auto tt : all_attrib_data_types)
   {
       NMP_STDOUT(" \t%d", tt);
   }

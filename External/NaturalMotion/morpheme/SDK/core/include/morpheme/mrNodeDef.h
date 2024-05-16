@@ -585,7 +585,7 @@ public:
   {
   }
 
-private:
+public:
   NodeType m_nodeType;             ///< The NodeType that this table is providing a mapping for.
   uint8_t  m_numAttribsPerAnimSet; ///< Num Def AttribData slots per anim set on this NodeType.
   uint16_t m_numSemantics;         ///< This is the number of AttribSemanticTypes registered with the Manager when the table was built in the Asset Compiler.

@@ -2609,6 +2609,7 @@ public:
   uint32_t                          m_numAnimJoints;              ///< The number of conglomerated weighted joints
   bool                              m_precomputeSourcesOffline;   ///< Connected source node transforms are computed offline
   bool                              m_useVelocity;                ///< Flag indicating if velocity matching is enabled
+  bool                              m_Unknown1; 
   float                             m_positionScaleFactor;
   float                             m_orientationScaleFactor;
   float                             m_influenceBetweenPosAndOrient;
@@ -3423,6 +3424,7 @@ public:
   bool     m_hasAnimationChild;
   bool     m_outputSourceAnimation;
   bool     m_preserveMomentum;
+  bool     m_unknown;
   uint32_t m_rootControlMethod; // Network::RootControlMethod
 
   /// \enum  MR::AttribDataPhysicsSetup::PhysicsMethod
