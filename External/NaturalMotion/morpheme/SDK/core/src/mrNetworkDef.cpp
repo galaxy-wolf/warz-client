@@ -136,46 +136,6 @@ bool NodeInitDataArrayDef::dislocate()
   return true;
 }
 
-struct TrackRefStruct
-{
-  std::vector<uint32_t> duration_asset_ids;
-  std::vector<uint32_t> discrete_asset_ids;
-  std::vector<uint32_t> curve_asset_ids;
-};
-void output_event_ref_data(
-    uint32_t node_id, 
-	std::map<int, int>& semantic_2_animaton_id,
-	std::map<int, TrackRefStruct>& semantic_2_track_ref,
-    std::ofstream& file)
-{
-    if (semantic_2_animaton_id.empty() && semantic_2_track_ref.empty())
-        return;
-
-    file << node_id << std::endl;
-    file << semantic_2_animaton_id.size() << std::endl;
-    for (const auto & t : semantic_2_animaton_id)
-    {
-        file << t.first << std::endl;
-        file << t.second << std::endl;
-    }
-    file << semantic_2_track_ref.size() << std::endl;
-    auto output_vector = [&file](const std::vector<uint32_t>& v)
-        {
-            file << v.size() << std::endl;
-            for (auto i : v)
-                file << i << std::endl;
-        };
-    for (const auto& t : semantic_2_track_ref)
-    {
-        file << t.first << std::endl;
-        output_vector(t.second.curve_asset_ids);
-        output_vector(t.second.discrete_asset_ids);
-        output_vector(t.second.duration_asset_ids);
-    }
-
-    file << std::endl;
-}
-
 class TransitCondition_631: public TransitConditionDef
 {
 public:
@@ -348,6 +308,104 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   condition_file << std::endl;
 }
 
+void output_AttribDataBool_0(std::ofstream& os, AttribData* data)
+{
+    AttribDataBool* d = (AttribDataBool*)data;
+    os << d->m_value << std::endl;
+}
+
+void output_AttribDataUInt_1(std::ofstream& os, AttribData* data)
+{
+    AttribDataUInt* d = (AttribDataUInt*)data;
+    os << d->m_value << std::endl;
+}
+
+void output_AttribDataFloat_3(std::ofstream& os, AttribData* data)
+{
+    AttribDataFloat* d = (AttribDataFloat*)data;
+    os << d->m_value << std::endl;
+}
+
+void output_AttribDataFloatArray_10(std::ofstream& os, AttribData* data)
+{
+    AttribDataFloatArray* d = (AttribDataFloatArray*)data;
+    os << d->m_numValues << std::endl;
+    for (int i = 0; i < d->m_numValues; ++i)
+        os << d->m_values[i] << std::endl;
+}
+
+void output_AttribDataSyncEventTrack_19(std::ofstream& os, AttribData* data)
+{
+    AttribDataSyncEventTrack* d = (AttribDataSyncEventTrack*)data;
+    EventTrackSync* ets = &(d->m_syncEventTrack);
+    os << ets->m_startEventIndex << std::endl;
+    os << ets->m_numEvents << std::endl;
+    for (int i = 0; i < ets->m_numEvents; ++i)
+    {
+        EventDefDiscrete* e = &(ets->m_events[i]);
+        os << e->m_startTime << std::endl;
+        os << e->m_duration << std::endl;
+        os << e->m_userData << std::endl;
+    }
+    os << ets->m_duration << std::endl;
+    os << ets->m_durationReciprocal << std::endl;
+    os << d->m_transitionOffset << std::endl;
+}
+
+void output_AttribDataSourceAnim_23(std::ofstream& os, AttribData* data)
+{
+    AttribDataSourceAnim * d = (AttribDataSourceAnim*)data;
+
+    auto output_vector3 = [&os](const NMP::Vector3& v)
+        {
+            os << v.x << ", " << v.y << ", " << v.z << std::endl;
+        };
+    auto output_quat = [&os](const NMP::Quat& q)
+        {
+            os << q.x << ", " << q.y << ", " << q.z << ", " << q.w << std::endl;
+        };
+    output_vector3(d->m_transformAtStartPos);
+    output_quat(d->m_transformAtStartQuat);
+    output_vector3(d->m_transformAtEndPos);
+    output_quat(d->m_transformAtEndQuat);
+
+    os << d->m_animAssetID << std::endl;
+
+    os << (uint32_t) d->m_startSyncEventIndex << std::endl;
+    os << (uint32_t) d->m_clipStartSyncEventIndex << std::endl;
+    os << (uint32_t) d->m_clipEndSyncEventIndex << std::endl;
+    os << (uint32_t) d->m_unknown2 << std::endl;
+
+    os << d->m_clipStartFraction << std::endl;
+    os << d->m_clipEndFraction << std::endl;
+
+    os << d->m_sourceAnimDuration << std::endl;
+    os << d->m_syncEventTrackIndex << std::endl;
+    os << d->m_playBackwards << std::endl;
+}
+
+void output_AttribDataSourceEventTracks_25(std::ofstream& os, AttribData* data)
+{
+    AttribDataSourceEventTrackSet* d = (AttribDataSourceEventTrackSet*)(data);
+    auto output_uint32_vector = [&os](uint32_t num, void* input_uint64_array)
+        {
+            os << num << std::endl;
+            for (int i = 0; i < num; ++i)
+                os << (uint32_t)((uint64_t*)input_uint64_array)[i] << std::endl;
+        };
+    output_uint32_vector(d->m_numDiscreteEventTracks, d->m_sourceDiscreteEventTracks);
+    output_uint32_vector(d->m_numDurEventTracks, d->m_sourceDurEventTracks);
+    output_uint32_vector(d->m_numCurveEventTracks, d->m_sourceCurveEventTracks);
+}
+void output_AttribDataBlendFlags_116(std::ofstream& os, AttribData* data)
+{
+    AttribDataBlendFlags* d = (AttribDataBlendFlags*)data;
+    os << d->m_alwaysBlendTrajectoryAndTransforms << std::endl;
+    os << d->m_alwaysCombineSampledEvents << std::endl;
+    os << d->m_unkown << std::endl;
+}
+
+
 //----------------------------------------------------------------------------------------------------------------------
 // MR::NetworkDef
 //----------------------------------------------------------------------------------------------------------------------
@@ -367,19 +425,31 @@ void NetworkDef::locate()
   // m_outputCPTaskFnTables->locateOutputCPTaskFnTables();
 
   // Locate the semantic lookup tables. They are used when locating the nodes.
-  //NMP::endianSwap(m_numSemanticLookupTables);
-  //REFIX_SWAP_PTR(SemanticLookupTable*, m_semanticLookupTables);
-  //for (uint32_t i = 0; i < m_numSemanticLookupTables; ++i)
-  //{
-  //  REFIX_SWAP_PTR(SemanticLookupTable, m_semanticLookupTables[i]);
-  //  m_semanticLookupTables[i]->locate();
-  //}
+  std::ofstream semantic_lookup_table_file;
+  semantic_lookup_table_file.open("F:/horizon_files/semantic_lookup_table.txt");
+
+  NMP::endianSwap(m_numSemanticLookupTables);
+  semantic_lookup_table_file << m_numSemanticLookupTables << std::endl;
+  REFIX_SWAP_PTR(SemanticLookupTable*, m_semanticLookupTables);
+  for (uint32_t i = 0; i < m_numSemanticLookupTables; ++i)
+  {
+    REFIX_SWAP_PTR(SemanticLookupTable, m_semanticLookupTables[i]);
+    m_semanticLookupTables[i]->locate();
+
+    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_nodeType) << std::endl;
+    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_numAttribsPerAnimSet) << std::endl;
+    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_numSemantics) << std::endl;
+    for (int j = 0; j < m_semanticLookupTables[i]->m_numSemantics; ++j)
+    {
+        semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_semanticLookup[j]) << std::endl;
+    }
+    semantic_lookup_table_file << std::endl;
+  }
+  semantic_lookup_table_file.close();
   
   // NodeDefs
   std::ofstream myfile;
   myfile.open("F:/horizon_files/morpheme_graph.txt");
-  std::ofstream event_ref_file;
-  event_ref_file.open("F:/horizon_files/morpheme_event_ref.txt");
   std::ofstream state_machine_file;  // 这个是为了方便阅读。
   state_machine_file.open("F:/horizon_files/state_machine.txt");
   std::ofstream state_machine_raw;  // 这个是为了加载到python
@@ -390,8 +460,12 @@ void NetworkDef::locate()
   condition_file.open("F:/horizon_files/conditions.txt");
   std::ofstream transition_def_file;
   transition_def_file.open("F:/horizon_files/transition_def.txt");
+  std::ofstream all_attri_data_file;
+  all_attri_data_file.open("F:/horizon_files/all_attri_data_file.txt");
 
   std::set<int> all_condition_types;
+
+  std::set<int> all_attrib_data_types;
 
   myfile << m_numNodes << std::endl;
   REFIX_SWAP_PTR(NodeDef*, m_nodes);
@@ -427,42 +501,60 @@ void NetworkDef::locate()
           myfile << input->m_sourcePinIndex << std::endl;
       }
       {
+          all_attri_data_file << n->getNodeID() << std::endl;
+		  all_attri_data_file << n->m_numAttribDataHandles << std::endl;
           std::set<int> animation_source_ids;
-          std::map<int, int> semantic_2_animaton_id;
-          std::map<int, TrackRefStruct> semantic_2_track_ref;
-          std::set<int> attrib_data_types;
+          //std::map<int, TrackRefStruct> semantic_2_track_ref;
+          std::vector<int> attrib_data_types;
           bool has_state_machine = false;
           for (uint16_t i = 0; i < n->m_numAttribDataHandles; ++i)
           {
+			  attrib_data_types.push_back(INVALID_ATTRIB_TYPE);
+              all_attri_data_file << "#" << i << std::endl;
               if (n->m_nodeAttribDataHandles[i].m_attribData)
               {
                   // Locate the attrib data itself
                   AttribDataType type = n->m_nodeAttribDataHandles[i].m_attribData->getType();
-                  attrib_data_types.insert(type);
-                  if (type == ATTRIB_TYPE_SOURCE_ANIM)
+				  all_attri_data_file << type << std::endl;
+
+                  attrib_data_types[attrib_data_types.size() - 1] = type;
+                  all_attrib_data_types.insert(type);
+
+                  if (type == ATTRIB_TYPE_BOOL) // 0)
+                  {
+                      output_AttribDataBool_0(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_UINT) // 1)
+                  {
+                      output_AttribDataUInt_1(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_FLOAT) // 3)
+                  {
+				      output_AttribDataFloat_3(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_FLOAT_ARRAY) //10)
+                  {
+                      output_AttribDataFloatArray_10(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_SYNC_EVENT_TRACK)//19)
+                  {
+                      output_AttribDataSyncEventTrack_19(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_SOURCE_ANIM) // 23)
                   {
                       AttribDataSourceAnim* a = (AttribDataSourceAnim*)(n->m_nodeAttribDataHandles[i].m_attribData);
                       NMP_STDOUT("     %d : data source anim %d %f", i, a->m_animAssetID, a->m_sourceAnimDuration);
                       animation_source_ids.insert(a->m_animAssetID);
-                      semantic_2_animaton_id[i] = a->m_animAssetID;
+
+                      output_AttribDataSourceAnim_23(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
-                  else if (type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS)
+                  else if (type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS) //25)
                   {
-                      AttribDataSourceEventTrackSet* a = (AttribDataSourceEventTrackSet*)(n->m_nodeAttribDataHandles[i].m_attribData);
-					  NMP_STDOUT("     %d : discrete event track %d : %u", i, a->m_numDiscreteEventTracks, ((uint32_t*)(a->m_sourceDiscreteEventTracks))[0]);
-					  NMP_STDOUT("     %d : duration event track %d : %u", i, a->m_numDurEventTracks, ((uint32_t*)(a->m_sourceDurEventTracks))[0]);
-                      auto convert_to_uint32_vector = [](std::vector<uint32_t>& output, uint32_t num, void* input_uint64_array) 
-                          {
-							  output.clear();
-							  for (int i = 0; i < num; ++i)
-							  {
-								  output.push_back((uint32_t)((uint64_t*)input_uint64_array)[i]);
-							  }
-						  };
-                      semantic_2_track_ref[i] = TrackRefStruct();
-                      convert_to_uint32_vector(semantic_2_track_ref[i].discrete_asset_ids, a->m_numDiscreteEventTracks, a->m_sourceDiscreteEventTracks);
-					  convert_to_uint32_vector(semantic_2_track_ref[i].duration_asset_ids, a->m_numDurEventTracks, a->m_sourceDurEventTracks);
-					  convert_to_uint32_vector(semantic_2_track_ref[i].curve_asset_ids, a->m_numCurveEventTracks, a->m_sourceCurveEventTracks);
+                      output_AttribDataSourceEventTracks_25(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_BLEND_FLAGS) //116)
+                  {
+                      output_AttribDataBlendFlags_116(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
                   else if (type == ATTRIB_TYPE_STATE_MACHINE_DEF)
                   {
@@ -588,16 +680,23 @@ void NetworkDef::locate()
                       transition_def_file << std::endl;
 				  }
               }
+              else {
+                  all_attri_data_file << -1 << std::endl;
+              }
           }
-		  attrib_type_file << "Node: " << n->getNodeID() << std::endl << "\t";
-          for (auto tt : attrib_data_types)
-          {
-			  attrib_type_file << tt << " ";
-          }
-          attrib_type_file << std::endl;
-          attrib_type_file << std::endl;
+          all_attri_data_file << std::endl;
 
-          output_event_ref_data(n->getNodeID(), semantic_2_animaton_id, semantic_2_track_ref, event_ref_file);
+          if (n->getNodeTypeID() == 104)
+          {
+              attrib_type_file << n->getNodeID() << " " << attrib_data_types.size() << " " << n->getNodeTypeID() << std::endl;
+              for (auto tt : attrib_data_types)
+              {
+                  attrib_type_file << tt << std::endl;
+              }
+              attrib_type_file << std::endl;
+              attrib_type_file << std::endl;
+          }
+
           myfile << animation_source_ids.size() << std::endl;
           for (auto id : animation_source_ids)
           {
@@ -612,18 +711,24 @@ void NetworkDef::locate()
   }
   myfile << "hello" << std::endl;
   myfile.close();
-  event_ref_file.close();
   state_machine_file.close();
   state_machine_raw.close();
   attrib_type_file.close();
   condition_file.close();
   transition_def_file.close();
+  all_attri_data_file.close();
 
   NMP_STDOUT(" condition type count %d", all_condition_types.size());
   for (auto tt : all_condition_types)
   {
       NMP_STDOUT(" \t%d", tt);
   }
+
+  //NMP_STDOUT(" all attrib data types count %d", all_attrib_data_types.size());
+  //for (auto tt : all_attrib_data_types)
+  //{
+  //    NMP_STDOUT(" \t%d", tt);
+  //}
 
   // Output control parameter Node IDs and semantics
   if (m_emittedControlParamsInfo)

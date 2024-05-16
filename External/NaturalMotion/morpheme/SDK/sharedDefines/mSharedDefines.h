@@ -367,72 +367,79 @@ enum AttribDataTypeEnum
 {
   // The following simple types correspond to ATTRIB_SEMANTIC_CP_BOOL ... ATTRIB_SEMANTIC_CP_BOOL for simple generation
   ATTRIB_TYPE_BOOL = 0,     ///< Boolean attrib data type.
-  ATTRIB_TYPE_UINT,         ///< Unsigned int attrib data type.
-  ATTRIB_TYPE_INT,          ///< Int attrib data type.
-  ATTRIB_TYPE_FLOAT,        ///< Float attrib data type.
-  ATTRIB_TYPE_VECTOR3,      ///< NMP::Vector3 attrib data type.
-  ATTRIB_TYPE_VECTOR4,      ///< NMP::Vector4 or NMP::Quat attrib data type.
+  ATTRIB_TYPE_UINT=1,         ///< Unsigned int attrib data type.
+  ATTRIB_TYPE_INT=2,          ///< Int attrib data type.
+  ATTRIB_TYPE_FLOAT=3,        ///< Float attrib data type.
+  ATTRIB_TYPE_VECTOR3=4,      ///< NMP::Vector3 attrib data type.
+  ATTRIB_TYPE_VECTOR4, // = 5 X NOT found in data     ///< NMP::Vector4 or NMP::Quat attrib data type.
   // The previous simple types correspond to ATTRIB_SEMANTIC_CP_BOOL ... ATTRIB_SEMANTIC_CP_BOOL for simple generation
 
-  ATTRIB_TYPE_BOOL_ARRAY,   ///< An array of bools.
-  ATTRIB_TYPE_INT_ARRAY,    ///< An array of signed integers.
-  ATTRIB_TYPE_UINT_ARRAY,   ///< An array of unsigned integers.
-  ATTRIB_TYPE_UINT64_ARRAY, ///< An array of unsigned 64 bit integers.
-  ATTRIB_TYPE_FLOAT_ARRAY,  ///< An array of floats.
+  ATTRIB_TYPE_BOOL_ARRAY = 6,   ///< An array of bools.
+  ATTRIB_TYPE_INT_ARRAY,  // = 7 X Not found in data   ///< An array of signed integers.
+  ATTRIB_TYPE_UINT_ARRAY = 8,   ///< An array of unsigned integers.
+  ATTRIB_TYPE_UINT64_ARRAY, // = 9 X Not found in data   ///< An array of unsigned 64 bit integers.
+  ATTRIB_TYPE_FLOAT_ARRAY=10,  ///< An array of floats.
 
-  ATTRIB_TYPE_UPDATE_PLAYBACK_POS,              ///< For setting an absolute time position or updating time with a delta value.
-  ATTRIB_TYPE_PLAYBACK_POS,                     ///< Current and last frame times.
-  ATTRIB_TYPE_UPDATE_SYNC_EVENT_PLAYBACK_POS,   ///< For setting an absolute sync event position or updating with a delta value.
+  ATTRIB_TYPE_UPDATE_PLAYBACK_POS,    // = 11 X Not Found in data          ///< For setting an absolute time position or updating time with a delta value.
+  ATTRIB_TYPE_PLAYBACK_POS=12,                     ///< Current and last frame times.
+  ATTRIB_TYPE_UPDATE_SYNC_EVENT_PLAYBACK_POS, // = 13 X Not Found in data   ///< For setting an absolute sync event position or updating with a delta value.
 
-  ATTRIB_TYPE_TRANSFORM_BUFFER,                 ///< Transform buffer.
-  ATTRIB_TYPE_TRAJECTORY_DELTA_TRANSFORM,       ///< The trajectory channels delta transform for this frame.
-  ATTRIB_TYPE_TRANSFORM,                        ///< The trajectory channel transform.  (Needed between frames)
-  ATTRIB_TYPE_VELOCITY,                         ///< Linear and angular velocity.
-  ATTRIB_TYPE_SYNC_EVENT_TRACK,                 ///< Synchronisation event track.
-  ATTRIB_TYPE_SAMPLED_EVENTS_BUFFER,            ///< Buffer of sampled events.
-  ATTRIB_TYPE_DURATION_EVENT_TRACK_SET,         ///< A set of duration event tracks.
+  ATTRIB_TYPE_TRANSFORM_BUFFER, // =14 X Not found in data                 ///< Transform buffer.
+  ATTRIB_TYPE_TRAJECTORY_DELTA_TRANSFORM = 15,       ///< The trajectory channels delta transform for this frame.
+  ATTRIB_TYPE_TRANSFORM, // = 16, X Not found in data                       ///< The trajectory channel transform.  (Needed between frames)
+  ATTRIB_TYPE_VELOCITY, // = 17 X Not found in data                         ///< Linear and angular velocity.
+  ATTRIB_TYPE_SAMPLED_EVENTS_BUFFER, // = 18 X Not found in data            ///< Buffer of sampled events. 这玩意动态创建的，不要再内存里找。
+  ATTRIB_TYPE_SYNC_EVENT_TRACK=19,                 ///< Synchronisation event track.
+  ATTRIB_TYPE_DURATION_EVENT_TRACK_SET,  // =20 X Not found in data       ///< A set of duration event tracks.
 
-  ATTRIB_TYPE_RIG,                              ///< Describes hierarchy of bones etc.
-  ATTRIB_TYPE_UNKNOWN1,                          /// todo: before source anim there are one unkown type added!!!
+  ATTRIB_TYPE_RIG, // =21 X Not found in data                             ///< Describes hierarchy of bones etc.
+  ATTRIB_TYPE_UNKNOWN1 = 22,  // /// todo: before source anim there are one unkown type added!!!
   ATTRIB_TYPE_SOURCE_ANIM=23,                      ///< A source animation in any format.
 
-  ATTRIB_TYPE_RIG_TO_ANIM_MAP,                  ///< Maps rig channels to animation channels.
+  ATTRIB_TYPE_RIG_TO_ANIM_MAP, // =24, X Not Found                  ///< Maps rig channels to animation channels.
 
   ATTRIB_TYPE_SOURCE_EVENT_TRACKS=25,              ///< A set of source discrete event tracks.
 
-  ATTRIB_TYPE_HEAD_LOOK_SETUP,            ///< Wraps the params needed to run head look IK solver.
-  ATTRIB_TYPE_HEAD_LOOK_CHAIN,            ///< Describes a head look IK chain.
+  ATTRIB_TYPE_HEAD_LOOK_SETUP, // =26, X Not Found           ///< Wraps the params needed to run head look IK solver.
+  ATTRIB_TYPE_HEAD_LOOK_CHAIN = 27,            ///< Describes a head look IK chain.
 
-  ATTRIB_TYPE_GUN_AIM_SETUP,              ///< Wraps the params needed to run Gun Aim Node.
-  ATTRIB_TYPE_GUN_AIM_IK_CHAIN,           ///< Describes a per anim set gun aim IK chain.
+  ATTRIB_TYPE_GUN_AIM_SETUP, // =28, X Not found              ///< Wraps the params needed to run Gun Aim Node.
+  ATTRIB_TYPE_GUN_AIM_IK_CHAIN, //=29, X Not found           ///< Describes a per anim set gun aim IK chain.
 
-  ATTRIB_TYPE_TWO_BONE_IK_SETUP,          ///< Wraps all the params needed to run the two bone IK solver.
-  ATTRIB_TYPE_TWO_BONE_IK_CHAIN,          ///< Describes a standard two bone IK chain with end-middle-root joints
+  ATTRIB_TYPE_TWO_BONE_IK_SETUP,//=30,          ///< Wraps all the params needed to run the two bone IK solver.
+  ATTRIB_TYPE_TWO_BONE_IK_CHAIN, //=31 X Not found,          ///< Describes a standard two bone IK chain with end-middle-root joints
                                           ///<  indices.
+  ATTRIB_TYPE_LOCK_FOOT_SETUP=32,            ///< Wraps the params needed to run the lock foot IK solver.
 
-  ATTRIB_TYPE_LOCK_FOOT_SETUP,            ///< Wraps the params needed to run the lock foot IK solver.
-  ATTRIB_TYPE_LOCK_FOOT_CHAIN,            ///< Describes a lock foot ik chain.
+  //  33 ??
+  ATTRIB_TYPE_LOCK_FOOT_CHAIN,            ///< Describes a lock foot ik chain. ???
+  // 34??
   ATTRIB_TYPE_LOCK_FOOT_STATE,            ///< Stores lock foot state variables.
 
-  ATTRIB_TYPE_HIPS_IK_DEF,                ///< Settings for the Hips IK node
-  ATTRIB_TYPE_HIPS_IK_ANIM_SET_DEF,       ///< Geometry of the Hips IK chains
-
-  ATTRIB_TYPE_CLOSEST_ANIM_DEF,           ///< Setup data for the closest anim node.
-  ATTRIB_TYPE_CLOSEST_ANIM_DEF_ANIM_SET,  ///< Setup data for the closest anim node (anim set specific).
-  ATTRIB_TYPE_CLOSEST_ANIM_STATE,         ///< State data for the closest anim node
-
+  //35??
   ATTRIB_TYPE_UNKOWN0,          ///<     we don't know it!!!!
+  //36 not found
   ATTRIB_TYPE_UNKOWN1,          ///< 
 
-  ATTRIB_TYPE_STATE_MACHINE_DEF=42,          ///< Holds the full definition of a state machine.
-  ATTRIB_TYPE_STATE_MACHINE,              ///< Holds the current state of a state machine.
+  ATTRIB_TYPE_HIPS_IK_DEF=37,                ///< Settings for the Hips IK node
+  ATTRIB_TYPE_HIPS_IK_ANIM_SET_DEF=38,       ///< Geometry of the Hips IK chains
 
+  ATTRIB_TYPE_CLOSEST_ANIM_DEF=39,           ///< Setup data for the closest anim node.
+  ATTRIB_TYPE_CLOSEST_ANIM_DEF_ANIM_SET=40,  ///< Setup data for the closest anim node (anim set specific).
+  ATTRIB_TYPE_CLOSEST_ANIM_STATE, //=41, Not Found data         ///< State data for the closest anim node
+
+
+  ATTRIB_TYPE_STATE_MACHINE_DEF=42,          ///< Holds the full definition of a state machine.
+  ATTRIB_TYPE_STATE_MACHINE, //=43 Not Found Data,              ///< Holds the current state of a state machine.
+
+  // 44??
   ATTRIB_TYPE_PHYSICS_RIG,                ///< Holds a pointer to the PhysicsRig
-  ATTRIB_TYPE_PHYSICS_RIG_DEF,            ///< Holds a pointer to the PhysicsRigDef
+  ATTRIB_TYPE_PHYSICS_RIG_DEF=45,           // 指向asset 0x4abd4e1d 也就是 12446 号asset ///< Holds a pointer to the PhysicsRigDef  //
+  // 46??
   ATTRIB_TYPE_CHARACTER_PROPERTIES,       ///< The current world root transform of the Network/game character and information reflecting
                                           ///<  the state of the Networks associated character controller if there is one.
-  ATTRIB_TYPE_CHARACTER_CONTROLLER_DEF,   ///< Holds a pointer to the character controller def
-  ATTRIB_TYPE_ANIM_TO_PHYSICS_MAP,        ///< Stores the bone look up table from anim to physics and physics to
+  ATTRIB_TYPE_CHARACTER_CONTROLLER_DEF,// =47 Not Found Data,   ///< Holds a pointer to the character controller def
+  ATTRIB_TYPE_ANIM_TO_PHYSICS_MAP = 48, // 指向asset  0x33b46b84 也就是 12449 号asset       ///< Stores the bone look up table from anim to physics and physics to
                                           ///<  anim.
 
   ATTRIB_TYPE_PHYSICS_SETUP,              ///< Wraps the params needed for the physics node.
@@ -446,36 +453,39 @@ enum AttribDataTypeEnum
 
   ATTRIB_TYPE_OPERATOR_APPLYIMPULSE_DEF,  ///< Apply impulse operator definition
 
+  //= 62
   ATTRIB_TYPE_FLOAT_OPERATION,            ///< A float control parameter operation.
   ATTRIB_TYPE_2_FLOAT_OPERATION,          ///< A two float control parameter operation.
   ATTRIB_TYPE_SMOOTH_FLOAT_OPERATION,     ///< Smooth float operator per instance data
   ATTRIB_TYPE_RATE_OF_CHANGE_OPERATION,   ///< Rate of change operator per instance data
   ATTRIB_TYPE_RANDOM_FLOAT_OPERATION,     ///< Random float RNG and elapsed duration data
-  ATTRIB_TYPE_BOOLEAN_OPERATION,          ///< Describes a boolean operation.
-  ATTRIB_TYPE_VALUE_COMPARE_OPERATION,    ///< Describes a comparison of 2 values that results in a bool value e.g. >, <
+  ATTRIB_TYPE_BOOLEAN_OPERATION = 66,          ///< Describes a boolean operation.
+  ATTRIB_TYPE_VALUE_COMPARE_OPERATION= 67,    ///< Describes a comparison of 2 values that results in a bool value e.g. >, <
   ATTRIB_TYPE_DISCRETE_EVENT_TRIGGERED,   ///< Describes a discrete event that is to watched for emission from a specified node.
 
   ATTRIB_TYPE_RANDOM_FLOAT_DEF,           ///< Random float operator node definition data.
   ATTRIB_TYPE_NOISE_GEN_DEF,              ///< Noise generation node definition data
-  ATTRIB_TYPE_SWITCH_DEF,                 ///< Switch node definition data
-  ATTRIB_TYPE_RAY_CAST_DEF,               ///< Ray cast operator node definition data
+  ATTRIB_TYPE_SWITCH_DEF=71,                 ///< Switch node definition data
+  ATTRIB_TYPE_RAY_CAST_DEF,//=72 Not found Data,               ///< Ray cast operator node definition data
 
   ATTRIB_TYPE_TRANSIT_DEF=73,                ///< Transition node definition data.
   ATTRIB_TYPE_TRANSIT_SYNC_EVENTS_DEF,    ///< Transition sync events definition data.
   ATTRIB_TYPE_TRANSIT_SYNC_EVENTS,        ///< Transition sync events state data.
 
-  ATTRIB_TYPE_DEAD_BLEND_DEF,             ///< Definition data of a dead blend.
+  ATTRIB_TYPE_DEAD_BLEND_DEF=76,             ///< Definition data of a dead blend.
   ATTRIB_TYPE_DEAD_BLEND_STATE,           ///< Active state data of a dead blend.
 
   ATTRIB_TYPE_TRAJECTORY_OVERRIDE_DEF,
 
   ATTRIB_TYPE_BLEND_NXM_DEF,              ///< Definition data of a blend NxM.
 
-  ATTRIB_TYPE_ANIM_MIRRORED_MAPPING,      ///< Mapping info used when mirroring an animation.
+  ATTRIB_TYPE_ANIM_MIRRORED_MAPPING=80,      ///< Mapping info used when mirroring an animation.
 
   ATTRIB_TYPE_PLAYBACK_POS_INIT,          ///< Structure used by transitions to pass down playback initialisation
                                           ///<  information to its destination state.
   ATTRIB_TYPE_EMITTED_MESSAGE_MAP,        ///< Custom DataBuffer used to hold per node emitted request mappings
+
+  ATTRIB_TYPE_SCATTER_BLEND_ANALYSIS_DEF=87, ///< scatter blend analysis def data
 
   ATTRIB_TYPE_BASIC_UNEVEN_TERRAIN_SETUP,                    ///< Wraps the params needed to run the lock foot IK solver.
   ATTRIB_TYPE_BASIC_UNEVEN_TERRAIN_IK_SETUP,                 ///< IK setup information for the uneven terrain node
@@ -486,7 +496,6 @@ enum AttribDataTypeEnum
   ATTRIB_TYPE_PREDICTIVE_UNEVEN_TERRAIN_FOOT_LIFTING_STATE,  ///< State information for predictive foot lifting
   ATTRIB_TYPE_PREDICTIVE_UNEVEN_TERRAIN_PREDICTION_DEF,      ///< Definition data for the predictive uneven terrain node
 
-  ATTRIB_TYPE_SCATTER_BLEND_ANALYSIS_DEF, ///< scatter blend analysis def data
   ATTRIB_TYPE_SCATTER_BLEND_1D_DEF,       ///< 1D scatter blend def data
   ATTRIB_TYPE_SCATTER_BLEND_2D_DEF,       ///< 2D scatter blend def data
   ATTRIB_TYPE_SCATTER_BLEND_2D_STATE,     ///< 2D scatter blend state data
@@ -497,11 +506,11 @@ enum AttribDataTypeEnum
 
   ATTRIB_TYPE_PHYSICS_OBJECT_POINTER,     ///< Pointer to a physics object (whatever physics SDK is being used)
 
-  ATTRIB_TYPE_JOINT_LIMITS,               ///< Kinematic joint limits for a rig.
+  ATTRIB_TYPE_JOINT_LIMITS,  // ?=115             ///< Kinematic joint limits for a rig.
 
-  ATTRIB_TYPE_BLEND_FLAGS,
+  ATTRIB_TYPE_BLEND_FLAGS = 116,
   ATTRIB_TYPE_BLEND_WEIGHTS,
-  ATTRIB_TYPE_FEATHER_BLEND2_CHANNEL_ALPHAS,
+  ATTRIB_TYPE_FEATHER_BLEND2_CHANNEL_ALPHAS, // ?= 118
 
   ATTRIB_TYPE_RETARGET_STATE,              ///< Retarget solver and retarget state data.
   ATTRIB_TYPE_RIG_RETARGET_MAPPING,        ///< Info for retargeting between rigs.
@@ -512,8 +521,8 @@ enum AttribDataTypeEnum
   ATTRIB_TYPE_C_C_OVERRIDE_PROPERTIES_DEF, ///< Anim set specific set of character controller override attributes.
   ATTRIB_TYPE_C_C_OVERRIDE_CONDITIONS,     ///< Active state data for character controller override node.
 
-  ATTRIB_TYPE_MODIFY_JOINT_DEF,            ///< State definition data for the ModifyJoint node.
-  ATTRIB_TYPE_MODIFY_TRAJECTORY_DEF,       ///< State definition data for the ModifyTrajectory node.
+  ATTRIB_TYPE_MODIFY_JOINT_DEF, // ?= 126            ///< State definition data for the ModifyJoint node.
+  ATTRIB_TYPE_MODIFY_TRAJECTORY_DEF, // ?=127       ///< State definition data for the ModifyTrajectory node.
 
   ATTRIB_TYPE_TIME_LAG_DEF,                ///< Def data for the time lag operator node.
   ATTRIB_TYPE_TIME_LAG_INPUT_FLOAT,        ///< Float state data for a TimeLagInput operator node. (Specialization of AttribDataTimeLagInput).
@@ -559,28 +568,33 @@ enum AttribDataSemanticEnum
   ATTRIB_SEMANTIC_TRAJECTORY_DELTA_TRANSFORM_BUFFER,///< A transform buffer with the trajectory in the first channel
   ATTRIB_SEMANTIC_VELOCITY,                         ///<
   ATTRIB_SEMANTIC_TRANSFORM_RATES,                  ///<
-  ATTRIB_SEMANTIC_SYNC_EVENT_TRACK,                 ///< Synchronization event track.
-  ATTRIB_SEMANTIC_SAMPLED_EVENTS_BUFFER,            ///< Buffer of sampled events.
   ATTRIB_SEMANTIC_DURATION_EVENT_TRACK_SET,         ///< A set of duration event tracks.
 
-  ATTRIB_SEMANTIC_LOOP,                             ///< Bool - should the update of this node loop when it reached the end.
   ATTRIB_SEMANTIC_RIG,                              ///< Describes hierarchy of bones etc.
-  ATTRIB_SEMANTIC_SOURCE_ANIM,                      ///< A source animation in any format.
 
-  ATTRIB_SEMANTIC_START_SYNC_EVENT_INDEX,           ///< DefData: Where this node should start playback, specified in
-                                                    ///<  sync space.
- 
-  ATTRIB_SEMANTIC_SOURCE_EVENT_TRACKS,              ///<
+  ATTRIB_SEMANTIC_CP_BOOL,                          ///< A control parameter of type bool
 
   ATTRIB_SEMANTIC_ACTIVE_ANIM_SET_INDEX,            ///< The index of the animation set currently in use by the network.
 
-  ATTRIB_SEMANTIC_BLEND_FLAGS,                      ///< Blend node def data flags
-  ATTRIB_SEMANTIC_BLEND_WEIGHTS,                    ///< Blend node internal blend weight interpolants
+  ATTRIB_SEMANTIC_SYNC_EVENT_TRACK=16,                 ///< Synchronization event track.
+  ATTRIB_SEMANTIC_SAMPLED_EVENTS_BUFFER=17,            ///< Buffer of sampled events.  这玩意是动态创建的！
+  ATTRIB_SEMANTIC_START_SYNC_EVENT_INDEX,           ///< DefData: Where this node should start playback, specified in
+                                                    ///<  sync space.
+ 
+
   // The following CP semantics correspond to ATTRIB_TYPE_BOOL ... ATTRIB_TYPE_VECTOR4 for simple generation
-  ATTRIB_SEMANTIC_CP_BOOL,                          ///< A control parameter of type bool
   ATTRIB_SEMANTIC_CP_UINT,                          ///< A control parameter of type unsigned int 
-  ATTRIB_SEMANTIC_CP_PHYSICS_OBJECT_POINTER,        ///< A control parameter of type physics object pointer
+  ATTRIB_SEMANTIC_LOOP=20,                             ///< Bool - should the update of this node loop when it reached the end.
   ATTRIB_SEMANTIC_CP_INT,                           ///< A control parameter of type int
+
+
+  ATTRIB_SEMANTIC_SOURCE_ANIM=22,                      ///< A source animation in any format.
+
+  ATTRIB_SEMANTIC_CP_PHYSICS_OBJECT_POINTER,        ///< A control parameter of type physics object pointer
+
+  ATTRIB_SEMANTIC_SOURCE_EVENT_TRACKS=24,              ///<
+  ATTRIB_SEMANTIC_BLEND_WEIGHTS,                    ///< Blend node internal blend weight interpolants
+  ATTRIB_SEMANTIC_BLEND_FLAGS=26,                      ///< Blend node def data flags
   ATTRIB_SEMANTIC_CP_FLOAT,                         ///< A control parameter of type float
   ATTRIB_SEMANTIC_CP_VECTOR3,                       ///< A control parameter of type NMP::Vector3
   ATTRIB_SEMANTIC_CP_VECTOR4,                       ///< A control parameter of type NMP::Vector4 or NMP::Quat
@@ -591,6 +605,7 @@ enum AttribDataSemanticEnum
   ATTRIB_SEMANTIC_MIRRORED_ANIM_MAPPING,            ///< A mapping attribute used to map left and right bones on the rig
   ATTRIB_SEMANTIC_SYNC_EVENT_OFFSET,                ///< An offset applied to the sync event track
                                                     ///<  modification in the mirror node
+
 
   ATTRIB_SEMANTIC_CHILD_NODE_WEIGHTS,               ///< 
   ATTRIB_SEMANTIC_BONE_WEIGHTS,                     ///< 
