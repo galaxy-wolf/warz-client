@@ -348,6 +348,24 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   condition_file << std::endl;
 }
 
+void output_AttribDataSyncEventTrack_19(std::ofstream& os, AttribData* data)
+{
+    AttribDataSyncEventTrack* d = (AttribDataSyncEventTrack*)data;
+    EventTrackSync* ets = &(d->m_syncEventTrack);
+    os << ets->m_startEventIndex << std::endl;
+    os << ets->m_numEvents << std::endl;
+    for (int i = 0; i < ets->m_numEvents; ++i)
+    {
+        EventDefDiscrete* e = &(ets->m_events[i]);
+        os << e->m_startTime << std::endl;
+        os << e->m_duration << std::endl;
+        os << e->m_userData << std::endl;
+    }
+    os << ets->m_duration << std::endl;
+    os << ets->m_durationReciprocal << std::endl;
+    os << d->m_transitionOffset << std::endl;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 // MR::NetworkDef
 //----------------------------------------------------------------------------------------------------------------------
@@ -445,6 +463,8 @@ void NetworkDef::locate()
           myfile << input->m_sourcePinIndex << std::endl;
       }
       {
+          all_attri_data_file << n->getNodeID() << std::endl;
+		  all_attri_data_file << n->m_numAttribDataHandles << std::endl;
           std::set<int> animation_source_ids;
           std::map<int, int> semantic_2_animaton_id;
           std::map<int, TrackRefStruct> semantic_2_track_ref;
@@ -453,15 +473,18 @@ void NetworkDef::locate()
           for (uint16_t i = 0; i < n->m_numAttribDataHandles; ++i)
           {
 			  attrib_data_types.push_back(INVALID_ATTRIB_TYPE);
+              all_attri_data_file << "#" << i << std::endl;
               if (n->m_nodeAttribDataHandles[i].m_attribData)
               {
                   // Locate the attrib data itself
                   AttribDataType type = n->m_nodeAttribDataHandles[i].m_attribData->getType();
+				  all_attri_data_file << type << std::endl;
+
                   attrib_data_types[attrib_data_types.size() - 1] = type;
                   all_attrib_data_types.insert(type);
-                  if (type == 100)
+                  if (type == ATTRIB_TYPE_SYNC_EVENT_TRACK)//19)
                   {
-                      NMP_STDOUT("found type 19");
+                      output_AttribDataSyncEventTrack_19(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
                   else if (type == ATTRIB_TYPE_SOURCE_ANIM)
                   {
@@ -612,7 +635,12 @@ void NetworkDef::locate()
                       transition_def_file << std::endl;
 				  }
               }
+              else {
+                  all_attri_data_file << -1 << std::endl;
+              }
           }
+          all_attri_data_file << std::endl;
+
           if (n->getNodeTypeID() == 104)
           {
               attrib_type_file << n->getNodeID() << " " << attrib_data_types.size() << " " << n->getNodeTypeID() << std::endl;
@@ -645,6 +673,7 @@ void NetworkDef::locate()
   attrib_type_file.close();
   condition_file.close();
   transition_def_file.close();
+  all_attri_data_file.close();
 
   NMP_STDOUT(" condition type count %d", all_condition_types.size());
   for (auto tt : all_condition_types)

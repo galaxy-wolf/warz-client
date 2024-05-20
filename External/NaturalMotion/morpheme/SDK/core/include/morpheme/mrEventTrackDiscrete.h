@@ -66,7 +66,7 @@ public:
   NM_INLINE void dislocate();
   NM_INLINE void locate();
 
-protected:
+public:
   TimeFraction  m_startTime;  ///< Start point.
   TimeFraction  m_duration;   ///< To the next event.
   uint32_t      m_userData;   ///< Allows this event to be associated with arbitrary user data.

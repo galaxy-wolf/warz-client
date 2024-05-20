@@ -197,7 +197,7 @@ public:
   bool locate();
   bool dislocate();
 
-protected:
+public:
   uint32_t          m_startEventIndex;              ///< Which event to use as playback start.
                                                     ///< Also marks the blend start point.
   uint32_t          m_numEvents;                    ///<
