@@ -348,6 +348,18 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   condition_file << std::endl;
 }
 
+void output_AttribDataBool_0(std::ofstream& os, AttribData* data)
+{
+    AttribDataBool* d = (AttribDataBool*)data;
+    os << d->m_value << std::endl;
+}
+
+void output_AttribDataUInt_1(std::ofstream& os, AttribData* data)
+{
+    AttribDataUInt* d = (AttribDataUInt*)data;
+    os << d->m_value << std::endl;
+}
+
 void output_AttribDataFloatArray_10(std::ofstream& os, AttribData* data)
 {
     AttribDataFloatArray* d = (AttribDataFloatArray*)data;
@@ -490,7 +502,15 @@ void NetworkDef::locate()
 
                   attrib_data_types[attrib_data_types.size() - 1] = type;
                   all_attrib_data_types.insert(type);
-                  if (type == ATTRIB_TYPE_FLOAT_ARRAY) //10)
+                  if (type == ATTRIB_TYPE_BOOL) // 0)
+                  {
+                      output_AttribDataBool_0(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  if (type == ATTRIB_TYPE_UINT) // 1)
+                  {
+                      output_AttribDataUInt_1(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_FLOAT_ARRAY) //10)
                   {
                       output_AttribDataFloatArray_10(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
