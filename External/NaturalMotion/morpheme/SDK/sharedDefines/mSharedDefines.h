@@ -508,7 +508,7 @@ enum AttribDataTypeEnum
 
   ATTRIB_TYPE_JOINT_LIMITS,  // ?=115             ///< Kinematic joint limits for a rig.
 
-  ATTRIB_TYPE_BLEND_FLAGS, // ?= 116
+  ATTRIB_TYPE_BLEND_FLAGS = 116,
   ATTRIB_TYPE_BLEND_WEIGHTS,
   ATTRIB_TYPE_FEATHER_BLEND2_CHANNEL_ALPHAS, // ?= 118
 
@@ -593,6 +593,8 @@ enum AttribDataSemanticEnum
   ATTRIB_SEMANTIC_CP_PHYSICS_OBJECT_POINTER,        ///< A control parameter of type physics object pointer
 
   ATTRIB_SEMANTIC_SOURCE_EVENT_TRACKS=24,              ///<
+  ATTRIB_SEMANTIC_BLEND_WEIGHTS,                    ///< Blend node internal blend weight interpolants
+  ATTRIB_SEMANTIC_BLEND_FLAGS=26,                      ///< Blend node def data flags
   ATTRIB_SEMANTIC_CP_FLOAT,                         ///< A control parameter of type float
   ATTRIB_SEMANTIC_CP_VECTOR3,                       ///< A control parameter of type NMP::Vector3
   ATTRIB_SEMANTIC_CP_VECTOR4,                       ///< A control parameter of type NMP::Vector4 or NMP::Quat
@@ -603,8 +605,6 @@ enum AttribDataSemanticEnum
   ATTRIB_SEMANTIC_MIRRORED_ANIM_MAPPING,            ///< A mapping attribute used to map left and right bones on the rig
   ATTRIB_SEMANTIC_SYNC_EVENT_OFFSET,                ///< An offset applied to the sync event track
                                                     ///<  modification in the mirror node
-  ATTRIB_SEMANTIC_BLEND_FLAGS,                      ///< Blend node def data flags
-  ATTRIB_SEMANTIC_BLEND_WEIGHTS,                    ///< Blend node internal blend weight interpolants
 
 
   ATTRIB_SEMANTIC_CHILD_NODE_WEIGHTS,               ///< 

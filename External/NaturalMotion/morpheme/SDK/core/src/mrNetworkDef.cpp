@@ -386,6 +386,15 @@ void output_AttribDataSyncEventTrack_19(std::ofstream& os, AttribData* data)
     os << d->m_transitionOffset << std::endl;
 }
 
+void output_AttribDataBlendFlags_116(std::ofstream& os, AttribData* data)
+{
+    AttribDataBlendFlags* d = (AttribDataBlendFlags*)data;
+    os << d->m_alwaysBlendTrajectoryAndTransforms << std::endl;
+    os << d->m_alwaysCombineSampledEvents << std::endl;
+    os << d->m_unkown << std::endl;
+}
+
+
 //----------------------------------------------------------------------------------------------------------------------
 // MR::NetworkDef
 //----------------------------------------------------------------------------------------------------------------------
@@ -517,6 +526,10 @@ void NetworkDef::locate()
                   else if (type == ATTRIB_TYPE_SYNC_EVENT_TRACK)//19)
                   {
                       output_AttribDataSyncEventTrack_19(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_BLEND_FLAGS) //116)
+                  {
+                      output_AttribDataBlendFlags_116(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
                   else if (type == ATTRIB_TYPE_SOURCE_ANIM)
                   {

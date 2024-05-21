@@ -4033,6 +4033,7 @@ public:
 public:
   bool  m_alwaysBlendTrajectoryAndTransforms;
   bool  m_alwaysCombineSampledEvents;
+  bool m_unkown;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
