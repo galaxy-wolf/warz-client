@@ -348,6 +348,14 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   condition_file << std::endl;
 }
 
+void output_AttribDataFloatArray_10(std::ofstream& os, AttribData* data)
+{
+    AttribDataFloatArray* d = (AttribDataFloatArray*)data;
+    os << d->m_numValues << std::endl;
+    for (int i = 0; i < d->m_numValues; ++i)
+        os << d->m_values[i] << std::endl;
+}
+
 void output_AttribDataSyncEventTrack_19(std::ofstream& os, AttribData* data)
 {
     AttribDataSyncEventTrack* d = (AttribDataSyncEventTrack*)data;
@@ -482,7 +490,11 @@ void NetworkDef::locate()
 
                   attrib_data_types[attrib_data_types.size() - 1] = type;
                   all_attrib_data_types.insert(type);
-                  if (type == ATTRIB_TYPE_SYNC_EVENT_TRACK)//19)
+                  if (type == ATTRIB_TYPE_FLOAT_ARRAY) //10)
+                  {
+                      output_AttribDataFloatArray_10(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_SYNC_EVENT_TRACK)//19)
                   {
                       output_AttribDataSyncEventTrack_19(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
