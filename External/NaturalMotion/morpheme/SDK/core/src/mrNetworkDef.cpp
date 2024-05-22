@@ -386,6 +386,38 @@ void output_AttribDataSyncEventTrack_19(std::ofstream& os, AttribData* data)
     os << d->m_transitionOffset << std::endl;
 }
 
+void output_AttribDataSourceAnim_23(std::ofstream& os, AttribData* data)
+{
+    AttribDataSourceAnim * d = (AttribDataSourceAnim*)data;
+
+    auto output_vector3 = [&os](const NMP::Vector3& v)
+        {
+            os << v.x << ", " << v.y << ", " << v.z << std::endl;
+        };
+    auto output_quat = [&os](const NMP::Quat& q)
+        {
+            os << q.x << ", " << q.y << ", " << q.z << ", " << q.w << std::endl;
+        };
+    output_vector3(d->m_transformAtStartPos);
+    output_quat(d->m_transformAtStartQuat);
+    output_vector3(d->m_transformAtEndPos);
+    output_quat(d->m_transformAtEndQuat);
+
+    os << d->m_animAssetID << std::endl;
+
+    os << (uint32_t) d->m_startSyncEventIndex << std::endl;
+    os << (uint32_t) d->m_clipStartSyncEventIndex << std::endl;
+    os << (uint32_t) d->m_clipEndSyncEventIndex << std::endl;
+    os << (uint32_t) d->m_unknown2 << std::endl;
+
+    os << d->m_clipStartFraction << std::endl;
+    os << d->m_clipEndFraction << std::endl;
+
+    os << d->m_sourceAnimDuration << std::endl;
+    os << d->m_syncEventTrackIndex << std::endl;
+    os << d->m_playBackwards << std::endl;
+}
+
 void output_AttribDataBlendFlags_116(std::ofstream& os, AttribData* data)
 {
     AttribDataBlendFlags* d = (AttribDataBlendFlags*)data;
@@ -512,10 +544,6 @@ void NetworkDef::locate()
                   attrib_data_types[attrib_data_types.size() - 1] = type;
                   all_attrib_data_types.insert(type);
 
-                  if (type == 23)
-                  {
-                      NMP_STDOUT("Found type 23!");
-                  }
                   if (type == ATTRIB_TYPE_BOOL) // 0)
                   {
                       output_AttribDataBool_0(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
@@ -532,16 +560,18 @@ void NetworkDef::locate()
                   {
                       output_AttribDataSyncEventTrack_19(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
-                  else if (type == ATTRIB_TYPE_BLEND_FLAGS) //116)
-                  {
-                      output_AttribDataBlendFlags_116(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
-                  }
-                  else if (type == ATTRIB_TYPE_SOURCE_ANIM)
+                  else if (type == ATTRIB_TYPE_SOURCE_ANIM) // 23)
                   {
                       AttribDataSourceAnim* a = (AttribDataSourceAnim*)(n->m_nodeAttribDataHandles[i].m_attribData);
                       NMP_STDOUT("     %d : data source anim %d %f", i, a->m_animAssetID, a->m_sourceAnimDuration);
                       animation_source_ids.insert(a->m_animAssetID);
                       semantic_2_animaton_id[i] = a->m_animAssetID;
+
+                      output_AttribDataSourceAnim_23(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_BLEND_FLAGS) //116)
+                  {
+                      output_AttribDataBlendFlags_116(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
                   else if (type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS)
                   {
