@@ -511,11 +511,16 @@ void NetworkDef::locate()
 
                   attrib_data_types[attrib_data_types.size() - 1] = type;
                   all_attrib_data_types.insert(type);
+
+                  if (type == 23)
+                  {
+                      NMP_STDOUT("Found type 23!");
+                  }
                   if (type == ATTRIB_TYPE_BOOL) // 0)
                   {
                       output_AttribDataBool_0(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
-                  if (type == ATTRIB_TYPE_UINT) // 1)
+                  else if (type == ATTRIB_TYPE_UINT) // 1)
                   {
                       output_AttribDataUInt_1(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
@@ -726,11 +731,11 @@ void NetworkDef::locate()
       NMP_STDOUT(" \t%d", tt);
   }
 
-  NMP_STDOUT(" all attrib data types count %d", all_attrib_data_types.size());
-  for (auto tt : all_attrib_data_types)
-  {
-      NMP_STDOUT(" \t%d", tt);
-  }
+  //NMP_STDOUT(" all attrib data types count %d", all_attrib_data_types.size());
+  //for (auto tt : all_attrib_data_types)
+  //{
+  //    NMP_STDOUT(" \t%d", tt);
+  //}
 
   // Output control parameter Node IDs and semantics
   if (m_emittedControlParamsInfo)

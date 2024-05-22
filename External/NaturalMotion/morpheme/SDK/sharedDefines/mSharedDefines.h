@@ -388,7 +388,7 @@ enum AttribDataTypeEnum
   ATTRIB_TYPE_TRAJECTORY_DELTA_TRANSFORM = 15,       ///< The trajectory channels delta transform for this frame.
   ATTRIB_TYPE_TRANSFORM, // = 16, X Not found in data                       ///< The trajectory channel transform.  (Needed between frames)
   ATTRIB_TYPE_VELOCITY, // = 17 X Not found in data                         ///< Linear and angular velocity.
-  ATTRIB_TYPE_SAMPLED_EVENTS_BUFFER, // = 18 X Not found in data            ///< Buffer of sampled events.
+  ATTRIB_TYPE_SAMPLED_EVENTS_BUFFER, // = 18 X Not found in data            ///< Buffer of sampled events. 这玩意动态创建的，不要再内存里找。
   ATTRIB_TYPE_SYNC_EVENT_TRACK=19,                 ///< Synchronisation event track.
   ATTRIB_TYPE_DURATION_EVENT_TRACK_SET,  // =20 X Not found in data       ///< A set of duration event tracks.
 
@@ -568,25 +568,25 @@ enum AttribDataSemanticEnum
   ATTRIB_SEMANTIC_TRAJECTORY_DELTA_TRANSFORM_BUFFER,///< A transform buffer with the trajectory in the first channel
   ATTRIB_SEMANTIC_VELOCITY,                         ///<
   ATTRIB_SEMANTIC_TRANSFORM_RATES,                  ///<
-  ATTRIB_SEMANTIC_SAMPLED_EVENTS_BUFFER,            ///< Buffer of sampled events.
   ATTRIB_SEMANTIC_DURATION_EVENT_TRACK_SET,         ///< A set of duration event tracks.
 
-  ATTRIB_SEMANTIC_LOOP,                             ///< Bool - should the update of this node loop when it reached the end.
   ATTRIB_SEMANTIC_RIG,                              ///< Describes hierarchy of bones etc.
 
+  ATTRIB_SEMANTIC_CP_BOOL,                          ///< A control parameter of type bool
+
+  ATTRIB_SEMANTIC_ACTIVE_ANIM_SET_INDEX,            ///< The index of the animation set currently in use by the network.
+
   ATTRIB_SEMANTIC_SYNC_EVENT_TRACK=16,                 ///< Synchronization event track.
+  ATTRIB_SEMANTIC_SAMPLED_EVENTS_BUFFER=17,            ///< Buffer of sampled events.  这玩意是动态创建的！
   ATTRIB_SEMANTIC_START_SYNC_EVENT_INDEX,           ///< DefData: Where this node should start playback, specified in
                                                     ///<  sync space.
  
 
-  ATTRIB_SEMANTIC_ACTIVE_ANIM_SET_INDEX,            ///< The index of the animation set currently in use by the network.
-
   // The following CP semantics correspond to ATTRIB_TYPE_BOOL ... ATTRIB_TYPE_VECTOR4 for simple generation
   ATTRIB_SEMANTIC_CP_UINT,                          ///< A control parameter of type unsigned int 
-
-  ATTRIB_SEMANTIC_CP_BOOL=20,                          ///< A control parameter of type bool
-
+  ATTRIB_SEMANTIC_LOOP=20,                             ///< Bool - should the update of this node loop when it reached the end.
   ATTRIB_SEMANTIC_CP_INT,                           ///< A control parameter of type int
+
 
   ATTRIB_SEMANTIC_SOURCE_ANIM=22,                      ///< A source animation in any format.
 
