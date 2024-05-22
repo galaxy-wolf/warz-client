@@ -360,6 +360,12 @@ void output_AttribDataUInt_1(std::ofstream& os, AttribData* data)
     os << d->m_value << std::endl;
 }
 
+void output_AttribDataFloat_3(std::ofstream& os, AttribData* data)
+{
+    AttribDataFloat* d = (AttribDataFloat*)data;
+    os << d->m_value << std::endl;
+}
+
 void output_AttribDataFloatArray_10(std::ofstream& os, AttribData* data)
 {
     AttribDataFloatArray* d = (AttribDataFloatArray*)data;
@@ -551,6 +557,10 @@ void NetworkDef::locate()
                   else if (type == ATTRIB_TYPE_UINT) // 1)
                   {
                       output_AttribDataUInt_1(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_FLOAT) // 3)
+                  {
+				      output_AttribDataFloat_3(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
                   else if (type == ATTRIB_TYPE_FLOAT_ARRAY) //10)
                   {
