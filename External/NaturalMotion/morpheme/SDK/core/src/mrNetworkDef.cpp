@@ -136,46 +136,6 @@ bool NodeInitDataArrayDef::dislocate()
   return true;
 }
 
-struct TrackRefStruct
-{
-  std::vector<uint32_t> duration_asset_ids;
-  std::vector<uint32_t> discrete_asset_ids;
-  std::vector<uint32_t> curve_asset_ids;
-};
-void output_event_ref_data(
-    uint32_t node_id, 
-	std::map<int, int>& semantic_2_animaton_id,
-	std::map<int, TrackRefStruct>& semantic_2_track_ref,
-    std::ofstream& file)
-{
-    if (semantic_2_animaton_id.empty() && semantic_2_track_ref.empty())
-        return;
-
-    file << node_id << std::endl;
-    file << semantic_2_animaton_id.size() << std::endl;
-    for (const auto & t : semantic_2_animaton_id)
-    {
-        file << t.first << std::endl;
-        file << t.second << std::endl;
-    }
-    file << semantic_2_track_ref.size() << std::endl;
-    auto output_vector = [&file](const std::vector<uint32_t>& v)
-        {
-            file << v.size() << std::endl;
-            for (auto i : v)
-                file << i << std::endl;
-        };
-    for (const auto& t : semantic_2_track_ref)
-    {
-        file << t.first << std::endl;
-        output_vector(t.second.curve_asset_ids);
-        output_vector(t.second.discrete_asset_ids);
-        output_vector(t.second.duration_asset_ids);
-    }
-
-    file << std::endl;
-}
-
 class TransitCondition_631: public TransitConditionDef
 {
 public:
@@ -424,6 +384,19 @@ void output_AttribDataSourceAnim_23(std::ofstream& os, AttribData* data)
     os << d->m_playBackwards << std::endl;
 }
 
+void output_AttribDataSourceEventTracks_25(std::ofstream& os, AttribData* data)
+{
+    AttribDataSourceEventTrackSet* d = (AttribDataSourceEventTrackSet*)(data);
+    auto output_uint32_vector = [&os](uint32_t num, void* input_uint64_array)
+        {
+            os << num << std::endl;
+            for (int i = 0; i < num; ++i)
+                os << (uint32_t)((uint64_t*)input_uint64_array)[i] << std::endl;
+        };
+    output_uint32_vector(d->m_numDiscreteEventTracks, d->m_sourceDiscreteEventTracks);
+    output_uint32_vector(d->m_numDurEventTracks, d->m_sourceDurEventTracks);
+    output_uint32_vector(d->m_numCurveEventTracks, d->m_sourceCurveEventTracks);
+}
 void output_AttribDataBlendFlags_116(std::ofstream& os, AttribData* data)
 {
     AttribDataBlendFlags* d = (AttribDataBlendFlags*)data;
@@ -477,8 +450,6 @@ void NetworkDef::locate()
   // NodeDefs
   std::ofstream myfile;
   myfile.open("F:/horizon_files/morpheme_graph.txt");
-  std::ofstream event_ref_file;
-  event_ref_file.open("F:/horizon_files/morpheme_event_ref.txt");
   std::ofstream state_machine_file;  // 这个是为了方便阅读。
   state_machine_file.open("F:/horizon_files/state_machine.txt");
   std::ofstream state_machine_raw;  // 这个是为了加载到python
@@ -533,8 +504,7 @@ void NetworkDef::locate()
           all_attri_data_file << n->getNodeID() << std::endl;
 		  all_attri_data_file << n->m_numAttribDataHandles << std::endl;
           std::set<int> animation_source_ids;
-          std::map<int, int> semantic_2_animaton_id;
-          std::map<int, TrackRefStruct> semantic_2_track_ref;
+          //std::map<int, TrackRefStruct> semantic_2_track_ref;
           std::vector<int> attrib_data_types;
           bool has_state_machine = false;
           for (uint16_t i = 0; i < n->m_numAttribDataHandles; ++i)
@@ -575,31 +545,16 @@ void NetworkDef::locate()
                       AttribDataSourceAnim* a = (AttribDataSourceAnim*)(n->m_nodeAttribDataHandles[i].m_attribData);
                       NMP_STDOUT("     %d : data source anim %d %f", i, a->m_animAssetID, a->m_sourceAnimDuration);
                       animation_source_ids.insert(a->m_animAssetID);
-                      semantic_2_animaton_id[i] = a->m_animAssetID;
 
                       output_AttribDataSourceAnim_23(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS) //25)
+                  {
+                      output_AttribDataSourceEventTracks_25(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
                   else if (type == ATTRIB_TYPE_BLEND_FLAGS) //116)
                   {
                       output_AttribDataBlendFlags_116(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
-                  }
-                  else if (type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS)
-                  {
-                      AttribDataSourceEventTrackSet* a = (AttribDataSourceEventTrackSet*)(n->m_nodeAttribDataHandles[i].m_attribData);
-					  NMP_STDOUT("     %d : discrete event track %d : %u", i, a->m_numDiscreteEventTracks, ((uint32_t*)(a->m_sourceDiscreteEventTracks))[0]);
-					  NMP_STDOUT("     %d : duration event track %d : %u", i, a->m_numDurEventTracks, ((uint32_t*)(a->m_sourceDurEventTracks))[0]);
-                      auto convert_to_uint32_vector = [](std::vector<uint32_t>& output, uint32_t num, void* input_uint64_array) 
-                          {
-							  output.clear();
-							  for (int i = 0; i < num; ++i)
-							  {
-								  output.push_back((uint32_t)((uint64_t*)input_uint64_array)[i]);
-							  }
-						  };
-                      semantic_2_track_ref[i] = TrackRefStruct();
-                      convert_to_uint32_vector(semantic_2_track_ref[i].discrete_asset_ids, a->m_numDiscreteEventTracks, a->m_sourceDiscreteEventTracks);
-					  convert_to_uint32_vector(semantic_2_track_ref[i].duration_asset_ids, a->m_numDurEventTracks, a->m_sourceDurEventTracks);
-					  convert_to_uint32_vector(semantic_2_track_ref[i].curve_asset_ids, a->m_numCurveEventTracks, a->m_sourceCurveEventTracks);
                   }
                   else if (type == ATTRIB_TYPE_STATE_MACHINE_DEF)
                   {
@@ -742,7 +697,6 @@ void NetworkDef::locate()
               attrib_type_file << std::endl;
           }
 
-          output_event_ref_data(n->getNodeID(), semantic_2_animaton_id, semantic_2_track_ref, event_ref_file);
           myfile << animation_source_ids.size() << std::endl;
           for (auto id : animation_source_ids)
           {
@@ -757,7 +711,6 @@ void NetworkDef::locate()
   }
   myfile << "hello" << std::endl;
   myfile.close();
-  event_ref_file.close();
   state_machine_file.close();
   state_machine_raw.close();
   attrib_type_file.close();
