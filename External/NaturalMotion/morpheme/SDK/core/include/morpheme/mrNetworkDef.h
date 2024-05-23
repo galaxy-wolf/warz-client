@@ -437,28 +437,34 @@ public:
   void mapCopyVelocityBuffers(NMP::DataBuffer* sourceBuffer, AnimSetIndex sourceAnimSetIndex, NMP::DataBuffer* targetBuffer, AnimSetIndex targetAnimSetIndex);
 
 protected:
-  uint32_t                  m_numNodes;
-  NodeDef**                 m_nodes;                    ///< Array of all nodes defined in this NetworkDef, listed in NodeID order.
+  uint32_t                  m_numNodes;            // Good
+  NodeDef**                 m_nodes;               // Good     ///< Array of all nodes defined in this NetworkDef, listed in NodeID order.
 
-  AnimSetIndex              m_numAnimSets;
+  AnimSetIndex              m_numAnimSets;   // Good
 
   EmittedControlParamsInfo* m_emittedControlParamsInfo; ///< Array of NodeIDs that emit control param values.
 
-  NodeIDsArray*             m_stateMachineNodeIDs;      ///< Array of all state machine node IDs
+  void* unknown_ptr1;
 
-  NodeIDsArray*             m_messageEmitterNodeIDs;    ///< Array of all request emitter node IDs, listed in emission processing order.
+  NodeIDsArray*             m_stateMachineNodeIDs;  // Good     ///< Array of all state machine node IDs
+
+  NodeIDsArray*             m_messageEmitterNodeIDs;  // Good   ///< Array of all request emitter node IDs, listed in emission processing order.
                                                         ///<  Every node that has "NodeEmitsRequests" in its manifest file 
                                                         ///<  (is able to emit requests) is entered in this list.
 
-  NodeIDsArray*             m_multiplyConnectedNodeIDs; ///< Array of all state machine node IDs
+  NodeIDsArray*             m_multiplyConnectedNodeIDs; // Good ///< Array of all state machine node IDs
 
-  NMP::IDMappedStringTable* m_stateMachineStateIDStringTable; ///< A string table for each state machine state to it's state id.
+  NMP::IDMappedStringTable* m_stateMachineStateIDStringTable; // Good ///< A string table for each state machine state to it's state id.
 
-  NMP::IDMappedStringTable* m_nodeIDNamesTable;         ///< Table to allow the lookup of NodeIDs or names.
 
-  NMP::OrderedStringTable*  m_messageIDNamesTable;      ///< Table for lookup of a RequestID via the request name.
+  NMP::IDMappedStringTable* m_nodeIDNamesTable;         /// Good < Table to allow the lookup of NodeIDs or names.
 
-  NMP::OrderedStringTable*  m_eventTrackIDNamesTable;   ///< User specified names of event tracks used in this network.
+
+  NMP::OrderedStringTable*  m_messageIDNamesTable;   // Good   ///< Table for lookup of a RequestID via the request name.
+
+  NMP::OrderedStringTable* unknown_ptr2;   // Good
+
+  NMP::OrderedStringTable*  m_eventTrackIDNamesTable; //Good  ///< User specified names of event tracks used in this network.
                                                         ///< The index of each name in the table is used as a runtime
                                                         ///< identifier for that event track. Each string in the table is unique.
                                                         ///< Note that separate event track assets may share the same name and
@@ -466,15 +472,15 @@ protected:
                                                         ///< event track blending etc. 
                                                         ///< Event tracks themselves can be uniquely identified through their 
                                                         ///< ObjectID assigned in the Manager.
-  NodeTagTable*             m_tagTable;
   SharedTaskFnTables*       m_taskQueuingFnTables;      ///< Table of shared task functions between node definitions
   SharedTaskFnTables*       m_outputCPTaskFnTables;     ///< Table of shared task functions between node definitions
-  void* unknown_ptr1;
-  void* unknown_ptr2;
+
+  //   下面两个是和骨骼数目 87  0x57 相关的一个指针。 
+  NodeTagTable*             m_tagTable;
   void* unknown_ptr3;
 
-  uint32_t                  m_numMessageDistributors;
-  MessageDistributor**      m_messageDistributors;      ///< Array of message distributors so the messages can be
+  uint32_t                  m_numMessageDistributors; // Good
+  MessageDistributor**      m_messageDistributors;     // Good ///< Array of message distributors so the messages can be
                                                         ///< efficiently sent to the relevant nodes.
 
   uint32_t                  m_numSemanticLookupTables;  ///< There is a semantic lookup table for each node type.
@@ -491,6 +497,8 @@ protected:
   uint32_t                  m_numNodeEventOnExitMessages;         ///< The number of events in this network which can be triggered
                                                                   ///<  when a Node becomes inactive.
   NodeEventOnExitMessage*   m_nodeEventOnExitMessages;            ///< Array of messages which will be sent on given nodes becoming inactive
+
+  void* m_unkownptr4;
 
   uint32_t**                m_rigToUberrigMaps;
   uint32_t**                m_uberrigToRigMaps;
