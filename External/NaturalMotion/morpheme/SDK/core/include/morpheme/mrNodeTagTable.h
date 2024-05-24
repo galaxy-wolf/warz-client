@@ -80,7 +80,7 @@ public:
   /// getNumTagsOnNode - it is not the same as the tagIndex return by findTag.  
   NM_INLINE const char* getTagOnNode(NodeID nodeID, uint16_t index) const;
 
-private:
+public:
   char* m_tags; ///< List of tags stored in the table.
   uint16_t** m_tagEntries; ///< A jagged array of tag indices, one array per node.
   uint16_t* m_tagListLengths; ///< The length of each tag index array.

@@ -116,7 +116,7 @@ protected:
   void sortByHash();
   void swapEntry(uint32_t a, uint32_t b);
 
-private:
+public:
   uint32_t     m_NumEntrys;
   uint32_t     m_DataLength;
   uint32_t*    m_IDs;
@@ -216,7 +216,7 @@ public:
 protected:
   static OrderedStringTable* initResourcePointers(NMP::Memory::Resource& resource, uint32_t numEntrys, uint32_t dataLength);
 
-private:
+public:
   uint32_t    m_NumEntrys;
   uint32_t    m_DataLength;
   uint32_t*   m_Offsets;

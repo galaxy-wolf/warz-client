@@ -132,10 +132,36 @@ public:
   NM_INLINE NodeID getEntry(uint32_t indx) const;
   NM_INLINE void setEntry(uint32_t indx, NodeID nodeID);
 
-protected:
+public:
   uint32_t        m_numEntries;
   NodeID*         m_nodeIDs;
 };
+
+
+struct OneIDMapEntry
+{
+public:
+    uint32_t data0;
+    uint32_t data1;
+};
+
+struct SomeIDMap
+{
+public:
+    uint32_t allEntryListNum;
+    uint32_t oneEtryListNum;
+    OneIDMapEntry** allEntryList;
+
+    void locate()
+    {
+		REFIX_SWAP_PTR(OneIDMapEntry*, allEntryList);
+        for (int i = 0; i < allEntryListNum; ++i)
+        {
+			REFIX_SWAP_PTR(OneIDMapEntry, allEntryList[i]);
+        }
+    }
+};
+
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \class MR::NetworkDef
@@ -442,17 +468,19 @@ protected:
 
   AnimSetIndex              m_numAnimSets;   // Good
 
-  EmittedControlParamsInfo* m_emittedControlParamsInfo; ///< Array of NodeIDs that emit control param values.
-
-  void* unknown_ptr1;
+  EmittedControlParamsInfo* m_emittedControlParamsInfo; // Good ///< Array of NodeIDs that emit control param values.
 
   NodeIDsArray*             m_stateMachineNodeIDs;  // Good     ///< Array of all state machine node IDs
+
+  void* unknown_ptr1;  //??? 这个可以猜出来， 先跳过。
 
   NodeIDsArray*             m_messageEmitterNodeIDs;  // Good   ///< Array of all request emitter node IDs, listed in emission processing order.
                                                         ///<  Every node that has "NodeEmitsRequests" in its manifest file 
                                                         ///<  (is able to emit requests) is entered in this list.
 
   NodeIDsArray*             m_multiplyConnectedNodeIDs; // Good ///< Array of all state machine node IDs
+
+
 
   NMP::IDMappedStringTable* m_stateMachineStateIDStringTable; // Good ///< A string table for each state machine state to it's state id.
 
@@ -462,7 +490,7 @@ protected:
 
   NMP::OrderedStringTable*  m_messageIDNamesTable;   // Good   ///< Table for lookup of a RequestID via the request name.
 
-  NMP::OrderedStringTable* unknown_ptr2;   // Good
+  NMP::OrderedStringTable* m_unknown_ptr2;   // Good
 
   NMP::OrderedStringTable*  m_eventTrackIDNamesTable; //Good  ///< User specified names of event tracks used in this network.
                                                         ///< The index of each name in the table is used as a runtime
@@ -472,12 +500,12 @@ protected:
                                                         ///< event track blending etc. 
                                                         ///< Event tracks themselves can be uniquely identified through their 
                                                         ///< ObjectID assigned in the Manager.
-  SharedTaskFnTables*       m_taskQueuingFnTables;      ///< Table of shared task functions between node definitions
-  SharedTaskFnTables*       m_outputCPTaskFnTables;     ///< Table of shared task functions between node definitions
+  NodeTagTable*             m_tagTable;   // Good
+  void* unknown_has_float_ptr3;
 
   //   下面两个是和骨骼数目 87  0x57 相关的一个指针。 
-  NodeTagTable*             m_tagTable;
-  void* unknown_ptr3;
+  SomeIDMap* some_id_map1;
+  SomeIDMap* some_id_map2;
 
   uint32_t                  m_numMessageDistributors; // Good
   MessageDistributor**      m_messageDistributors;     // Good ///< Array of message distributors so the messages can be
@@ -502,6 +530,10 @@ protected:
 
   uint32_t**                m_rigToUberrigMaps;
   uint32_t**                m_uberrigToRigMaps;
+
+  // 下面的没有找到。
+  SharedTaskFnTables*       m_taskQueuingFnTables;      ///< Table of shared task functions between node definitions
+  SharedTaskFnTables*       m_outputCPTaskFnTables;     ///< Table of shared task functions between node definitions
 };
 
 bool locateNetworkDef(uint32_t assetType, void* assetMemory);
@@ -547,7 +579,7 @@ public:
     uint32_t index,
     NodeID   nodeID);
 
-protected:
+public:
   /// Array of output control parameter Node IDs.
   /// The value of these nodes is updated at the end of every frame update and is available for use as input
   uint32_t                  m_numEmittedControlParamNodes;

@@ -411,41 +411,281 @@ void output_AttribDataBlendFlags_116(std::ofstream& os, AttribData* data)
 //----------------------------------------------------------------------------------------------------------------------
 void NetworkDef::locate()
 {
-  // Header information
-  NMP::endianSwap(m_numNodes);
-  NMP::endianSwap(m_numAnimSets);
-  NMP::endianSwap(m_numMessageDistributors);
-  NMP::endianSwap(m_maxBonesInAnimSets);
-  NMP::endianSwap(m_numNetworkInputControlParameters);
+    // Header information
+    NMP::endianSwap(m_numNodes);
+    NMP::endianSwap(m_numAnimSets);
+    NMP::endianSwap(m_numMessageDistributors);
+    NMP::endianSwap(m_maxBonesInAnimSets);
+    NMP::endianSwap(m_numNetworkInputControlParameters);
 
-  // Shared task function tables: Need to be located before the individual node definitions
-  //REFIX_SWAP_PTR(SharedTaskFnTables, m_taskQueuingFnTables);
-  // m_taskQueuingFnTables->locateTaskQueuingFnTables();
-  // REFIX_SWAP_PTR(SharedTaskFnTables, m_outputCPTaskFnTables);
-  // m_outputCPTaskFnTables->locateOutputCPTaskFnTables();
+    // Shared task function tables: Need to be located before the individual node definitions
+    //REFIX_SWAP_PTR(SharedTaskFnTables, m_taskQueuingFnTables);
+    // m_taskQueuingFnTables->locateTaskQueuingFnTables();
+    // REFIX_SWAP_PTR(SharedTaskFnTables, m_outputCPTaskFnTables);
+    // m_outputCPTaskFnTables->locateOutputCPTaskFnTables();
 
-  // Locate the semantic lookup tables. They are used when locating the nodes.
-  std::ofstream semantic_lookup_table_file;
-  semantic_lookup_table_file.open("F:/horizon_files/semantic_lookup_table.txt");
+    // Locate the semantic lookup tables. They are used when locating the nodes.
+    std::ofstream semantic_lookup_table_file;
+    semantic_lookup_table_file.open("F:/horizon_files/semantic_lookup_table.txt");
 
-  NMP::endianSwap(m_numSemanticLookupTables);
-  semantic_lookup_table_file << m_numSemanticLookupTables << std::endl;
-  REFIX_SWAP_PTR(SemanticLookupTable*, m_semanticLookupTables);
-  for (uint32_t i = 0; i < m_numSemanticLookupTables; ++i)
-  {
-    REFIX_SWAP_PTR(SemanticLookupTable, m_semanticLookupTables[i]);
-    m_semanticLookupTables[i]->locate();
-
-    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_nodeType) << std::endl;
-    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_numAttribsPerAnimSet) << std::endl;
-    semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_numSemantics) << std::endl;
-    for (int j = 0; j < m_semanticLookupTables[i]->m_numSemantics; ++j)
+    NMP::endianSwap(m_numSemanticLookupTables);
+    semantic_lookup_table_file << m_numSemanticLookupTables << std::endl;
+    REFIX_SWAP_PTR(SemanticLookupTable*, m_semanticLookupTables);
+    for (uint32_t i = 0; i < m_numSemanticLookupTables; ++i)
     {
-        semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_semanticLookup[j]) << std::endl;
+        REFIX_SWAP_PTR(SemanticLookupTable, m_semanticLookupTables[i]);
+        m_semanticLookupTables[i]->locate();
+
+        semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_nodeType) << std::endl;
+        semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_numAttribsPerAnimSet) << std::endl;
+        semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_numSemantics) << std::endl;
+        for (int j = 0; j < m_semanticLookupTables[i]->m_numSemantics; ++j)
+        {
+            semantic_lookup_table_file << (uint32_t)(m_semanticLookupTables[i]->m_semanticLookup[j]) << std::endl;
+        }
+        semantic_lookup_table_file << std::endl;
     }
-    semantic_lookup_table_file << std::endl;
-  }
-  semantic_lookup_table_file.close();
+    semantic_lookup_table_file.close();
+
+
+    // misc in network.
+    {
+        std::ofstream network_misc_file;
+        network_misc_file.open("F:/horizon_files/network_misc_file.txt");
+
+	    // Output control parameter Node IDs and semantics
+        if (m_emittedControlParamsInfo)
+        {
+            REFIX_SWAP_PTR(EmittedControlParamsInfo, m_emittedControlParamsInfo);
+            m_emittedControlParamsInfo->locate();
+            network_misc_file << "m_emittedControlParamsInfo" << std::endl;
+            network_misc_file << m_emittedControlParamsInfo->m_numEmittedControlParamNodes << std::endl;
+            for (int i = 0; i < m_emittedControlParamsInfo->m_numEmittedControlParamNodes; ++i)
+            {
+                network_misc_file << m_emittedControlParamsInfo->m_emittedControlParamsData[i].m_nodeID << std::endl;
+            }
+            network_misc_file << std::endl;
+        }
+
+        auto output_NodeIDsArray = [&network_misc_file](NodeIDsArray* a) {
+            network_misc_file << a->m_numEntries << std::endl;
+            for (int i=0; i< a->m_numEntries; ++i)
+				network_misc_file << a->m_nodeIDs[i] << std::endl;
+		};
+
+		// State machine Node IDs array
+        if (m_stateMachineNodeIDs)
+        {
+            REFIX_SWAP_PTR(NodeIDsArray, m_stateMachineNodeIDs);
+            m_stateMachineNodeIDs->locate();
+            network_misc_file << "m_stateMachineNodeIDs" << std::endl;
+            output_NodeIDsArray(m_stateMachineNodeIDs);
+            network_misc_file << std::endl;
+        }
+
+        if (unknown_ptr1)
+        { 
+            REFIX_SWAP_PTR(void, unknown_ptr1);
+        }
+
+
+		// Request Emitter Nodes ID array
+        if (m_messageEmitterNodeIDs)
+        {
+            REFIX_SWAP_PTR(NodeIDsArray, m_messageEmitterNodeIDs);
+            m_messageEmitterNodeIDs->locate();
+            network_misc_file << "m_messageEmitterNodeIDs" << std::endl;
+            output_NodeIDsArray(m_messageEmitterNodeIDs);
+            network_misc_file << std::endl;
+        }
+
+		// Multiply connected Node IDs array
+        if (m_multiplyConnectedNodeIDs)
+        {
+            REFIX_SWAP_PTR(NodeIDsArray, m_multiplyConnectedNodeIDs);
+            m_multiplyConnectedNodeIDs->locate();
+            network_misc_file << "m_multiplyConnectedNodeIDs" << std::endl;
+            output_NodeIDsArray(m_multiplyConnectedNodeIDs);
+            network_misc_file << std::endl;
+        }
+
+        auto output_IDMappedStringTable = [&network_misc_file](NMP::IDMappedStringTable* d) 
+        {
+                network_misc_file << d->m_NumEntrys << std::endl;
+                for (int i = 0; i < d->m_NumEntrys; ++i)
+                {
+                    network_misc_file << d->m_IDs[i] << std::endl;
+                    network_misc_file << d->m_HashTable[i] << std::endl;
+                    network_misc_file << &(d->m_Data[d->m_Offsets[i]]) << std::endl;
+                }
+		};
+
+	    //// State machine state to state ID mapping table
+     //   if (m_stateMachineStateIDStringTable)
+     //   {
+     //       REFIX_SWAP_PTR(NMP::IDMappedStringTable, m_stateMachineStateIDStringTable);
+     //       m_stateMachineStateIDStringTable->locate();
+     //       network_misc_file << "m_stateMachineStateIDStringTable" << std::endl;
+     //       output_IDMappedStringTable(m_stateMachineStateIDStringTable);
+     //       network_misc_file << std::endl;
+     //   }
+
+		// NodeID to Node name mapping table
+        // 没啥用的信息， 先不导出了。
+        //if (m_nodeIDNamesTable)
+        //{
+        //    REFIX_SWAP_PTR(NMP::IDMappedStringTable, m_nodeIDNamesTable);
+        //    m_nodeIDNamesTable->locate();
+        //    network_misc_file << "m_nodeIDNamesTable" << std::endl;
+        //    output_IDMappedStringTable(m_nodeIDNamesTable);
+        //    network_misc_file << std::endl;
+        //}
+
+        auto output_OrderedStringTable = [&network_misc_file](NMP::OrderedStringTable* d)
+            {
+                network_misc_file << d->m_NumEntrys << std::endl;
+                for (int i=0; i<d->m_NumEntrys; ++i)
+					network_misc_file << &(d->m_Data[d->m_Offsets[i]]) << std::endl;
+            };
+
+	    // RequestID to Request name mapping table
+        if (m_messageIDNamesTable)
+        {
+            REFIX_SWAP_PTR(NMP::OrderedStringTable, m_messageIDNamesTable);
+            m_messageIDNamesTable->locate();
+            network_misc_file << "m_messageIDNamesTable" << std::endl;
+            output_OrderedStringTable(m_messageIDNamesTable);
+            network_misc_file << std::endl;
+        }
+
+        if (m_unknown_ptr2)
+        {
+            REFIX_SWAP_PTR(NMP::OrderedStringTable, m_unknown_ptr2);
+            m_unknown_ptr2->locate();
+            network_misc_file << "m_unknown_ptr2" << std::endl;
+            output_OrderedStringTable(m_unknown_ptr2);
+            network_misc_file << std::endl;
+        }
+
+        if (m_eventTrackIDNamesTable)
+        {
+            REFIX_SWAP_PTR(NMP::OrderedStringTable, m_eventTrackIDNamesTable);
+            m_eventTrackIDNamesTable->locate();
+            network_misc_file << "m_eventTrackIDNamesTable" << std::endl;
+            output_OrderedStringTable(m_eventTrackIDNamesTable);
+            network_misc_file << std::endl;
+        }
+
+        auto output_NodeTagTable = [&network_misc_file](NodeTagTable* t) {
+            uint32_t count = 0;
+            for (int nodeID = 0; nodeID < t->m_numNodes; ++nodeID)
+            {
+                if (t->m_tagListLengths[nodeID] > 0)
+                    ++count;
+            }
+            network_misc_file << count << std::endl;
+
+            for (int nodeID = 0; nodeID < t->m_numNodes; ++nodeID)
+            {
+                if (t->m_tagListLengths[nodeID] > 0)
+                {
+                    network_misc_file << nodeID << std::endl;
+                    network_misc_file << t->m_tagListLengths[nodeID] << std::endl;
+                    for (int i = 0; i < t->m_tagListLengths[nodeID]; ++i)
+                    {
+                        network_misc_file << t->getTagOnNode(nodeID, i) << std::endl;
+                    }
+                }
+            }
+		};
+
+        if (m_tagTable)
+        {
+            REFIX_SWAP_PTR(NodeTagTable, m_tagTable);
+            m_tagTable->locate();
+            network_misc_file << "m_tagTable" << std::endl;
+            output_NodeTagTable(m_tagTable);
+            network_misc_file << std::endl;
+        }
+
+        auto output_SomeIDMap = [&network_misc_file](SomeIDMap* m) {
+            network_misc_file << m->allEntryListNum << std::endl;
+            network_misc_file << m->oneEtryListNum << std::endl;
+            for (int i = 0; i < m->allEntryListNum; ++i)
+            {
+                OneIDMapEntry* l = m->allEntryList[i];
+                for (int j = 0; j < m->oneEtryListNum; ++j)
+                {
+                    network_misc_file << l[j].data0 << std::endl;
+                    network_misc_file << l[j].data1 << std::endl;
+                }
+            }
+		};
+
+        if (some_id_map1)
+        {
+            REFIX_SWAP_PTR(SomeIDMap, some_id_map1);
+            some_id_map1->locate();
+            network_misc_file << "some_id_map1" << std::endl;
+            output_SomeIDMap(some_id_map1);
+            network_misc_file << std::endl;
+        }
+
+        if (some_id_map2)
+        {
+            REFIX_SWAP_PTR(SomeIDMap, some_id_map2);
+            some_id_map2->locate();
+            network_misc_file << "some_id_map2" << std::endl;
+            output_SomeIDMap(some_id_map2);
+            network_misc_file << std::endl;
+        }
+
+        auto output_MessageDistributor = [&network_misc_file](MessageDistributor* d)
+            {
+                network_misc_file << d->m_messageID << std::endl;
+                network_misc_file << d->m_messageType << std::endl;
+                network_misc_file << d->m_numNodeIDs << std::endl;
+                for (int i=0; i< d->m_numNodeIDs; ++i)
+					network_misc_file << d->m_nodeIDs[i] << std::endl;
+				network_misc_file << d->m_numMessagePresets << std::endl;
+                for (int i = 0; i < d->m_numMessagePresets; ++i)
+                {
+                    Message* m = d->m_messagePresets[i];
+                    network_misc_file << d->m_messagePresetIndexNamesTable->getStringForID(i) << std::endl;
+                    network_misc_file << m->m_data << std::endl;
+                    network_misc_file << m->m_dataSize<< std::endl;
+                    network_misc_file << m->m_id<< std::endl;
+                    network_misc_file << m->m_type<< std::endl;
+                    network_misc_file << m->m_status<< std::endl;
+                }
+            };
+
+	  // MessageDistributors
+        {
+            REFIX_SWAP_PTR(MessageDistributor*, m_messageDistributors);
+            network_misc_file << "m_messageDistributors" << std::endl;
+            network_misc_file << m_numMessageDistributors << std::endl;
+            for (uint32_t i = 0; i < m_numMessageDistributors; ++i)
+            {
+                // message ids can be sparse so this array may have gaps
+				network_misc_file << "#" << i << std::endl;
+                if (m_messageDistributors[i])
+                {
+                    network_misc_file << true << std::endl;
+                    REFIX_SWAP_PTR(MessageDistributor, m_messageDistributors[i]);
+                    m_messageDistributors[i]->locate();
+                    output_MessageDistributor(m_messageDistributors[i]);
+                }
+                else {
+                    network_misc_file << false << std::endl;
+                }
+            }
+            network_misc_file << std::endl;
+        }
+
+
+        network_misc_file.close();
+    }
   
   // NodeDefs
   std::ofstream myfile;
@@ -730,33 +970,6 @@ void NetworkDef::locate()
   //    NMP_STDOUT(" \t%d", tt);
   //}
 
-  // Output control parameter Node IDs and semantics
-  if (m_emittedControlParamsInfo)
-  {
-    REFIX_SWAP_PTR(EmittedControlParamsInfo, m_emittedControlParamsInfo);
-    m_emittedControlParamsInfo->locate();
-  }
-
-  // State machine Node IDs array
-  if (m_stateMachineNodeIDs)
-  {
-    REFIX_SWAP_PTR(NodeIDsArray, m_stateMachineNodeIDs);
-    m_stateMachineNodeIDs->locate();
-  }
-
-  // Request Emitter Nodes ID array
-  if (m_messageEmitterNodeIDs)
-  {
-    REFIX_SWAP_PTR(NodeIDsArray, m_messageEmitterNodeIDs);
-    m_messageEmitterNodeIDs->locate();
-  }
-
-  // Multiply connected Node IDs array
-  if (m_multiplyConnectedNodeIDs)
-  {
-    REFIX_SWAP_PTR(NodeIDsArray, m_multiplyConnectedNodeIDs);
-    m_multiplyConnectedNodeIDs->locate();
-  }
 
   // Node OnExit Message array
   if (m_nodeEventOnExitMessages)
@@ -769,52 +982,6 @@ void NetworkDef::locate()
       NMP::endianSwap(m_nodeEventOnExitMessages[i].m_nodeID);
       NMP::endianSwap(m_nodeEventOnExitMessages[i].m_nodeEventMessage.m_msgID);
     }
-  }
-
-  // State machine state to state ID mapping table
-  if (m_stateMachineStateIDStringTable)
-  {
-    REFIX_SWAP_PTR(NMP::IDMappedStringTable, m_stateMachineStateIDStringTable);
-    m_stateMachineStateIDStringTable->locate();
-  }
-
-  // NodeID to Node name mapping table
-  if (m_nodeIDNamesTable)
-  {
-    REFIX_SWAP_PTR(NMP::IDMappedStringTable, m_nodeIDNamesTable);
-    m_nodeIDNamesTable->locate();
-  }
-
-  // RequestID to Request name mapping table
-  if (m_messageIDNamesTable)
-  {
-    REFIX_SWAP_PTR(NMP::OrderedStringTable, m_messageIDNamesTable);
-    m_messageIDNamesTable->locate();
-  }
-
-  // Mapping table between event track names and runtime IDs
-  if (m_eventTrackIDNamesTable)
-  {
-    REFIX_SWAP_PTR(NMP::OrderedStringTable, m_eventTrackIDNamesTable);
-    m_eventTrackIDNamesTable->locate();
-  }
-
-  // MessageDistributors
-  REFIX_SWAP_PTR(MessageDistributor*, m_messageDistributors);
-  for (uint32_t i = 0; i < m_numMessageDistributors; ++i)
-  {
-    // message ids can be sparse so this array may have gaps
-    if (m_messageDistributors[i])
-    {
-      REFIX_SWAP_PTR(MessageDistributor, m_messageDistributors[i]);
-      m_messageDistributors[i]->locate();
-    }
-  }
-
-  if (m_tagTable)
-  {
-    REFIX_SWAP_PTR(NodeTagTable, m_tagTable);
-    m_tagTable->locate();
   }
 
   REFIX_SWAP_PTR(uint32_t*, m_rigToUberrigMaps);
