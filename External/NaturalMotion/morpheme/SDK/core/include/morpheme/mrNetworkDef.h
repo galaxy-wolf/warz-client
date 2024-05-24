@@ -162,6 +162,23 @@ public:
     }
 };
 
+struct SomeStringStruct
+{
+    uint32_t* id_list;
+    uint32_t* string_offset;
+    const char* string;
+    uint32_t id_count;
+    uint32_t string_count;
+    uint32_t string_len;
+
+    void locate()
+    {
+        REFIX_SWAP_PTR(uint32_t, id_list);
+        REFIX_SWAP_PTR(uint32_t, string_offset);
+        REFIX_SWAP_PTR(char, string);
+    }
+};
+
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \class MR::NetworkDef
@@ -472,7 +489,7 @@ protected:
 
   NodeIDsArray*             m_stateMachineNodeIDs;  // Good     ///< Array of all state machine node IDs
 
-  void* unknown_ptr1;  //??? 这个可以猜出来， 先跳过。
+  SomeStringStruct* some_string_struct;  // Good
 
   NodeIDsArray*             m_messageEmitterNodeIDs;  // Good   ///< Array of all request emitter node IDs, listed in emission processing order.
                                                         ///<  Every node that has "NodeEmitsRequests" in its manifest file 

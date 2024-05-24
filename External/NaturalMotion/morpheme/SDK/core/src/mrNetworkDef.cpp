@@ -483,9 +483,18 @@ void NetworkDef::locate()
             network_misc_file << std::endl;
         }
 
-        if (unknown_ptr1)
+        if (some_string_struct)
         { 
-            REFIX_SWAP_PTR(void, unknown_ptr1);
+            REFIX_SWAP_PTR(SomeStringStruct, some_string_struct);
+            some_string_struct->locate();
+            network_misc_file << "some_string_struct" << std::endl;
+            network_misc_file << some_string_struct->id_count << std::endl;
+            for (int i = 0; i < some_string_struct->id_count; ++i)
+                network_misc_file << some_string_struct->id_list[i] << std::endl;
+            network_misc_file << some_string_struct->string_count << std::endl;
+            for (int i = 0; i < some_string_struct->string_count; ++i)
+                network_misc_file << some_string_struct->string + some_string_struct->string_offset[i] << std::endl;
+            network_misc_file << std::endl;
         }
 
 
