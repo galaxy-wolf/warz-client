@@ -308,6 +308,15 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
   condition_file << std::endl;
 }
 
+auto output_vector3 = [](std::ofstream& os, const NMP::Vector3& v)
+	{
+		os << v.x << ", " << v.y << ", " << v.z << std::endl;
+	};
+auto output_quat = [](std::ofstream& os, const NMP::Quat& q)
+	{
+		os << q.x << ", " << q.y << ", " << q.z << ", " << q.w << std::endl;
+	};
+
 void output_AttribDataBool_0(std::ofstream& os, AttribData* data)
 {
     AttribDataBool* d = (AttribDataBool*)data;
@@ -356,18 +365,10 @@ void output_AttribDataSourceAnim_23(std::ofstream& os, AttribData* data)
 {
     AttribDataSourceAnim * d = (AttribDataSourceAnim*)data;
 
-    auto output_vector3 = [&os](const NMP::Vector3& v)
-        {
-            os << v.x << ", " << v.y << ", " << v.z << std::endl;
-        };
-    auto output_quat = [&os](const NMP::Quat& q)
-        {
-            os << q.x << ", " << q.y << ", " << q.z << ", " << q.w << std::endl;
-        };
-    output_vector3(d->m_transformAtStartPos);
-    output_quat(d->m_transformAtStartQuat);
-    output_vector3(d->m_transformAtEndPos);
-    output_quat(d->m_transformAtEndQuat);
+    output_vector3(os, d->m_transformAtStartPos);
+    output_quat(os, d->m_transformAtStartQuat);
+    output_vector3(os, d->m_transformAtEndPos);
+    output_quat(os, d->m_transformAtEndQuat);
 
     os << d->m_animAssetID << std::endl;
 
@@ -397,6 +398,48 @@ void output_AttribDataSourceEventTracks_25(std::ofstream& os, AttribData* data)
     output_uint32_vector(d->m_numDurEventTracks, d->m_sourceDurEventTracks);
     output_uint32_vector(d->m_numCurveEventTracks, d->m_sourceCurveEventTracks);
 }
+
+void output_AttribDataClosestAnimDef_39(std::ofstream& os, AttribData* data)
+{
+    AttribDataClosestAnimDef* d = (AttribDataClosestAnimDef*)(data);
+    output_vector3(os, d->m_rootRotationAxis);
+    output_quat(os, d->m_upAlignAtt);
+    os << d->m_useRootRotationBlending << std::endl;
+    os << d->m_fractionThroughSource << std::endl;
+    os << d->m_maxRootRotationAngle << std::endl;
+
+    os << d->m_numAnimJoints << std::endl;
+    os << d->m_precomputeSourcesOffline << std::endl;
+    os << d->m_useVelocity << std::endl;
+    os << d->m_Unknown1 << std::endl;
+    os << d->m_positionScaleFactor << std::endl;
+    os << d->m_orientationScaleFactor << std::endl;
+    os << d->m_influenceBetweenPosAndOrient << std::endl;
+
+    os << d->m_numSources << std::endl;
+    os << d->m_numDescendants << std::endl;
+    for (int i = 0; i < d->m_numDescendants; ++i)
+    {
+        os << d->m_descendantIDs[i] << std::endl;
+    }
+}
+
+void output_AttribDataClosestAnimDefAnimSet_40(std::ofstream& os, AttribData* data)
+{
+    AttribDataClosestAnimDefAnimSet* d = (AttribDataClosestAnimDefAnimSet*)data;
+    os << d->m_numAnimWeights << std::endl;
+    for (int i=0; i< d->m_numAnimWeights; ++i)
+		os << d->m_weights[i] << std::endl;
+
+    os << d->m_numEntries << std::endl;
+    for (int i = 0; i < d->m_numEntries; ++i)
+        os << d->m_animChannels[i] << std::endl;
+    
+    os << d->m_numEntries << std::endl;
+    for (int i = 0; i < d->m_numEntries; ++i)
+        os << d->m_rigChannels[i] << std::endl;
+}
+
 void output_AttribDataBlendFlags_116(std::ofstream& os, AttribData* data)
 {
     AttribDataBlendFlags* d = (AttribDataBlendFlags*)data;
@@ -800,6 +843,14 @@ void NetworkDef::locate()
                   else if (type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS) //25)
                   {
                       output_AttribDataSourceEventTracks_25(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_CLOSEST_ANIM_DEF) //39)
+                  {
+                      output_AttribDataClosestAnimDef_39(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_CLOSEST_ANIM_DEF_ANIM_SET) //40)
+                  {
+				      output_AttribDataClosestAnimDefAnimSet_40(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
                   else if (type == ATTRIB_TYPE_BLEND_FLAGS) //116)
                   {

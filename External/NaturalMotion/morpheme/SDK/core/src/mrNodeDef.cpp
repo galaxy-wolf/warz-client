@@ -323,7 +323,9 @@ void NodeDef::zhaoqi_locate()
             type == ATTRIB_TYPE_SOURCE_EVENT_TRACKS ||
             type == ATTRIB_TYPE_STATE_MACHINE_DEF ||
             type == ATTRIB_TYPE_TRANSIT_DEF || 
-            type == ATTRIB_TYPE_FLOAT_ARRAY
+            type == ATTRIB_TYPE_FLOAT_ARRAY || 
+            type == ATTRIB_TYPE_CLOSEST_ANIM_DEF || 
+            type == ATTRIB_TYPE_CLOSEST_ANIM_DEF_ANIM_SET
             ))
             continue;
         MR::AttribLocateFn locateFn = manager.getAttribLocateFn(type);
