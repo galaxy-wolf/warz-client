@@ -399,6 +399,42 @@ void output_AttribDataSourceEventTracks_25(std::ofstream& os, AttribData* data)
     output_uint32_vector(d->m_numCurveEventTracks, d->m_sourceCurveEventTracks);
 }
 
+auto output_CompressedDataBufferQuat= [](std::ofstream& os, MR::CompressedDataBufferQuat* data)
+    {
+        os << (data != nullptr) << std::endl;
+        if (!data)
+            return;
+		// 256 个骨骼， 应该超不了。
+        NMP_ASSERT(data->m_length < 256);
+		NMP::Quat q_list[256];
+		data->decode(q_list);
+        os << data->m_length << std::endl;
+        for (int i = 0; i < data->m_length; ++i)
+            output_quat(os, q_list[i]);
+    };
+
+auto output_CompressedDataBufferVector3 = [](std::ofstream& os, MR::CompressedDataBufferVector3* data)
+    {
+        os << (data != nullptr) << std::endl;
+        if (!data)
+            return;
+        NMP_ASSERT(data->m_length < 256);
+		// 256 个骨骼， 应该超不了。
+		NMP::Vector3 v_list[256];
+		data->decode(v_list);
+        os << data->m_length << std::endl;
+        for (int i = 0; i < data->m_length; ++i)
+            output_vector3(os, v_list[i]);
+    };
+
+auto output_ClosestAnimSourceData = [](std::ofstream& os, AttribDataClosestAnimDef::ClosestAnimSourceData* data)
+    {
+        output_CompressedDataBufferVector3(os, data->m_sourceTransformsPos);
+        output_CompressedDataBufferQuat(os, data->m_sourceTransformsAtt);
+        output_CompressedDataBufferVector3(os, data->m_sourceTransformsPosVel);
+        output_CompressedDataBufferVector3(os, data->m_sourceTransformsAngVel);
+    };
+
 void output_AttribDataClosestAnimDef_39(std::ofstream& os, AttribData* data)
 {
     AttribDataClosestAnimDef* d = (AttribDataClosestAnimDef*)(data);
@@ -417,6 +453,14 @@ void output_AttribDataClosestAnimDef_39(std::ofstream& os, AttribData* data)
     os << d->m_influenceBetweenPosAndOrient << std::endl;
 
     os << d->m_numSources << std::endl;
+    if (d->m_precomputeSourcesOffline)
+    {
+        for (int i = 0; i < d->m_numSources; ++i)
+        {
+            AttribDataClosestAnimDef::ClosestAnimSourceData* source_data = d->m_sourceDataArray[i];
+            output_ClosestAnimSourceData(os, source_data);
+        }
+    }
     os << d->m_numDescendants << std::endl;
     for (int i = 0; i < d->m_numDescendants; ++i)
     {

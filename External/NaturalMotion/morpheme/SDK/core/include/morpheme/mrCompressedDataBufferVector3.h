@@ -55,7 +55,7 @@ public:
   /// as 4-vectors of X, Y, Z and W components
   void decodeMP(NMP::Vector3* dataBuffer) const;
 
-protected:
+public:
   CompressedDataBufferVector3();
   ~CompressedDataBufferVector3();
 

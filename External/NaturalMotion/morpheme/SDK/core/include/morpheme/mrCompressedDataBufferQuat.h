@@ -50,7 +50,7 @@ public:
   /// as 4-vectors of X, Y, Z and W components
   void decodeMP(NMP::Quat* dataBuffer) const;
 
-protected:
+public:
   CompressedDataBufferQuat();
   ~CompressedDataBufferQuat();
   
