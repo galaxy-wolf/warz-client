@@ -384,7 +384,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
   size_t size;
 
   std::ofstream myfile;
-  myfile.open("F:/horizon_files/morpheme_events.txt");
+  myfile.open("F:/horizon_files/civillian/morpheme_events.txt");
 
   while (bundleReader.readNextAsset(unkown1, unkown2, HZDasset, size))
   {

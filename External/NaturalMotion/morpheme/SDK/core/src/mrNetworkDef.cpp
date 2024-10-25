@@ -37,6 +37,8 @@
 #include <stdio.h>
 //----------------------------------------------------------------------------------------------------------------------
 
+std::string k_base_path = "F:/horizon_files/civillian/";
+
 namespace MR
 {
 
@@ -513,7 +515,7 @@ void NetworkDef::locate()
 
     // Locate the semantic lookup tables. They are used when locating the nodes.
     std::ofstream semantic_lookup_table_file;
-    semantic_lookup_table_file.open("F:/horizon_files/semantic_lookup_table.txt");
+    semantic_lookup_table_file.open(k_base_path + "semantic_lookup_table.txt");
 
     NMP::endianSwap(m_numSemanticLookupTables);
     semantic_lookup_table_file << m_numSemanticLookupTables << std::endl;
@@ -538,7 +540,7 @@ void NetworkDef::locate()
     // misc in network.
     {
         std::ofstream network_misc_file;
-        network_misc_file.open("F:/horizon_files/network_misc_file.txt");
+        network_misc_file.open(k_base_path + "network_misc_file.txt");
 
 	    // Output control parameter Node IDs and semantics
         if (m_emittedControlParamsInfo)
@@ -785,19 +787,19 @@ void NetworkDef::locate()
   
   // NodeDefs
   std::ofstream myfile;
-  myfile.open("F:/horizon_files/morpheme_graph.txt");
+  myfile.open(k_base_path + "morpheme_graph.txt");
   std::ofstream state_machine_file;  // 这个是为了方便阅读。
-  state_machine_file.open("F:/horizon_files/state_machine.txt");
+  state_machine_file.open(k_base_path + "state_machine.txt");
   std::ofstream state_machine_raw;  // 这个是为了加载到python
-  state_machine_raw.open("F:/horizon_files/state_machine_raw.txt");
+  state_machine_raw.open(k_base_path + "state_machine_raw.txt");
   std::ofstream attrib_type_file;
-  attrib_type_file.open("F:/horizon_files/attrib_type.txt");
+  attrib_type_file.open(k_base_path + "attrib_type.txt");
   std::ofstream condition_file;
-  condition_file.open("F:/horizon_files/conditions.txt");
+  condition_file.open(k_base_path + "conditions.txt");
   std::ofstream transition_def_file;
-  transition_def_file.open("F:/horizon_files/transition_def.txt");
+  transition_def_file.open(k_base_path + "transition_def.txt");
   std::ofstream all_attri_data_file;
-  all_attri_data_file.open("F:/horizon_files/all_attri_data_file.txt");
+  all_attri_data_file.open(k_base_path + "all_attri_data_file.txt");
 
   std::set<int> all_condition_types;
 

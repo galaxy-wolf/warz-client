@@ -44,7 +44,7 @@ int main(int NMP_UNUSED(argc), char** NMP_UNUSED(argv))
   // NETWORK_DEF_BUNDLE_NAME and use that information to apply to the character definition instance.
   NMP_STDOUT("\nCreating GameCharacterDef:");
   // Game::CharacterDefBasic* gameCharacterDef = characterManager.createCharacterDef(NETWORK_DEF_BUNDLE_NAME);
-  Game::HZDCharacterDef* gameCharacterDef = characterManager.createHZDCharacterDef("F:/horizon_files/maincharacter.core");
+  Game::HZDCharacterDef* gameCharacterDef = characterManager.createHZDCharacterDef("F:/horizon_files/civillian/civillian.core");
   if(!gameCharacterDef)
   {
     NMP_STDOUT("\nError: Failed to create Game Character Definition");
