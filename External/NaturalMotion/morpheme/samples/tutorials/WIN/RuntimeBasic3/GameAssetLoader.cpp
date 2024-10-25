@@ -402,7 +402,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
 
           // 导出文本文件。
           std::ofstream animfile;
-          std::string path = "F:/horizon_files/aloy_animations/";
+          std::string path = "F:/horizon_files/civillian/animations/";
           path = path + std::to_string(anim_asset_id) + ".txt";
           animfile.open(path);
           animfile << nsa_anim->m_duration << std::endl;
