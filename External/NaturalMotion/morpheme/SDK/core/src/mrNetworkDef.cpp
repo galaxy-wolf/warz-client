@@ -151,7 +151,7 @@ void NetworkDef::locate()
   
   // NodeDefs
   std::ofstream myfile;
-  myfile.open("F:/horizon_files/morpheme_graph.txt");
+  myfile.open("F:/horizon_files/database/aloy/graph/morpheme_graph.txt");
 
   myfile << m_numNodes << std::endl;
   REFIX_SWAP_PTR(NodeDef*, m_nodes);

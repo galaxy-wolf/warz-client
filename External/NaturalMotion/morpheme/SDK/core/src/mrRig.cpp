@@ -42,7 +42,7 @@ bool AnimRigDef::locate()
   // 输出到文件中。
 
   std::ofstream myfile;
-  myfile.open("F:/horizon_files/rigdefine.txt");
+  myfile.open("F:/horizon_files/database/aloy/graph/rigdefine.txt");
   myfile << m_trajectoryBoneIndex << std::endl;
   myfile << m_characterRootBoneIndex << std::endl;
   myfile << std::endl;
