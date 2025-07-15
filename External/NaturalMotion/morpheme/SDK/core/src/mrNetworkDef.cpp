@@ -40,6 +40,9 @@
 namespace MR
 {
 
+const std::string root_folder = "F:/horizon_files/database/aloy/graph/";
+#define ZQOUTPUT(s) (root_folder + s).c_str()
+
 //----------------------------------------------------------------------------------------------------------------------
 // MR::NodeInitData functions.
 //----------------------------------------------------------------------------------------------------------------------
@@ -513,7 +516,7 @@ void NetworkDef::locate()
 
     // Locate the semantic lookup tables. They are used when locating the nodes.
     std::ofstream semantic_lookup_table_file;
-    semantic_lookup_table_file.open("F:/horizon_files/semantic_lookup_table.txt");
+    semantic_lookup_table_file.open(ZQOUTPUT("semantic_lookup_table.txt"));
 
     NMP::endianSwap(m_numSemanticLookupTables);
     semantic_lookup_table_file << m_numSemanticLookupTables << std::endl;
@@ -538,7 +541,7 @@ void NetworkDef::locate()
     // misc in network.
     {
         std::ofstream network_misc_file;
-        network_misc_file.open("F:/horizon_files/network_misc_file.txt");
+        network_misc_file.open(ZQOUTPUT("network_misc_file.txt"));
 
 	    // Output control parameter Node IDs and semantics
         if (m_emittedControlParamsInfo)
@@ -785,19 +788,19 @@ void NetworkDef::locate()
   
   // NodeDefs
   std::ofstream myfile;
-  myfile.open("F:/horizon_files/morpheme_graph.txt");
+  myfile.open(ZQOUTPUT("morpheme_graph.txt"));
   std::ofstream state_machine_file;  // 这个是为了方便阅读。
-  state_machine_file.open("F:/horizon_files/state_machine.txt");
+  state_machine_file.open(ZQOUTPUT("state_machine.txt"));
   std::ofstream state_machine_raw;  // 这个是为了加载到python
-  state_machine_raw.open("F:/horizon_files/state_machine_raw.txt");
+  state_machine_raw.open(ZQOUTPUT("state_machine_raw.txt"));
   std::ofstream attrib_type_file;
-  attrib_type_file.open("F:/horizon_files/attrib_type.txt");
+  attrib_type_file.open(ZQOUTPUT("attrib_type.txt"));
   std::ofstream condition_file;
-  condition_file.open("F:/horizon_files/conditions.txt");
+  condition_file.open(ZQOUTPUT("conditions.txt"));
   std::ofstream transition_def_file;
-  transition_def_file.open("F:/horizon_files/transition_def.txt");
+  transition_def_file.open(ZQOUTPUT("transition_def.txt"));
   std::ofstream all_attri_data_file;
-  all_attri_data_file.open("F:/horizon_files/all_attri_data_file.txt");
+  all_attri_data_file.open(ZQOUTPUT("all_attri_data_file.txt"));
 
   std::set<int> all_condition_types;
 
