@@ -44,7 +44,11 @@ int main(int NMP_UNUSED(argc), char** NMP_UNUSED(argv))
   // NETWORK_DEF_BUNDLE_NAME and use that information to apply to the character definition instance.
   NMP_STDOUT("\nCreating GameCharacterDef:");
   // Game::CharacterDefBasic* gameCharacterDef = characterManager.createCharacterDef(NETWORK_DEF_BUNDLE_NAME);
-  Game::HZDCharacterDef* gameCharacterDef = characterManager.createHZDCharacterDef("F:/horizon_files/database/aloy/core/maincharacter.core");
+  char core_filepath[1024];
+  NMP_STDOUT("\nplease input core file path:")
+  scanf("%s", &core_filepath[0]);
+  NMP_STDOUT("\ncore file path is:%s", core_filepath);
+  Game::HZDCharacterDef* gameCharacterDef = characterManager.createHZDCharacterDef(core_filepath);
   if(!gameCharacterDef)
   {
     NMP_STDOUT("\nError: Failed to create Game Character Definition");

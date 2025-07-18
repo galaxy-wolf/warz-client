@@ -345,6 +345,11 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
   size_t anim_type_ok_count = 0;
   size_t anim_asset_id = 2;
 
+  NMP_STDOUT("\nplease input output path:")
+  char output_path[1024];
+  scanf("%s", &output_path[0]);
+  NMP_STDOUT("\noutput path is: %s", output_path)
+
   while (bundleReader.readNextAsset(unkown1, unkown2, asset, size))
   {
       uint8_t * bytes = (uint8_t*)asset;
@@ -402,8 +407,8 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
 
           // 导出文本文件。
           std::ofstream animfile;
-          std::string path = "F:/horizon_files/database/aloy/animations/";
-          path = path + std::to_string(anim_asset_id) + ".txt";
+		  std::string path(output_path);
+          path = path + "\\" + std::to_string(anim_asset_id) + ".txt";
           animfile.open(path);
           animfile << nsa_anim->m_duration << std::endl;
           animfile << nsa_anim->m_sampleFrequency << std::endl;
@@ -639,7 +644,9 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
               }
               // NMP_STDOUT("%d", c);
           }
-          for (int i = 0; i < 82; ++i)
+          // todo: 这个检查会漏一个吗？
+          int max_num = std::max(nsa_anim->m_unchangingData->m_unchangingPosNumChannels, nsa_anim->m_unchangingData->m_unchangingQuatNumChannels);
+          for (int i = 0; i < max_num; ++i)
           {
               if (channel_to_map_id[i] == 0)
               {
