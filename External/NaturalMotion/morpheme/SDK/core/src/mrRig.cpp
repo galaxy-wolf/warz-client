@@ -77,6 +77,8 @@ bool AnimRigDef::locate()
   }
 
   myfile.close();
+  NMP_STDOUT("rigfile output done!");
+  scanf("please close");
   return true;
 
   REFIX_SWAP_PTR(AttribDataTransformBuffer, m_bindPose);

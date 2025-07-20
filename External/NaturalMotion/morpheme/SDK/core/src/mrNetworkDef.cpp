@@ -150,48 +150,48 @@ void NetworkDef::locate()
   //}
   
   // NodeDefs
-  std::ofstream myfile;
-  myfile.open("F:/horizon_files/database/aloy/graph/morpheme_graph.txt");
+  //std::ofstream myfile;
+  //myfile.open("F:/horizon_files/database/aloy/graph/morpheme_graph.txt");
 
-  myfile << m_numNodes << std::endl;
-  REFIX_SWAP_PTR(NodeDef*, m_nodes);
-  for (uint32_t i = 0; i < m_numNodes; ++i)
-  {
-      REFIX_SWAP_PTR(NodeDef, m_nodes[i]);
-      // m_nodes[i]->locate(this); // Fixes up the task function tables
-      m_nodes[i]->zhaoqi_locate();
+  //myfile << m_numNodes << std::endl;
+  //REFIX_SWAP_PTR(NodeDef*, m_nodes);
+  //for (uint32_t i = 0; i < m_numNodes; ++i)
+  //{
+  //    REFIX_SWAP_PTR(NodeDef, m_nodes[i]);
+  //    // m_nodes[i]->locate(this); // Fixes up the task function tables
+  //    m_nodes[i]->zhaoqi_locate();
 
-      NodeDef* n = m_nodes[i];
-      myfile << n->getNodeID() << std::endl;
-      myfile << n->getParentNodeID() << std::endl;
-      myfile << n->getNodeTypeID() << std::endl;
-      myfile << n->getNodeFlags() << std::endl;
-      myfile << n->getNodeFlagsHigher() << std::endl;
-      myfile << n->getNumChildNodes() << std::endl;
-      NMP_STDOUT("%d : node id %d \n"\
-          "     node type %d\n"\
-          "     parent id %d child number: %d", i, n->getNodeID(), n->getNodeTypeID(), n->getParentNodeID(), n->getNumChildNodes());
-      for (uint32_t c = 0; c < n->getNumChildNodes(); ++c)
-      {
-          NMP_STDOUT("            %d", n->getChildNodeID(c));
-          myfile << n->getChildNodeID(c) << std::endl;
-      }
-      myfile << (int32_t)(n->getNumInputCPConnections()) << std::endl;
-      myfile << (int32_t)(n->getNumOutputCPPins()) << std::endl;
-      NMP_STDOUT("      input num: %d, output num %d", n->getNumInputCPConnections(), n->getNumOutputCPPins());
-      for (uint32_t c = 0; c < n->getNumInputCPConnections(); ++c)
-      {
-          const CPConnection*input = n->getInputCPConnection(c);
-          NMP_STDOUT("            %d : %d", input->m_sourceNodeID, input->m_sourcePinIndex);
-          myfile << input->m_sourceNodeID << std::endl;
-          myfile << input->m_sourcePinIndex << std::endl;
-      }
-	  myfile << std::endl;
-               
-      NMP_STDOUT("");
-  }
-  myfile << "hello" << std::endl;
-  myfile.close();
+  //    NodeDef* n = m_nodes[i];
+  //    myfile << n->getNodeID() << std::endl;
+  //    myfile << n->getParentNodeID() << std::endl;
+  //    myfile << n->getNodeTypeID() << std::endl;
+  //    myfile << n->getNodeFlags() << std::endl;
+  //    myfile << n->getNodeFlagsHigher() << std::endl;
+  //    myfile << n->getNumChildNodes() << std::endl;
+  //    NMP_STDOUT("%d : node id %d \n"\
+  //        "     node type %d\n"\
+  //        "     parent id %d child number: %d", i, n->getNodeID(), n->getNodeTypeID(), n->getParentNodeID(), n->getNumChildNodes());
+  //    for (uint32_t c = 0; c < n->getNumChildNodes(); ++c)
+  //    {
+  //        NMP_STDOUT("            %d", n->getChildNodeID(c));
+  //        myfile << n->getChildNodeID(c) << std::endl;
+  //    }
+  //    myfile << (int32_t)(n->getNumInputCPConnections()) << std::endl;
+  //    myfile << (int32_t)(n->getNumOutputCPPins()) << std::endl;
+  //    NMP_STDOUT("      input num: %d, output num %d", n->getNumInputCPConnections(), n->getNumOutputCPPins());
+  //    for (uint32_t c = 0; c < n->getNumInputCPConnections(); ++c)
+  //    {
+  //        const CPConnection*input = n->getInputCPConnection(c);
+  //        NMP_STDOUT("            %d : %d", input->m_sourceNodeID, input->m_sourcePinIndex);
+  //        myfile << input->m_sourceNodeID << std::endl;
+  //        myfile << input->m_sourcePinIndex << std::endl;
+  //    }
+	 // myfile << std::endl;
+  //             
+  //    NMP_STDOUT("");
+  //}
+  //myfile << "hello" << std::endl;
+  //myfile.close();
 
   // Output control parameter Node IDs and semantics
   if (m_emittedControlParamsInfo)
