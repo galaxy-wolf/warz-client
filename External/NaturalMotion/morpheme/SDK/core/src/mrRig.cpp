@@ -22,6 +22,8 @@
 
 namespace MR
 {
+    // zhaoqi: maybe there is multi rig define, export first one!!!!
+    static bool is_rig_export = false;
 
 #ifndef NM_HOST_CELL_SPU
 //----------------------------------------------------------------------------------------------------------------------
@@ -40,6 +42,9 @@ bool AnimRigDef::locate()
   REFIX_SWAP_PTR(TPoseHeader, m_t_pose_header);
   m_t_pose_header->locate();
   // 输出到文件中。
+  if (is_rig_export)
+      return true;
+  is_rig_export = true;
 
   std::ofstream myfile;
   myfile.open("F:/horizon_files/database/aloy/graph/rigdefine.txt");
