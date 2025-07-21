@@ -20,6 +20,8 @@
 #endif // NM_HOST_CELL_SPU
 //----------------------------------------------------------------------------------------------------------------------
 
+extern std::string core_file_path;
+extern std::string graph_base_path;
 namespace MR
 {
     // zhaoqi: maybe there is multi rig define, export first one!!!!
@@ -47,7 +49,9 @@ bool AnimRigDef::locate()
   is_rig_export = true;
 
   std::ofstream myfile;
-  myfile.open("F:/horizon_files/database/aloy/graph/rigdefine.txt");
+  std::string rigdefine_path(graph_base_path);
+  rigdefine_path += "/rigdefine.txt";
+  myfile.open(rigdefine_path);
   myfile << m_trajectoryBoneIndex << std::endl;
   myfile << m_characterRootBoneIndex << std::endl;
   myfile << std::endl;
