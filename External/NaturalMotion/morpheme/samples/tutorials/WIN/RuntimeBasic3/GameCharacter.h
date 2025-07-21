@@ -18,7 +18,50 @@
 #include "morpheme/mrDispatcher.h"
 #include "GameCharacterController.h"
 #include "GameCharacterDef.h"
+#include <string>
 //----------------------------------------------------------------------------------------------------------------------
+
+
+#ifndef ZQ_PATH_DEF
+#define ZQ_PATH_DEF
+extern std::string core_file_path;
+extern std::string graph_base_path;
+
+inline void auto_set_graph_base_path_by_core_file_path()
+{
+    if (core_file_path.empty())
+        return;
+    size_t pos = core_file_path.rfind("/core/");
+    
+    if (pos == std::string::npos)
+    {
+		pos = core_file_path.rfind("\\core\\");
+    }
+    if (pos == std::string::npos)
+    {
+        NMP_STDOUT("\nError: can not get graph path: '/core/' or '\\core\\' not found in core file %s", core_file_path.c_str());
+        return;
+    }
+
+    graph_base_path = core_file_path.substr(0, pos) + "/graph/";
+	NMP_STDOUT("\n base path is %s", graph_base_path.c_str());
+
+}
+
+
+inline void try_read_core_file_path()
+{
+    if (!core_file_path.empty())
+        return;
+    char buff[1024];
+    NMP_STDOUT("\nplease input core file path:")
+    scanf("%s", &buff[0]);
+    core_file_path = buff;
+    NMP_STDOUT("\ncore file path is:%s", core_file_path.c_str());
+    auto_set_graph_base_path_by_core_file_path();
+}
+#endif //ZQ_PATH_DEF 
+
 
 namespace Game
 {

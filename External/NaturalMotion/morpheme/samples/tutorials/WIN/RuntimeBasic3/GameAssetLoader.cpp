@@ -17,6 +17,9 @@
 #include "simpleBundle/simpleBundle.h"
 //----------------------------------------------------------------------------------------------------------------------
 
+extern std::string core_file_path;
+extern std::string graph_base_path;
+
 namespace Game
 {
 void AssetLoaderBasic::ParseCoreFile(
@@ -384,7 +387,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
   size_t size;
 
   std::ofstream myfile;
-  myfile.open("F:/horizon_files/database/aloy/graph/morpheme_events.txt");
+  myfile.open(graph_base_path + "morpheme_events.txt");
 
   while (bundleReader.readNextAsset(unkown1, unkown2, HZDasset, size))
   {

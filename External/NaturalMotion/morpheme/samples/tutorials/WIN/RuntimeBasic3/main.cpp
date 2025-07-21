@@ -13,6 +13,9 @@
 #include "GameCharacter.h"
 #include "GameCharacterDef.h"
 
+std::string core_file_path;
+std::string graph_base_path;
+
 #define ASSETLOCATION "./ProjectData/" PLATFORMDIR
 #define NETWORK_DEF_BUNDLE_NAME ASSETLOCATION "/Network_RuntimeBasic3.nmb"
 
@@ -44,7 +47,8 @@ int main(int NMP_UNUSED(argc), char** NMP_UNUSED(argv))
   // NETWORK_DEF_BUNDLE_NAME and use that information to apply to the character definition instance.
   NMP_STDOUT("\nCreating GameCharacterDef:");
   // Game::CharacterDefBasic* gameCharacterDef = characterManager.createCharacterDef(NETWORK_DEF_BUNDLE_NAME);
-  Game::HZDCharacterDef* gameCharacterDef = characterManager.createHZDCharacterDef("F:/horizon_files/database/aloy/core/maincharacter.core");
+  try_read_core_file_path();
+  Game::HZDCharacterDef* gameCharacterDef = characterManager.createHZDCharacterDef(core_file_path.c_str());
   if(!gameCharacterDef)
   {
     NMP_STDOUT("\nError: Failed to create Game Character Definition");

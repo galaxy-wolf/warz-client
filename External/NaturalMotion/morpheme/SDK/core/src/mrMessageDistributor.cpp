@@ -82,7 +82,7 @@ void MessageDistributor::locate()
   NMP::endianSwap(m_messageID);
   NMP::endianSwap(m_numNodeIDs);
 
-  if (m_nodeIDs)
+ if (m_nodeIDs)
   {
     REFIX_SWAP_PTR(NodeID, m_nodeIDs);
     NMP::endianSwapArray(m_nodeIDs, m_numNodeIDs);

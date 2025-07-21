@@ -37,11 +37,12 @@
 #include <stdio.h>
 //----------------------------------------------------------------------------------------------------------------------
 
+extern std::string core_file_path;
+extern std::string graph_base_path;
 namespace MR
 {
 
-const std::string root_folder = "F:/horizon_files/database/aloy/graph/";
-#define ZQOUTPUT(s) (root_folder + s).c_str()
+#define ZQOUTPUT(s) (graph_base_path+ s).c_str()
 
 //----------------------------------------------------------------------------------------------------------------------
 // MR::NodeInitData functions.
