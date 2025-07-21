@@ -12,6 +12,7 @@
 #include "GameCharacterManager.h"
 #include "GameCharacter.h"
 #include "GameCharacterDef.h"
+#include "GameAssetLoader.h"
 
 #define ASSETLOCATION "./ProjectData/" PLATFORMDIR
 #define NETWORK_DEF_BUNDLE_NAME ASSETLOCATION "/Network_RuntimeBasic3.nmb"
@@ -42,13 +43,10 @@ int main(int NMP_UNUSED(argc), char** NMP_UNUSED(argv))
   // We also need an instance of a Game::CharacterDef that will be initialised with the binary asset data. Using the
   // CharacterManager manager class we will initialise our CharacterDef. This will load the file found at  
   // NETWORK_DEF_BUNDLE_NAME and use that information to apply to the character definition instance.
+  try_read_core_file_path();
   NMP_STDOUT("\nCreating GameCharacterDef:");
   // Game::CharacterDefBasic* gameCharacterDef = characterManager.createCharacterDef(NETWORK_DEF_BUNDLE_NAME);
-  char core_filepath[1024];
-  NMP_STDOUT("\nplease input core file path:")
-  scanf("%s", &core_filepath[0]);
-  NMP_STDOUT("\ncore file path is:%s", core_filepath);
-  Game::HZDCharacterDef* gameCharacterDef = characterManager.createHZDCharacterDef(core_filepath);
+  Game::HZDCharacterDef* gameCharacterDef = characterManager.createHZDCharacterDef(core_file_path.c_str());
   if(!gameCharacterDef)
   {
     NMP_STDOUT("\nError: Failed to create Game Character Definition");

@@ -20,6 +20,9 @@
 #include <set>
 //----------------------------------------------------------------------------------------------------------------------
 
+std::string core_file_path;
+std::string animation_base_path;
+
 namespace Game
 {
 void AssetLoaderBasic::ParseCoreFile(
@@ -345,11 +348,6 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
   size_t anim_type_ok_count = 0;
   size_t anim_asset_id = 2;
 
-  NMP_STDOUT("\nplease input output path:")
-  char output_path[1024];
-  scanf("%s", &output_path[0]);
-  NMP_STDOUT("\noutput path is: %s", output_path)
-
   while (bundleReader.readNextAsset(unkown1, unkown2, asset, size))
   {
       uint8_t * bytes = (uint8_t*)asset;
@@ -407,7 +405,7 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
 
           // 导出文本文件。
           std::ofstream animfile;
-		  std::string path(output_path);
+		  std::string path(animation_base_path);
           path = path + "\\" + std::to_string(anim_asset_id) + ".txt";
           animfile.open(path);
           animfile << nsa_anim->m_duration << std::endl;
