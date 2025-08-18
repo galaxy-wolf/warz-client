@@ -15,13 +15,40 @@
 #ifndef GAME_ASSET_LOADER_H
 #define GAME_ASSET_LOADER_H
 #include <string>
+#include <iostream>
 
 //----------------------------------------------------------------------------------------------------------------------
 #include "GameCharacterDef.h"
 //----------------------------------------------------------------------------------------------------------------------
 
+
 #ifndef ZQ_PATH_DEF
 #define ZQ_PATH_DEF
+
+inline bool createDirectoryIfNotExists(const std::string& dirPath) 
+{
+    // 尝试创建目录
+    DWORD ftyp = GetFileAttributesA(dirPath.c_str());
+
+    // 检查目录是否存在
+    if (ftyp == INVALID_FILE_ATTRIBUTES) 
+    {
+        // 如果不存在，创建目录
+        if (CreateDirectoryA(dirPath.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) {
+            return true; // 目录成功创建或已经存在
+        }
+        else {
+            return false; // 创建目录失败
+        }
+    }
+    else if (ftyp & FILE_ATTRIBUTE_DIRECTORY) {
+        return true; // 目录已经存在
+    }
+    else {
+        return false; // 路径存在但不是目录
+    }
+}
+
 extern std::string core_file_path;
 extern std::string animation_base_path;
 
@@ -42,6 +69,7 @@ inline void auto_set_animation_base_path_by_core_file_path()
     }
 
     animation_base_path = core_file_path.substr(0, pos) + "/animations/";
+    createDirectoryIfNotExists(animation_base_path);
 	NMP_STDOUT("\n animation base path is %s", animation_base_path.c_str());
 
 }
