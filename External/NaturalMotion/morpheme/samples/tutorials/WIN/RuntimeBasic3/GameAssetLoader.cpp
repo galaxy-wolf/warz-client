@@ -308,8 +308,17 @@ void HZDAssetLoader::evalBundleRequirements(
           for (int i = 0; i < nodenameSize; ++i)
           {
               uint32_t nameLength = ((uint32_t*)bytes)[0];
-              //       nameLength          CRC32-C          string
-              bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength;
+
+              if (nameLength > 0)
+              {
+                  //       nameLength          CRC32-C          string
+                  bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength;
+              }
+              else
+              {
+                  //       nameLength
+                  bytes += sizeof(uint32_t);
+              }
           }
 
           // finally found MorphemeAssets
@@ -375,8 +384,15 @@ MR::NetworkDef* HZDAssetLoader::loadBundle(
 		  for (int i = 0; i < nodenameSize; ++i)
 		  {
 			  uint32_t nameLength = ((uint32_t*)bytes)[0];
-			  //       nameLength          CRC32-C          string
-			  bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength;
+              if (nameLength > 0)
+              {
+                  //       nameLength          CRC32-C          string
+                  bytes += sizeof(uint32_t) + sizeof(uint32_t) + nameLength;
+              }
+              else {
+                  //       nameLength     
+                  bytes += sizeof(uint32_t);
+              }
 		  }
 
 		  // finally found MorphemeAssets
