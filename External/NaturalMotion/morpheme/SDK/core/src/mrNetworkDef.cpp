@@ -28,6 +28,7 @@
 #include "morpheme/TransitConditions/mrTransitConditionInSyncEventRange.h"
 #include "morpheme/TransitConditions/mrTransitConditionCrossedDurationFraction.h"
 #include "morpheme/TransitConditions/mrTransitConditionOnMessage.h"
+#include "morpheme/TransitConditions/mrTransitConditionDiscreteEventTriggered.h"
 #include <vector>
 #include <set>
 #include <map>
@@ -211,6 +212,12 @@ void output_condition(std::ofstream& condition_file, TransitConditionDef* condit
 	  condition_file << cd->getCPConnection()->m_sourceNodeID << std::endl;
 	  condition_file << cd->getCPConnection()->m_sourcePinIndex << std::endl;
       condition_file << cd->getTestValue() << std::endl;
+  }
+  else if (tt == TRANSCOND_DISCRETE_EVENT_TRIGGERED_ID)
+  {
+      TransitConditionDefDiscreteEventTriggered* cd = (TransitConditionDefDiscreteEventTriggered*)condition_def;
+      output_attr_address(cd->getSourceNodeSampledEventsAttribAddress());
+      condition_file << cd->getEventUserDataTrigger() << std::endl;
   }
   else if (tt == TRANSCOND_CROSSED_DURATION_FRACTION_ID)
   {
