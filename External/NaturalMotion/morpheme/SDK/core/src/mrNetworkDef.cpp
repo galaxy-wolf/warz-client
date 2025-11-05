@@ -495,6 +495,12 @@ void output_AttribDataClosestAnimDefAnimSet_40(std::ofstream& os, AttribData* da
         os << d->m_rigChannels[i] << std::endl;
 }
 
+void output_AttribDataSwitchDef_71(std::ofstream& os, AttribData* data)
+{
+    AttribDataSwitchDef* d = (AttribDataSwitchDef*)data;
+    os << d->m_evalMode<< std::endl;
+    os << d->m_inputSelectionMethod<< std::endl;
+}
 void output_AttribDataBlendFlags_116(std::ofstream& os, AttribData* data)
 {
     AttribDataBlendFlags* d = (AttribDataBlendFlags*)data;
@@ -906,6 +912,10 @@ void NetworkDef::locate()
                   else if (type == ATTRIB_TYPE_CLOSEST_ANIM_DEF_ANIM_SET) //40)
                   {
 				      output_AttribDataClosestAnimDefAnimSet_40(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
+                  }
+                  else if (type == ATTRIB_TYPE_SWITCH_DEF) //71)
+                  {
+				      output_AttribDataSwitchDef_71(all_attri_data_file, n->m_nodeAttribDataHandles[i].m_attribData);
                   }
                   else if (type == ATTRIB_TYPE_BLEND_FLAGS) //116)
                   {
